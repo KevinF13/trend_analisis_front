@@ -81,19 +81,28 @@ const TrendAnalisis = () => {
 
     const handleDownloadPDF = () => {
         const doc = new jsPDF();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const chartWidth = 180;
+        const chartHeight = 90;
+        const chartX = (doc.internal.pageSize.getWidth() - chartWidth) / 2;
+        let currentY = 20;
 
-        doc.setFontSize(18);
-        doc.text('FARMACID S.A.', 14, 20);
-        doc.text('TREND DE ANALISIS DE PRODUCTO TERMINADO', 50, 30);
+        // Función para agregar los encabezados del documento
+        const addHeader = (doc) => {
+            doc.setFontSize(18);
+            doc.text('FARMACID S.A.', 14, 20);
+            doc.text('TREND DE ANALISIS DE PRODUCTO TERMINADO', 50, 30);
+            doc.addImage('/images/LOGO_FARMACID_SIN_FONDO.png', 'PNG', 14, 25, 30, 15);
+            doc.setFontSize(10);
+            doc.text(`PRODUCTO: ARADOS HCT TAB 100MG/25MG CAJA X30`, 14, 45);
+            doc.text(`LABORATORIO: PHARMABRAND S.A.`, 110, 45);
+            doc.text(`CODIGO: FB`, 14, 50);
+            doc.text(`PROCESO: TERMINADO`, 14, 55);
+            doc.text(`TEST: ENSAYO LOSARTÁN POTÁSICO`, 110, 55);
+        };
         
-        doc.addImage('/images/LOGO_FARMACID_SIN_FONDO.png', 'PNG', 14, 25, 30, 15);
-
-        doc.setFontSize(10);
-        doc.text(`PRODUCTO: ARADOS HCT TAB 100MG/25MG CAJA X30`, 14, 45);
-        doc.text(`LABORATORIO: PHARMABRAND S.A.`, 110, 45);
-        doc.text(`CODIGO: FB`, 14, 50);
-        doc.text(`PROCESO: TERMINADO`, 14, 55);
-        doc.text(`TEST: ENSAYO LOSARTÁN POTÁSICO`, 110, 55);
+        addHeader(doc);
+        currentY = 60; // Posición de inicio después del encabezado
 
         const headers = [['LOTE', 'RESULTADO DE PRUEBA', 'MÁXIMO', 'MÍNIMO', 'CANTIDAD REAL', 'UM']];
         const tableData = data.map(item => [
@@ -108,7 +117,7 @@ const TrendAnalisis = () => {
         autoTable(doc, {
             head: headers,
             body: tableData,
-            startY: 70,
+            startY: currentY,
             headStyles: {
                 fillColor: '#808080',
                 textColor: '#ffffff',
@@ -139,42 +148,39 @@ const TrendAnalisis = () => {
             }
         });
 
-        let currentY = doc.lastAutoTable.finalY + 20;
+        currentY = doc.lastAutoTable.finalY + 20;
 
         // Obtener los canvas de los 3 gráficos
         const lineChartCanvas = lineChartRef.current.canvas;
         const barChartCanvas = barChartRef.current.canvas;
         const scatterChartCanvas = scatterChartRef.current.canvas;
+        
+        const charts = [
+            { canvas: lineChartCanvas, title: 'Trend de Análisis' },
+            { canvas: barChartCanvas, title: 'Histograma de Resultados' },
+            { canvas: scatterChartCanvas, title: 'Dispersión por Lote' }
+        ];
 
-        if (lineChartCanvas && barChartCanvas && scatterChartCanvas) {
-            const lineChartImage = lineChartCanvas.toDataURL('image/png', 1.0);
-            const barChartImage = barChartCanvas.toDataURL('image/png', 1.0);
-            const scatterChartImage = scatterChartCanvas.toDataURL('image/png', 1.0);
+        // Recorrer los gráficos para agregarlos al PDF
+        charts.forEach(chart => {
+            if (chart.canvas) {
+                const chartImage = chart.canvas.toDataURL('image/png', 1.0);
+                const chartHeight = 90; // Altura de los gráficos
 
-            doc.text('ANÁLISIS ESTADÍSTICO:', 14, currentY);
-            
-            const chartWidth = 180;
-            const chartHeight = 90;
-            const chartX = (doc.internal.pageSize.getWidth() - chartWidth) / 2;
+                // Verificar si hay suficiente espacio para el gráfico
+                if (currentY + chartHeight + 20 > pageHeight) {
+                    doc.addPage();
+                    currentY = 20; // Reiniciar Y para la nueva página
+                }
 
-            // Gráfico de Línea
-            doc.text('Trend de Análisis', chartX, currentY + 10);
-            doc.addImage(lineChartImage, 'PNG', chartX, currentY + 15, chartWidth, chartHeight);
-            currentY += chartHeight + 25;
-
-            // Gráfico de Barras
-            doc.text('Histograma de Resultados', chartX, currentY);
-            doc.addImage(barChartImage, 'PNG', chartX, currentY + 5, chartWidth, chartHeight);
-            currentY += chartHeight + 15;
-
-            // Gráfico de Dispersión
-            doc.text('Dispersión por Lote', chartX, currentY);
-            doc.addImage(scatterChartImage, 'PNG', chartX, currentY + 5, chartWidth, chartHeight);
-            
-            doc.save('reporte_analisis_tendencias.pdf');
-        } else {
-            console.error('Uno o más canvas de los gráficos no están disponibles.');
-        }
+                doc.setFontSize(10);
+                doc.text(chart.title, chartX, currentY);
+                doc.addImage(chartImage, 'PNG', chartX, currentY + 5, chartWidth, chartHeight);
+                currentY += chartHeight + 15;
+            }
+        });
+        
+        doc.save('reporte_analisis_tendencias.pdf');
     };
 
     const chartData = {
