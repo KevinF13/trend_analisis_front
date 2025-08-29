@@ -1,78 +1,184 @@
-.trend-container {
+/* src/pages/TrendAnalisis.css */
+
+.trend-analisis-container {
   padding: 2rem;
   background-color: #f4f7f6;
   min-height: calc(100vh - 120px);
 }
 
-.trend-container h1 {
+.trend-analisis-container h1 {
   font-size: 2.5rem;
   color: #2c3e50;
   text-align: center;
   margin-bottom: 2rem;
-  animation: scaleIn 0.5s ease-out;
 }
 
-.loading-state, .error-state, .no-data {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #7f8c8d;
-  padding: 2rem;
-}
-
-.loading-state {
-  animation: pulse 1.5s infinite; /* Animación de "pulso" */
-}
-
-.trend-list {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+.form-container {
+  display: flex;
+  flex-wrap: wrap;
   gap: 1.5rem;
-}
-
-.trend-item {
+  justify-content: center;
+  align-items: flex-end;
   background-color: #fff;
+  padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.trend-item:hover {
-  transform: translateY(-10px); /* Efecto de "lift" */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+.input-group, .input-group-cant-real {
+  display: flex;
+  flex-direction: column;
 }
 
-.trend-item h2 {
-  font-size: 1.5rem;
-  color: #3498db;
-  margin-top: 0;
-  border-bottom: 2px solid #ecf0f1;
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.8rem;
-}
-
-.trend-item p {
-  font-size: 1rem;
+.input-group label, .input-group-cant-real label {
+  font-weight: bold;
   color: #555;
-  line-height: 1.6;
+  margin-bottom: 0.5rem;
 }
 
-/* Animaciones */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+.input-group input, .input-group-cant-real input {
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
 }
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.input-group-cant-real {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.input-group-cant-real input {
+  width: calc(100% - 40px);
+}
+
+.interactive-btn {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.interactive-btn:hover {
+  background-color: #2980b9;
+}
+
+.search-button {
+  padding: 1rem 2rem;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.search-button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+/* --- Resultados --- */
+.results-container {
+  margin-top: 3rem;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.download-pdf-button {
+  padding: 0.8rem 1.5rem;
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.download-pdf-button:hover {
+  background-color: #c0392b;
+}
+
+/* --- Tabla --- */
+.table-container {
+  overflow-x: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.data-table th, .data-table td {
+  padding: 1.2rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.data-table th {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  font-weight: bold;
+}
+
+/* --- Paginación --- */
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.pagination li a {
+  padding: 0.8rem 1.2rem;
+  margin: 0 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #555;
+}
+
+.pagination li.active a {
+  background-color: #3498db;
+  color: #fff;
+  border-color: #3498db;
+}
+
+.pagination li a:hover {
+  background-color: #ecf0f1;
+}
+
+/* --- Gráfico --- */
+.chart-container {
+  margin-top: 3rem;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }

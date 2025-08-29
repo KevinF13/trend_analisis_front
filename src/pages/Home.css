@@ -25,7 +25,7 @@
   position: relative; /* Necesario para posicionar el overlay */
 
   /* Estilos para la imagen de fondo con efecto parallax */
-  background-image: url('/images/laboratorio.jpg'); /* Ruta a la imagen en la carpeta public */
+  background-image: url('https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg'); /* Ruta a la imagen en la carpeta public */
   background-position: center;
   background-size: cover; /* Ajusta la imagen para cubrir todo el contenedor */
   background-attachment: fixed; /* ¡Este es el secreto del efecto parallax! */
