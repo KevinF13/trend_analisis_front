@@ -1,0 +1,59 @@
+.main-header {
+  background-color: #2c3e50; /* Azul oscuro */
+  color: #ecf0f1; /* Gris claro */
+  position: sticky; /* Se mantiene en la parte superior */
+  top: 0;
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3498db; /* Azul brillante */
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li a {
+  color: #ecf0f1;
+  text-decoration: none;
+  font-size: 1rem;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+/* Línea animada en los enlaces */
+.nav-links li a::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #3498db;
+  transition: width 0.3s ease;
+}
+
+.nav-links li a:hover::after {
+  width: 100%;
+}

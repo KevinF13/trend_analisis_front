@@ -1,0 +1,119 @@
+/* src/pages/Home.css */
+
+/* Animación para el overlay si se desea un brillo o un color encima de la imagen */
+@keyframes overlay-animation {
+  0% { background-color: rgba(255, 255, 255, 0.4); }
+  50% { background-color: rgba(255, 255, 255, 0.2); }
+  100% { background-color: rgba(255, 255, 255, 0.4); }
+}
+
+/* Animación de brillo para el botón */
+@keyframes shine {
+  0% { box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(52, 152, 219, 0.9); }
+  100% { box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1rem;
+  min-height: calc(100vh - 120px);
+  position: relative; /* Necesario para posicionar el overlay */
+
+  /* Estilos para la imagen de fondo con efecto parallax */
+  background-image: url('/images/laboratorio.jpg'); /* Ruta a la imagen en la carpeta public */
+  background-position: center;
+  background-size: cover; /* Ajusta la imagen para cubrir todo el contenedor */
+  background-attachment: fixed; /* ¡Este es el secreto del efecto parallax! */
+  
+  overflow: hidden; /* Para evitar que la imagen se desborde */
+}
+
+/* Overlay para mejorar la legibilidad del texto sobre la imagen */
+.home-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Degradado sutil con transparencia */
+  background: linear-gradient(
+    to bottom,
+    rgba(244, 247, 246, 0.6), /* Color y opacidad inicial */
+    rgba(244, 247, 246, 0.8)  /* Color y opacidad final */
+  );
+  z-index: 1;
+}
+
+.home-title {
+  font-size: 3.5rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-family: 'Montserrat', sans-serif;
+  animation: fadeInDown 1.2s ease-out forwards;
+  position: relative;
+  z-index: 2; /* Para que el texto esté sobre el overlay */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.home-subtitle {
+  font-size: 1.5rem;
+  color: #555;
+  max-width: 700px;
+  line-height: 1.8;
+  animation: fadeInUp 1.4s ease-out forwards;
+  position: relative;
+  z-index: 2;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.home-cta {
+  margin-top: 3rem;
+  animation: scaleIn 1.6s ease-out forwards;
+  position: relative;
+  z-index: 2;
+}
+
+.cta-button {
+  display: inline-block;
+  background-color: #3498db;
+  color: #fff;
+  padding: 1.2rem 2.5rem;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+  animation: shine 2s infinite ease-in-out;
+  border: none;
+  cursor: pointer;
+}
+
+.cta-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.7);
+}
+
+/* El resto de las animaciones Keyframes siguen siendo las mismas */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}

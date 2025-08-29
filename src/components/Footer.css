@@ -1,0 +1,78 @@
+/* src/components/Footer.css */
+
+.footer-container {
+  background-color: #1c1c1e;
+  color: #f1f1f1;
+  padding: 40px 20px 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 40px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 30px;
+}
+
+.footer-section {
+  flex: 1 1 250px;
+}
+
+.footer-logo .logo-img {
+  width: 100px;
+  margin-bottom: 10px;
+}
+
+.footer-logo .description {
+  color: #bbb;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.footer-links h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.social-link {
+  color: #f1f1f1;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.social-link:hover {
+  color: #0a66c2; /* LinkedIn blue */
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.footer-bottom p {
+  margin: 6px 0;
+}
+
+.footer-bottom a {
+  color: #0a66c2;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer-bottom a:hover {
+  text-decoration: underline;
+}
