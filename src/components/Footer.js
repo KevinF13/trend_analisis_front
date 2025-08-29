@@ -29,7 +29,7 @@ const Footer = () => {
       target="_blank"
       rel="noopener noreferrer"
     >
-      Kevin Fajardo
+      Ing. Kevin Fajardo
     </a>
   </p>
   <p>
@@ -39,7 +39,7 @@ const Footer = () => {
       target="_blank"
       rel="noopener noreferrer"
     >
-      Carlos Andrade
+      Ing. Carlos Andrade
     </a>
   </p>
 </div>

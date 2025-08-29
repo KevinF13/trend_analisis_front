@@ -165,7 +165,8 @@ const TrendAnalisis = () => {
         charts.forEach(chart => {
             if (chart.canvas) {
                 const chartImage = chart.canvas.toDataURL('image/png', 1.0);
-                const chartHeight = 90; // Altura de los gráficos
+                // La variable chartHeight ya está declarada al inicio de la función, no es necesario declararla de nuevo.
+                // const chartHeight = 90; 
 
                 // Verificar si hay suficiente espacio para el gráfico
                 if (currentY + chartHeight + 20 > pageHeight) {
