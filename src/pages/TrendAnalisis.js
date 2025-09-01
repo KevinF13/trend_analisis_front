@@ -72,6 +72,117 @@ const TrendAnalisis = () => {
                 { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
                 { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
                 { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
+                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
+                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
+                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
+
             ];
             setData(apiResponse);
             setLoading(false);
@@ -80,109 +191,126 @@ const TrendAnalisis = () => {
     };
 
     const handleDownloadPDF = () => {
-        const doc = new jsPDF();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const chartWidth = 180;
-        const chartHeight = 90;
-        const chartX = (doc.internal.pageSize.getWidth() - chartWidth) / 2;
-        let currentY = 20;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const chartWidth = 180;
+    const chartHeight = 90;
 
-        // Función para agregar los encabezados del documento
-        const addHeader = (doc) => {
-            doc.setFontSize(18);
-            doc.text('FARMACID S.A.', 14, 20);
-            doc.text('TREND DE ANALISIS DE PRODUCTO TERMINADO', 50, 30);
-            doc.addImage('/images/LOGO_FARMACID_SIN_FONDO.png', 'PNG', 14, 25, 30, 15);
+    const headerHeightFirstPage = 60;  // Encabezado completo primera página
+    const headerHeightOtherPages = 25; // Encabezado reducido en siguientes páginas
+
+    doc.setFont("times", "normal");
+
+    // Función para dibujar encabezado
+    const drawHeader = (doc, isFirstPage = false) => {
+        const logoX = 14;
+        const logoY = 10;
+        const logoWidth = 30;
+        const logoHeight = 15;
+
+        // Logo a la izquierda
+        doc.addImage('/images/LOGO_FARMACID_SIN_FONDO.png', 'PNG', logoX, logoY, logoWidth, logoHeight);
+
+        // Títulos centrados horizontalmente
+        doc.setFontSize(18);
+        const title1 = 'FARMACID S.A.';
+        const title1Width = doc.getTextWidth(title1);
+        doc.text(title1, (pageWidth - title1Width) / 2, 15);
+
+        doc.setFontSize(14);
+        const title2 = 'TREND DE ANALISIS DE PRODUCTO TERMINADO';
+        const title2Width = doc.getTextWidth(title2);
+        doc.text(title2, (pageWidth - title2Width) / 2, 23);
+
+        // Solo primera página dibuja info del producto
+        if (isFirstPage) {
             doc.setFontSize(10);
-            doc.text(`PRODUCTO: ARADOS HCT TAB 100MG/25MG CAJA X30`, 14, 45);
-            doc.text(`LABORATORIO: PHARMABRAND S.A.`, 110, 45);
-            doc.text(`CODIGO: FB`, 14, 50);
-            doc.text(`PROCESO: TERMINADO`, 14, 55);
-            doc.text(`TEST: ENSAYO LOSARTÁN POTÁSICO`, 110, 55);
-        };
-        
-        addHeader(doc);
-        currentY = 60; // Posición de inicio después del encabezado
+            doc.setFont("times", "bold");
+            doc.text(`PRODUCTO:`, 14, 40);
+            doc.text(`CODIGO:`, 14, 45);
+            doc.text(`PROCESO:`, 14, 50);
+            doc.setFont("times", "normal");
+            doc.text(`ARADOS HCT TAB 100MG/25MG CAJA X30`, 40, 40);
+            doc.text(`FB`, 40, 45);
+            doc.text(`TERMINADO`, 40, 50);
 
-        const headers = [['LOTE', 'RESULTADO DE PRUEBA', 'MÁXIMO', 'MÍNIMO', 'CANTIDAD REAL', 'UM']];
-        const tableData = data.map(item => [
-            item['Número Lote/Serie'],
-            item['Resultado Prueba'],
-            item['Valor Mínimo Permitido'],
-            item['Valor Máximo Permitido'],
-            item['Cantidad Real'],
-            item['Unidad Medida']
-        ]);
-        
-        autoTable(doc, {
-            head: headers,
-            body: tableData,
-            startY: currentY,
-            headStyles: {
-                fillColor: '#808080',
-                textColor: '#ffffff',
-                fontStyle: 'bold',
-                halign: 'center'
-            },
-            bodyStyles: {
-                fillColor: '#f5f5f5',
-                textColor: '#333333',
-                fontSize: 10,
-            },
-            alternateRowStyles: {
-                fillColor: '#ffffff'
-            },
-            theme: 'striped',
-            styles: {
-                cellPadding: 3,
-                lineWidth: 0.1,
-                lineColor: '#bdc3c7'
-            },
-            columnStyles: {
-                0: { halign: 'center' },
-                1: { halign: 'center' },
-                2: { halign: 'center' },
-                3: { halign: 'center' },
-                4: { halign: 'center' },
-                5: { halign: 'center' }
-            }
-        });
-
-        currentY = doc.lastAutoTable.finalY + 20;
-
-        // Obtener los canvas de los 3 gráficos
-        const lineChartCanvas = lineChartRef.current.canvas;
-        const barChartCanvas = barChartRef.current.canvas;
-        const scatterChartCanvas = scatterChartRef.current.canvas;
-        
-        const charts = [
-            { canvas: lineChartCanvas, title: 'Trend de Análisis' },
-            { canvas: barChartCanvas, title: 'Histograma de Resultados' },
-            { canvas: scatterChartCanvas, title: 'Dispersión por Lote' }
-        ];
-
-        // Recorrer los gráficos para agregarlos al PDF
-        charts.forEach(chart => {
-            if (chart.canvas) {
-                const chartImage = chart.canvas.toDataURL('image/png', 1.0);
-                // La variable chartHeight ya está declarada al inicio de la función, no es necesario declararla de nuevo.
-                // const chartHeight = 90; 
-
-                // Verificar si hay suficiente espacio para el gráfico
-                if (currentY + chartHeight + 20 > pageHeight) {
-                    doc.addPage();
-                    currentY = 20; // Reiniciar Y para la nueva página
-                }
-
-                doc.setFontSize(10);
-                doc.text(chart.title, chartX, currentY);
-                doc.addImage(chartImage, 'PNG', chartX, currentY + 5, chartWidth, chartHeight);
-                currentY += chartHeight + 15;
-            }
-        });
-        
-        doc.save('reporte_analisis_tendencias.pdf');
+            doc.setFont("times", "bold");
+            doc.text(`LABORATORIO:`, 110, 40);
+            doc.text(`TEST:`, 110, 50);
+            doc.setFont("times", "normal");
+            doc.text(`PHARMABRAND S.A.`, 145, 40);
+            doc.text(`ENSAYO LOSARTÁN POTÁSICO`, 130, 50);
+        }
     };
+
+    // Tabla
+    const headers = [['LOTE', 'RESULTADO DE PRUEBA', 'MÁXIMO', 'MÍNIMO', 'CANTIDAD REAL', 'UM']];
+    const tableData = data.map(item => [
+        item['Número Lote/Serie'],
+        item['Resultado Prueba'],
+        item['Valor Mínimo Permitido'],
+        item['Valor Máximo Permitido'],
+        item['Cantidad Real'],
+        item['Unidad Medida']
+    ]);
+
+    autoTable(doc, {
+    head: headers,
+    body: tableData,
+    startY: headerHeightFirstPage + 10,
+    headStyles: { fillColor: '#808080', textColor: '#ffffff', fontStyle: 'bold', halign: 'center', font: 'times' },
+    bodyStyles: { fillColor: '#f5f5f5', textColor: '#333333', fontSize: 10, font: 'times' },
+    alternateRowStyles: { fillColor: '#ffffff' },
+    theme: 'striped',
+    styles: { cellPadding: 3, lineWidth: 0.1, lineColor: '#bdc3c7', font: 'times' },
+    columnStyles: { 0: { halign: 'center' }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' }, 5: { halign: 'center' } },
+    didDrawPage: (data) => {
+        const pageNumber = data.pageNumber;
+        const isFirstPage = pageNumber === 1;
+
+        drawHeader(doc, isFirstPage);
+
+        // Ajuste dinámico del margen superior para todas las páginas
+        if (isFirstPage) {
+            data.settings.margin.top = headerHeightFirstPage + 10;
+        } else {
+            // Corrige la segunda página (y siguientes) para que no haya espacio grande
+            data.settings.margin.top = headerHeightOtherPages + 10;
+        }
+    }
+});
+
+
+    let currentY = doc.lastAutoTable.finalY + 20;
+
+    // Gráficos
+    const charts = [
+        { canvas: lineChartRef.current.canvas, title: 'Trend de Análisis' },
+        { canvas: barChartRef.current.canvas, title: 'Histograma de Resultados' },
+        { canvas: scatterChartRef.current.canvas, title: 'Dispersión por Lote' }
+    ];
+
+    charts.forEach(chart => {
+        if (chart.canvas) {
+            const chartImage = chart.canvas.toDataURL('image/png', 1.0);
+            if (currentY + chartHeight + 20 > pageHeight) {
+                doc.addPage();
+                drawHeader(doc, false);
+                currentY = headerHeightOtherPages + 10;
+            }
+            doc.setFontSize(10);
+            doc.setFont("times", "normal");
+            doc.text(chart.title, (pageWidth - chartWidth) / 2, currentY);
+            doc.addImage(chartImage, 'PNG', (pageWidth - chartWidth) / 2, currentY + 5, chartWidth, chartHeight);
+            currentY += chartHeight + 15;
+        }
+    });
+
+    doc.save('reporte_analisis_tendencias.pdf');
+};
+
+
 
     const chartData = {
         labels: data.map(item => item['Número Lote/Serie']),
