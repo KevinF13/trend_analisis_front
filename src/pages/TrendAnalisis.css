@@ -38,25 +38,25 @@ body {
 
 /* --- Contenedor de los paneles de formulario --- */
 .form-wrapper {
-    display: flex; /* Habilita el layout de columnas */
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
-    gap: 2rem; /* Espacio entre las columnas */
-    justify-content: center;
-    width: 100%;
-    max-width: 1200px;
-    margin-bottom: 2rem;
+  display: flex;
+  justify-content: center; /* Centers the panels horizontally */
+  gap: 2rem; /* Adds space between the two panels */
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap; /* Allows the panels to stack on small screens */
 }
 
 .form-panel {
-    flex: 1 1 45%; /* Cada panel ocupa el 45% del ancho, creando dos columnas */
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    background-color: var(--card-background);
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: var(--shadow-medium);
-    animation: fadeIn 0.8s ease-in-out;
+  flex: 1 1 45%; 
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: var(--card-background);
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-medium);
+  animation: fadeIn 0.8s ease-in-out;
 }
 
 .form-panel .search-button {

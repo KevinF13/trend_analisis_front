@@ -16,7 +16,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './TrendAnalisis.css';
 
-// Registrar componentes de Chart.js
+// Register Chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -43,9 +43,9 @@ const TrendAnalisis = () => {
     const [uniNeg, setUniNeg] = useState('');
     const [fechaPrueba, setFechaPrueba] = useState('');
     const [fechaFinTest, setFechaFinTest] = useState('');
-    
-    const [selectedCantRealTest, setSelectedCantRealTest] = useState(''); 
-    const [isCantRealActive, setIsCantRealActive] = useState(false); 
+
+    const [selectedCantRealTest, setSelectedCantRealTest] = useState('');
+    const [isCantRealActive, setIsCantRealActive] = useState(false);
 
     const [productOptions, setProductOptions] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState('');
@@ -138,6 +138,8 @@ const TrendAnalisis = () => {
             fecha_fin: formatDate(fechaFinTest),
         };
 
+        console.log('Datos que se están enviando a la API:', requestBody);
+
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
@@ -202,8 +204,8 @@ const TrendAnalisis = () => {
             const title2Width = doc.getTextWidth(title2);
             doc.text(title2, (pageWidth - title2Width) / 2, 23);
 
-            const selectedProductDetails = productOptions.find(p => p.IMLITM.trim() === selectedProduct);
-            const productDescription = selectedProductDetails ? selectedProductDetails.IMDSC1.trim() : 'N/A';
+            const selectedProductDetails = productOptions.find(p => p && p.IMLITM && p.IMLITM.trim() === selectedProduct);
+            const productDescription = selectedProductDetails ? selectedProductDetails.IMDSC1 : 'N/A';
             const testDescription = selectedTest || 'N/A';
 
             if (isFirstPage) {
@@ -415,37 +417,42 @@ const TrendAnalisis = () => {
         }
     };
 
-    const uniqueProducts = Array.from(new Set(productOptions.map(p => p.IMLITM.trim())))
+    const uniqueProducts = Array.from(new Set(productOptions
+        .filter(p => p && p.IMLITM)
+        .map(p => p.IMLITM)))
         .map(litm => {
-            const firstItem = productOptions.find(p => p.IMLITM.trim() === litm);
+            const firstItem = productOptions.find(p => p && p.IMLITM === litm);
             return {
-                IMLITM: firstItem.IMLITM.trim(),
-                IMDSC1: firstItem.IMDSC1.trim()
+                IMLITM: firstItem.IMLITM,
+                IMDSC1: firstItem.IMDSC1
             };
         });
 
     const filteredProductOptions = uniqueProducts.filter(product => {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         return (
-            product.IMLITM.toLowerCase().includes(lowerCaseSearchTerm) ||
-            product.IMDSC1.toLowerCase().includes(lowerCaseSearchTerm)
+            (product.IMLITM && product.IMLITM.toLowerCase().includes(lowerCaseSearchTerm)) ||
+            (product.IMDSC1 && product.IMDSC1.toLowerCase().includes(lowerCaseSearchTerm))
         );
     });
 
     const associatedTests = productOptions
-        .filter(p => p.IMLITM.trim() === selectedProduct)
-        .map(p => p.TRQTST.trim());
+        .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct)
+        .map(p => p.TRQTST);
 
     const filteredTests = associatedTests.filter(test => test.toLowerCase().includes(searchTestTerm.toLowerCase()));
 
     const cantRealTestOptions = productOptions
-        .filter(p => p.IMLITM.trim() === selectedProduct && p.TRQTST.trim() !== selectedTest)
-        .map(p => p.TRQTST.trim());
+        .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct && p.TRQTST !== selectedTest)
+        .map(p => p.TRQTST);
 
     const filteredCantRealTests = cantRealTestOptions.filter(test => test.toLowerCase().includes(searchCantRealTerm.toLowerCase()));
 
+    // Reset test and cant_real selections when product changes
     useEffect(() => {
+        setSearchTestTerm('');
         setSelectedTest('');
+        setSearchCantRealTerm('');
         setSelectedCantRealTest('');
         setIsCantRealActive(false);
     }, [selectedProduct]);
@@ -478,30 +485,48 @@ const TrendAnalisis = () => {
       const newState = !isCantRealActive;
       setIsCantRealActive(newState);
       if (newState) {
-        // Asegúrate de que el campo de búsqueda de Cant. Real esté visible cuando se active
         if (cantRealListRef.current) cantRealListRef.current.style.display = 'block';
       } else {
-        // Oculta el campo cuando se desactive
         setSearchCantRealTerm('');
         setSelectedCantRealTest('');
         if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
       }
     };
+    
+    // Handlers to clear selections
+    const handleClearProduct = () => {
+        setSelectedProduct('');
+        setSearchTerm('');
+        setSelectedTest('');
+        setSearchTestTerm('');
+        setSelectedCantRealTest('');
+        setSearchCantRealTerm('');
+        setIsCantRealActive(false);
+    };
+
+    const handleClearTest = () => {
+        setSelectedTest('');
+        setSearchTestTerm('');
+    };
+
+    const handleClearCantReal = () => {
+        setSelectedCantRealTest('');
+        setSearchCantRealTerm('');
+    };
 
     return (
         <div className="trend-analisis-container">
             <h1>Análisis de Tendencias</h1>
-            
+
             <div className="form-wrapper">
-                {/* Panel Izquierdo: Formulario de Fechas */}
                 <div className="form-panel">
                     <div className="input-group">
                         <label>UniNeg</label>
-                        <input 
-                            type="text" 
-                            value={uniNeg} 
-                            onChange={e => setUniNeg(e.target.value)} 
-                            readOnly 
+                        <input
+                            type="text"
+                            value={uniNeg}
+                            onChange={e => setUniNeg(e.target.value)}
+                            readOnly
                         />
                     </div>
                     <div className="input-group">
@@ -517,7 +542,6 @@ const TrendAnalisis = () => {
                     </button>
                 </div>
 
-                {/* Panel Derecho: Formulario de Productos y Pruebas */}
                 {productOptions.length > 0 && (
                     <div className="form-panel">
                         <div className="input-group searchable-select">
@@ -530,6 +554,7 @@ const TrendAnalisis = () => {
                                 onFocus={() => {
                                     if(productListRef.current) productListRef.current.style.display = 'block';
                                 }}
+                                onClick={handleClearProduct}
                             />
                             <ul ref={productListRef} className="custom-dropdown">
                                 {filteredProductOptions.map((item, index) => (
@@ -539,7 +564,7 @@ const TrendAnalisis = () => {
                                 ))}
                             </ul>
                         </div>
-                        
+
                         {selectedProduct && (
                             <div className="input-group searchable-select">
                                 <label>Seleccionar Prueba</label>
@@ -551,6 +576,7 @@ const TrendAnalisis = () => {
                                     onFocus={() => {
                                         if(testListRef.current) testListRef.current.style.display = 'block';
                                     }}
+                                    onClick={handleClearTest}
                                 />
                                 <ul ref={testListRef} className="custom-dropdown">
                                     {filteredTests.map((test, index) => (
@@ -561,7 +587,7 @@ const TrendAnalisis = () => {
                                 </ul>
                             </div>
                         )}
-                        
+
                         <div className="cant-real-group">
                             <div className="cant-real-input-and-button">
                                 <button className="interactive-btn" onClick={handleCantRealBtnClick}>
@@ -578,6 +604,7 @@ const TrendAnalisis = () => {
                                             onFocus={() => {
                                                 if(cantRealListRef.current) cantRealListRef.current.style.display = 'block';
                                             }}
+                                            onClick={handleClearCantReal}
                                         />
                                         <ul ref={cantRealListRef} className="custom-dropdown">
                                             {filteredCantRealTests.map((test, index) => (
@@ -600,7 +627,6 @@ const TrendAnalisis = () => {
             {loading && <div className="loading-state">Cargando datos...</div>}
             {error && <div className="error-state">Error: {error}</div>}
 
-            {/* Resto del componente: Tabla y Gráficos */}
             {data.length > 0 && (
                 <div className="results-container">
                     <div className="results-header">
