@@ -7,7 +7,7 @@ const Header = () => {
   return (
     <header className="main-header">
       <nav className="header-nav">
-        <Link to="/" className="logo">🧑‍🔬​​ Farmacid - Calidad ​👩‍🔬</Link>
+        <Link to="/" className="logo">🧑‍🔬​​ Trend de Análisis</Link>
         <ul className="nav-links">
           <li>
             <Link to="/">Inicio</Link>

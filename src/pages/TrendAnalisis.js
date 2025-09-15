@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactPaginate from 'react-paginate';
 import {
     Chart as ChartJS,
@@ -28,25 +28,42 @@ ChartJS.register(
     Legend
 );
 
+// Helper function to format date from 'YYYY-MM-DD' to 'DD-MM-YYYY'
+const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}-${month}-${year}`;
+};
+
 const TrendAnalisis = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const [uniNeg, setUniNeg] = useState('');
-    const [numArticulo, setNumArticulo] = useState('');
-    const [prueba, setPrueba] = useState('');
-    const [cantReal, setCantReal] = useState('');
     const [fechaPrueba, setFechaPrueba] = useState('');
     const [fechaFinTest, setFechaFinTest] = useState('');
+    
+    const [selectedCantRealTest, setSelectedCantRealTest] = useState(''); 
+    const [isCantRealActive, setIsCantRealActive] = useState(false); 
+
+    const [productOptions, setProductOptions] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState('');
+    const [selectedTest, setSelectedTest] = useState('');
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTestTerm, setSearchTestTerm] = useState('');
+    const [searchCantRealTerm, setSearchCantRealTerm] = useState('');
 
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 5;
 
-    // Crear referencias para cada uno de los gráficos
     const lineChartRef = useRef(null);
     const barChartRef = useRef(null);
     const scatterChartRef = useRef(null);
+    const productListRef = useRef(null);
+    const testListRef = useRef(null);
+    const cantRealListRef = useRef(null);
 
     const offset = currentPage * itemsPerPage;
     const currentData = data.slice(offset, offset + itemsPerPage);
@@ -56,89 +73,103 @@ const TrendAnalisis = () => {
         setCurrentPage(event.selected);
     };
 
-    const handleFetchData = async () => {
+    const handleFetchProductList = async () => {
         setLoading(true);
         setError(null);
+        setData([]);
+        setProductOptions([]);
+        setSelectedProduct('');
+        setSelectedTest('');
+        setSearchTerm('');
+        setSelectedCantRealTest('');
+        setIsCantRealActive(false);
 
-        setTimeout(() => {
-            const apiResponse = [
-                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote003', 'Resultado Prueba': 18, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 180, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote004', 'Resultado Prueba': 28, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 280, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote005', 'Resultado Prueba': 12, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 120, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote006', 'Resultado Prueba': 19, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 190, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote007', 'Resultado Prueba': 25, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 250, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote008', 'Resultado Prueba': 16, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 160, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote009', 'Resultado Prueba': 23, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 230, 'Unidad Medida': 'ml' },
-                { 'Número Lote/Serie': 'Lote010', 'Resultado Prueba': 17, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 170, 'Unidad Medida': 'g' },
-                { 'Número Lote/Serie': 'Lote001', 'Resultado Prueba': 15, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 150, 'Unidad Medida': 'mg' },
-                { 'Número Lote/Serie': 'Lote002', 'Resultado Prueba': 22, 'Valor Mínimo Permitido': 10, 'Valor Máximo Permitido': 30, 'Cantidad Real': 220, 'Unidad Medida': 'ml' },
-            ];
-            setData(apiResponse);
+        const apiEndpoint = 'http://172.16.2.25:5000/valor';
+        const requestBody = {
+            bodega: '01PD01',
+            fecha_inicio: formatDate(fechaPrueba),
+            fecha_fin: formatDate(fechaFinTest),
+        };
+
+        try {
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status} - ${errText}`);
+            }
+
+            const apiResponse = await response.json();
+            setProductOptions(apiResponse.resultados || []);
+            setUniNeg('01PD01');
+        } catch (e) {
+            setError(e.message);
+            setProductOptions([]);
+        } finally {
             setLoading(false);
+        }
+    };
+
+    const handleFetchTrendData = async () => {
+        if (!selectedProduct || !selectedTest) {
+            alert("Por favor, selecciona un producto y una prueba.");
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+        setData([]);
+
+        const cantRealToSend = isCantRealActive ? selectedCantRealTest : '';
+
+        const apiEndpoint = 'http://172.16.2.25:5000/consulta';
+        const requestBody = {
+            prueba: selectedTest,
+            cant_real: cantRealToSend,
+            bodega: uniNeg,
+            numero: selectedProduct,
+            fecha_inicio: formatDate(fechaPrueba),
+            fecha_fin: formatDate(fechaFinTest),
+        };
+
+        try {
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status} - ${errText}`);
+            }
+
+            const apiResponse = await response.json();
+            const formattedData = apiResponse.resultados.map(item => ({
+                'Número Lote/Serie': item.TRLOTN,
+                'Resultado Prueba': item.RESULTADO_PRUEBA,
+                'Valor Mínimo Permitido': item.MIN,
+                'Valor Máximo Permitido': item.MAX,
+                'Unidad Medida': item.UNIDAD_PRUEBA,
+                'Cantidad Real': item.CANTIDAD_REAL,
+            }));
+
+            setData(formattedData);
             setCurrentPage(0);
-        }, 1000);
+        } catch (e) {
+            setError(e.message);
+            setData([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleDownloadPDF = () => {
@@ -171,6 +202,10 @@ const TrendAnalisis = () => {
             const title2Width = doc.getTextWidth(title2);
             doc.text(title2, (pageWidth - title2Width) / 2, 23);
 
+            const selectedProductDetails = productOptions.find(p => p.IMLITM.trim() === selectedProduct);
+            const productDescription = selectedProductDetails ? selectedProductDetails.IMDSC1.trim() : 'N/A';
+            const testDescription = selectedTest || 'N/A';
+
             if (isFirstPage) {
                 doc.setFontSize(10);
                 doc.setFont("times", "bold");
@@ -178,16 +213,16 @@ const TrendAnalisis = () => {
                 doc.text(`CODIGO:`, 14, 45);
                 doc.text(`PROCESO:`, 14, 50);
                 doc.setFont("times", "normal");
-                doc.text(`ARADOS HCT TAB 100MG/25MG CAJA X30`, 40, 40);
-                doc.text(`FB`, 40, 45);
-                doc.text(`TERMINADO`, 40, 50);
+                doc.text(productDescription, 40, 40);
+                doc.text(selectedProduct, 40, 45);
+                doc.text('TERMINADO', 40, 50);
 
                 doc.setFont("times", "bold");
                 doc.text(`LABORATORIO:`, 110, 40);
                 doc.text(`TEST:`, 110, 50);
                 doc.setFont("times", "normal");
                 doc.text(`PHARMABRAND S.A.`, 145, 40);
-                doc.text(`ENSAYO LOSARTÁN POTÁSICO`, 130, 50);
+                doc.text(testDescription, 130, 50);
             }
         };
 
@@ -204,8 +239,8 @@ const TrendAnalisis = () => {
         autoTable(doc, {
             head: headers,
             body: tableData,
-            startY: headerHeightFirstPage + 20, // Ajustamos un poco para dejar espacio al título
-            margin: { top: headerHeightOtherPages + 10 }, // Para páginas nuevas
+            startY: headerHeightFirstPage + 20,
+            margin: { top: headerHeightOtherPages + 10 },
             headStyles: { fillColor: '#808080', textColor: '#ffffff', fontStyle: 'bold', halign: 'center', font: 'times' },
             bodyStyles: { fillColor: '#f5f5f5', textColor: '#333333', fontSize: 10, font: 'times' },
             alternateRowStyles: { fillColor: '#ffffff' },
@@ -217,7 +252,6 @@ const TrendAnalisis = () => {
                 const isFirstPage = data.pageNumber === 1;
                 drawHeader(doc, isFirstPage);
 
-                // Agregamos título "TABLA DE DATOS" solo en la primera página
                 if (isFirstPage) {
                     doc.setFontSize(12);
                     doc.setFont("times", "bold");
@@ -225,9 +259,6 @@ const TrendAnalisis = () => {
                 }
             }
         });
-
-
-
 
         let currentY = doc.lastAutoTable.finalY + 20;
 
@@ -255,8 +286,6 @@ const TrendAnalisis = () => {
 
         doc.save('reporte_analisis_tendencias.pdf');
     };
-
-
 
     const chartData = {
         labels: data.map(item => item['Número Lote/Serie']),
@@ -305,8 +334,21 @@ const TrendAnalisis = () => {
             },
         },
         scales: {
-            x: { title: { display: true, text: 'Número Lote/Serie' } },
-            y: { title: { display: true, text: 'Valor' }, beginAtZero: true }
+            x: {
+                title: { display: true, text: 'Número Lote/Serie' }
+            },
+            y: {
+                title: { display: true, text: 'Valor (mg/Tab.)' },
+                beginAtZero: false,
+                min: (ctx) => {
+                    let allValues = ctx.chart.data.datasets.flatMap(ds => ds.data);
+                    return Math.min(...allValues) - 5;
+                },
+                max: (ctx) => {
+                    let allValues = ctx.chart.data.datasets.flatMap(ds => ds.data);
+                    return Math.max(...allValues) + 5;
+                }
+            }
         }
     };
 
@@ -373,26 +415,192 @@ const TrendAnalisis = () => {
         }
     };
 
+    const uniqueProducts = Array.from(new Set(productOptions.map(p => p.IMLITM.trim())))
+        .map(litm => {
+            const firstItem = productOptions.find(p => p.IMLITM.trim() === litm);
+            return {
+                IMLITM: firstItem.IMLITM.trim(),
+                IMDSC1: firstItem.IMDSC1.trim()
+            };
+        });
+
+    const filteredProductOptions = uniqueProducts.filter(product => {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return (
+            product.IMLITM.toLowerCase().includes(lowerCaseSearchTerm) ||
+            product.IMDSC1.toLowerCase().includes(lowerCaseSearchTerm)
+        );
+    });
+
+    const associatedTests = productOptions
+        .filter(p => p.IMLITM.trim() === selectedProduct)
+        .map(p => p.TRQTST.trim());
+
+    const filteredTests = associatedTests.filter(test => test.toLowerCase().includes(searchTestTerm.toLowerCase()));
+
+    const cantRealTestOptions = productOptions
+        .filter(p => p.IMLITM.trim() === selectedProduct && p.TRQTST.trim() !== selectedTest)
+        .map(p => p.TRQTST.trim());
+
+    const filteredCantRealTests = cantRealTestOptions.filter(test => test.toLowerCase().includes(searchCantRealTerm.toLowerCase()));
+
+    useEffect(() => {
+        setSelectedTest('');
+        setSelectedCantRealTest('');
+        setIsCantRealActive(false);
+    }, [selectedProduct]);
+
+    useEffect(() => {
+        if (!isCantRealActive) {
+            setSelectedCantRealTest('');
+        }
+    }, [isCantRealActive]);
+
+    const handleProductSelect = (product) => {
+        setSelectedProduct(product.IMLITM);
+        setSearchTerm(`${product.IMLITM} - ${product.IMDSC1}`);
+        if(productListRef.current) productListRef.current.style.display = 'none';
+    };
+
+    const handleTestSelect = (test) => {
+        setSelectedTest(test);
+        setSearchTestTerm(test);
+        if(testListRef.current) testListRef.current.style.display = 'none';
+    };
+
+    const handleCantRealSelect = (test) => {
+        setSelectedCantRealTest(test);
+        setSearchCantRealTerm(test);
+        if(cantRealListRef.current) cantRealListRef.current.style.display = 'none';
+    };
+
+    const handleCantRealBtnClick = () => {
+      const newState = !isCantRealActive;
+      setIsCantRealActive(newState);
+      if (newState) {
+        // Asegúrate de que el campo de búsqueda de Cant. Real esté visible cuando se active
+        if (cantRealListRef.current) cantRealListRef.current.style.display = 'block';
+      } else {
+        // Oculta el campo cuando se desactive
+        setSearchCantRealTerm('');
+        setSelectedCantRealTest('');
+        if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
+      }
+    };
+
     return (
         <div className="trend-analisis-container">
             <h1>Análisis de Tendencias</h1>
-            <div className="form-container">
-                <div className="input-group"><label>UniNeg</label><input type="text" value={uniNeg} onChange={e => setUniNeg(e.target.value)} /></div>
-                <div className="input-group"><label>2° N° Artículo</label><input type="text" value={numArticulo} onChange={e => setNumArticulo(e.target.value)} /></div>
-                <div className="input-group"><label>Prueba</label><input type="text" value={prueba} onChange={e => setPrueba(e.target.value)} /></div>
-                <div className="input-group-cant-real">
-                    <label>Cant. Real</label>
-                    <input type="text" value={cantReal} onChange={e => setCantReal(e.target.value)} />
-                    <button className="interactive-btn" onClick={() => alert('Botón interactivo de Cant. Real')}>ℹ️</button>
+            
+            <div className="form-wrapper">
+                {/* Panel Izquierdo: Formulario de Fechas */}
+                <div className="form-panel">
+                    <div className="input-group">
+                        <label>UniNeg</label>
+                        <input 
+                            type="text" 
+                            value={uniNeg} 
+                            onChange={e => setUniNeg(e.target.value)} 
+                            readOnly 
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label>Fecha Prueba</label>
+                        <input type="date" value={fechaPrueba} onChange={e => setFechaPrueba(e.target.value)} />
+                    </div>
+                    <div className="input-group">
+                        <label>Fecha Fin Test</label>
+                        <input type="date" value={fechaFinTest} onChange={e => setFechaFinTest(e.target.value)} />
+                    </div>
+                    <button className="search-button" onClick={handleFetchProductList} disabled={loading}>
+                        {loading ? 'Buscando Productos...' : 'Buscar Productos'}
+                    </button>
                 </div>
-                <div className="input-group"><label>Fecha Prueba</label><input type="date" value={fechaPrueba} onChange={e => setFechaPrueba(e.target.value)} /></div>
-                <div className="input-group"><label>Fecha Fin Test</label><input type="date" value={fechaFinTest} onChange={e => setFechaFinTest(e.target.value)} /></div>
-                <button className="search-button" onClick={handleFetchData} disabled={loading}>
-                    {loading ? 'Buscando...' : 'Buscar Datos'}
-                </button>
+
+                {/* Panel Derecho: Formulario de Productos y Pruebas */}
+                {productOptions.length > 0 && (
+                    <div className="form-panel">
+                        <div className="input-group searchable-select">
+                            <label>Seleccionar Producto</label>
+                            <input
+                                type="text"
+                                placeholder="Escribe para filtrar..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                onFocus={() => {
+                                    if(productListRef.current) productListRef.current.style.display = 'block';
+                                }}
+                            />
+                            <ul ref={productListRef} className="custom-dropdown">
+                                {filteredProductOptions.map((item, index) => (
+                                    <li key={index} onClick={() => handleProductSelect(item)}>
+                                        {`${item.IMLITM} - ${item.IMDSC1}`}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        
+                        {selectedProduct && (
+                            <div className="input-group searchable-select">
+                                <label>Seleccionar Prueba</label>
+                                <input
+                                    type="text"
+                                    placeholder="Escribe para filtrar..."
+                                    value={searchTestTerm}
+                                    onChange={e => setSearchTestTerm(e.target.value)}
+                                    onFocus={() => {
+                                        if(testListRef.current) testListRef.current.style.display = 'block';
+                                    }}
+                                />
+                                <ul ref={testListRef} className="custom-dropdown">
+                                    {filteredTests.map((test, index) => (
+                                        <li key={index} onClick={() => handleTestSelect(test)}>
+                                            {test}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        
+                        <div className="cant-real-group">
+                            <div className="cant-real-input-and-button">
+                                <button className="interactive-btn" onClick={handleCantRealBtnClick}>
+                                    {isCantRealActive ? '❌' : '➕'}
+                                </button>
+                                {isCantRealActive && (
+                                    <div className="input-group searchable-select">
+                                        <label>Cant. Real</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Prueba opcional"
+                                            value={searchCantRealTerm}
+                                            onChange={e => setSearchCantRealTerm(e.target.value)}
+                                            onFocus={() => {
+                                                if(cantRealListRef.current) cantRealListRef.current.style.display = 'block';
+                                            }}
+                                        />
+                                        <ul ref={cantRealListRef} className="custom-dropdown">
+                                            {filteredCantRealTests.map((test, index) => (
+                                                <li key={index} onClick={() => handleCantRealSelect(test)}>
+                                                    {test}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <button className="search-button" onClick={handleFetchTrendData} disabled={loading || !selectedProduct || !selectedTest}>
+                            {loading ? 'Cargando Datos...' : 'Generar Análisis'}
+                        </button>
+                    </div>
+                )}
             </div>
+
             {loading && <div className="loading-state">Cargando datos...</div>}
             {error && <div className="error-state">Error: {error}</div>}
+
+            {/* Resto del componente: Tabla y Gráficos */}
             {data.length > 0 && (
                 <div className="results-container">
                     <div className="results-header">
@@ -436,14 +644,14 @@ const TrendAnalisis = () => {
                         containerClassName={'pagination'}
                         activeClassName={'active'}
                     />
-                    <div className="multi-chart-container" style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-                        <div className="chart-container" style={{ flex: '1 1 300px' }}>
+                    <div className="multi-chart-container">
+                        <div className="chart-container">
                             <Line ref={lineChartRef} data={chartData} options={chartOptions} />
                         </div>
-                        <div className="chart-container" style={{ flex: '1 1 300px' }}>
+                        <div className="chart-container">
                             <Bar ref={barChartRef} data={barChartData} options={barChartOptions} />
                         </div>
-                        <div className="chart-container" style={{ flex: '1 1 300px' }}>
+                        <div className="chart-container">
                             <Scatter ref={scatterChartRef} data={scatterChartData} options={scatterChartOptions} />
                         </div>
                     </div>
