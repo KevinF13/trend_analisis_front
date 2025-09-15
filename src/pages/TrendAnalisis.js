@@ -11,7 +11,7 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
-import { Line, Bar, Scatter } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2'; // Se eliminan Bar y Scatter
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './TrendAnalisis.css';
@@ -59,8 +59,6 @@ const TrendAnalisis = () => {
     const itemsPerPage = 5;
 
     const lineChartRef = useRef(null);
-    const barChartRef = useRef(null);
-    const scatterChartRef = useRef(null);
     const productListRef = useRef(null);
     const testListRef = useRef(null);
     const cantRealListRef = useRef(null);
@@ -264,10 +262,9 @@ const TrendAnalisis = () => {
 
         let currentY = doc.lastAutoTable.finalY + 20;
 
+        // Se ajusta para solo usar el gráfico de líneas
         const charts = [
-            { canvas: lineChartRef.current.canvas, title: 'Trend de Análisis' },
-            { canvas: barChartRef.current.canvas, title: 'Histograma de Resultados' },
-            { canvas: scatterChartRef.current.canvas, title: 'Dispersión por Lote' }
+            { canvas: lineChartRef.current.canvas, title: 'Trend de Análisis' }
         ];
 
         charts.forEach(chart => {
@@ -328,19 +325,52 @@ const TrendAnalisis = () => {
 
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-            legend: { position: 'top' },
+            legend: {
+                position: 'top',
+            },
             title: {
                 display: true,
                 text: 'Comparación de Resultados de Prueba vs. Límites',
+                font: {
+                    size: 18,
+                    weight: 'bold'
+                },
+                padding: {
+                    top: 10,
+                    bottom: 30
+                }
             },
         },
         scales: {
             x: {
-                title: { display: true, text: 'Número Lote/Serie' }
+                title: {
+                    display: true,
+                    text: 'Número Lote/Serie',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                },
+                ticks: {
+                    maxRotation: 45,
+                    minRotation: 45,
+                    autoSkip: false,
+                    font: {
+                        size: 10
+                    }
+                }
             },
             y: {
-                title: { display: true, text: 'Valor (mg/Tab.)' },
+                title: {
+                    display: true,
+                    text: 'Valor (mg/Tab.)',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                },
                 beginAtZero: false,
                 min: (ctx) => {
                     let allValues = ctx.chart.data.datasets.flatMap(ds => ds.data);
@@ -350,69 +380,6 @@ const TrendAnalisis = () => {
                     let allValues = ctx.chart.data.datasets.flatMap(ds => ds.data);
                     return Math.max(...allValues) + 5;
                 }
-            }
-        }
-    };
-
-    const barChartData = {
-        labels: data.map(item => item['Número Lote/Serie']),
-        datasets: [{
-            label: 'Resultado Prueba',
-            data: data.map(item => item['Resultado Prueba']),
-            backgroundColor: 'rgba(52, 152, 219, 0.8)',
-            borderColor: 'rgba(52, 152, 219, 1)',
-            borderWidth: 1,
-        }]
-    };
-
-    const barChartOptions = {
-        responsive: true,
-        plugins: {
-            legend: { display: false },
-            title: {
-                display: true,
-                text: 'Histograma de Resultados por Lote',
-            }
-        },
-        scales: {
-            x: {
-                title: { display: true, text: 'Lote' }
-            },
-            y: {
-                title: { display: true, text: 'Resultado' },
-                beginAtZero: true
-            }
-        }
-    };
-
-    const scatterChartData = {
-        labels: data.map(item => item['Número Lote/Serie']),
-        datasets: [{
-            label: 'Dispersión',
-            data: data.map(item => ({ x: item['Cantidad Real'], y: item['Resultado Prueba'] })),
-            backgroundColor: 'rgba(155, 89, 182, 0.8)',
-            pointRadius: 6,
-            pointHoverRadius: 8
-        }]
-    };
-
-    const scatterChartOptions = {
-        responsive: true,
-        plugins: {
-            legend: { display: false },
-            title: {
-                display: true,
-                text: 'Relación entre Cantidad Real y Resultado Prueba',
-            }
-        },
-        scales: {
-            x: {
-                title: { display: true, text: 'Cantidad Real' },
-                beginAtZero: true
-            },
-            y: {
-                title: { display: true, text: 'Resultado Prueba' },
-                beginAtZero: true
             }
         }
     };
@@ -448,7 +415,6 @@ const TrendAnalisis = () => {
 
     const filteredCantRealTests = cantRealTestOptions.filter(test => test.toLowerCase().includes(searchCantRealTerm.toLowerCase()));
 
-    // Reset test and cant_real selections when product changes
     useEffect(() => {
         setSearchTestTerm('');
         setSelectedTest('');
@@ -493,7 +459,6 @@ const TrendAnalisis = () => {
       }
     };
     
-    // Handlers to clear selections
     const handleClearProduct = () => {
         setSelectedProduct('');
         setSearchTerm('');
@@ -670,15 +635,9 @@ const TrendAnalisis = () => {
                         containerClassName={'pagination'}
                         activeClassName={'active'}
                     />
-                    <div className="multi-chart-container">
+                    <div className="single-chart-container">
                         <div className="chart-container">
                             <Line ref={lineChartRef} data={chartData} options={chartOptions} />
-                        </div>
-                        <div className="chart-container">
-                            <Bar ref={barChartRef} data={barChartData} options={barChartOptions} />
-                        </div>
-                        <div className="chart-container">
-                            <Scatter ref={scatterChartRef} data={scatterChartData} options={scatterChartOptions} />
                         </div>
                     </div>
                 </div>

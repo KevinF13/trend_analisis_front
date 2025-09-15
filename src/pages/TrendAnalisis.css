@@ -1,18 +1,18 @@
 /* --- Variables y estilos generales --- */
 :root {
-    --primary-color: #2c3e50; /* Azul oscuro para fondos y texto principal */
-    --secondary-color: #3498db; /* Azul para botones y acentos */
-    --accent-color: #e74c3c; /* Rojo para botones de descarga y errores */
-    --success-color: #2ecc71; /* Verde para notificaciones de éxito */
-    --background-color: #f4f7f6; /* Fondo de la página */
-    --card-background: #fff; /* Fondo de los contenedores */
-    --border-color: #e0e0e0; /* Color de los bordes suaves */
-    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
-    --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --success-color: #2ecc71;
+    --background-color: #ecf0f1;
+    --card-background: #fff;
+    --border-color: #dcdde1;
+    --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', 'Lato', sans-serif;
     background-color: var(--background-color);
     margin: 0;
     padding: 0;
@@ -29,42 +29,42 @@ body {
 }
 
 .trend-analisis-container h1 {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 5vw, 2.5rem);
     text-align: center;
-    margin-bottom: 2rem;
-    color: var(--primary-color);
-    font-weight: 600;
+    margin-bottom: 2.5rem;
+    font-weight: 700;
 }
 
 /* --- Contenedor de los paneles de formulario --- */
 .form-wrapper {
-  display: flex;
-  justify-content: center; /* Centers the panels horizontally */
-  gap: 2rem; /* Adds space between the two panels */
-  width: 100%;
-  max-width: 1200px;
-  margin-bottom: 2rem;
-  flex-wrap: wrap; /* Allows the panels to stack on small screens */
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
 }
 
 .form-panel {
-  flex: 1 1 45%; 
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  background-color: var(--card-background);
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: var(--shadow-medium);
-  animation: fadeIn 0.8s ease-in-out;
+    flex: 1 1 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background-color: var(--card-background);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-medium);
+    transition: transform 0.3s ease-in-out;
 }
 
-.form-panel .search-button {
-    align-self: center;
+.form-panel:hover {
+    transform: translateY(-5px);
 }
 
 /* --- Estilos para los grupos de entrada --- */
 .input-group {
+    position: relative;
     display: flex;
     flex-direction: column;
 }
@@ -89,21 +89,13 @@ body {
 .input-group input:focus,
 .input-group select:focus {
     border-color: var(--secondary-color);
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     outline: none;
 }
 
 /* Estilos para el contenedor del botón de Cant. Real */
 .cant-real-group {
     display: flex;
-    align-items: flex-end;
-    gap: 1rem;
-}
-
-/* Estructura para el botón y el input */
-.cant-real-input-and-button {
-    display: flex;
-    flex-grow: 1; /* Permite que ocupe el espacio restante */
     align-items: flex-end;
     gap: 1rem;
 }
@@ -140,9 +132,9 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     box-shadow: var(--shadow-light);
-    align-self: center;
+    align-self: flex-end;
 }
 
 .search-button:disabled {
@@ -157,25 +149,20 @@ body {
     box-shadow: var(--shadow-medium);
 }
 
-/* --- Estados de carga y error --- */
-.loading-state,
-.error-state {
-    text-align: center;
-    font-size: 1.2rem;
-    padding: 1.5rem;
-    margin-top: 2rem;
+.download-pdf-button {
+    padding: 0.8rem 1.5rem;
+    background-color: var(--accent-color);
+    color: #fff;
+    border: none;
     border-radius: 8px;
-    box-shadow: var(--shadow-light);
-    width: 100%;
-    max-width: 600px;
-    animation: fadeIn 0.5s ease-in-out;
-    background-color: #e8f5fd;
-    color: var(--secondary-color);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-weight: 500;
 }
 
-.error-state {
-    background-color: #fdeded;
-    color: var(--accent-color);
+.download-pdf-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
 }
 
 /* --- Contenedor de resultados --- */
@@ -197,33 +184,16 @@ body {
     color: var(--primary-color);
 }
 
-.download-pdf-button {
-    padding: 0.8rem 1.5rem;
-    background-color: var(--accent-color);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-weight: 500;
-}
-
-.download-pdf-button:hover {
-    background-color: #c0392b;
-}
-
 /* --- Tabla de datos y paginación --- */
 .table-container {
     overflow-x: auto;
     box-shadow: var(--shadow-medium);
     border-radius: 12px;
-    animation: fadeIn 0.8s ease-in-out;
 }
 
 .data-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
     background-color: var(--card-background);
     border-radius: 12px;
     overflow: hidden;
@@ -249,12 +219,17 @@ body {
     background-color: #f9f9f9;
 }
 
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
 .pagination {
     display: flex;
     list-style: none;
     padding: 0;
     justify-content: center;
     margin-top: 2rem;
+    flex-wrap: wrap;
 }
 
 .pagination li a {
@@ -279,12 +254,13 @@ body {
     border-color: #beddf4;
 }
 
-/* --- Gráficos --- */
-.multi-chart-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
+/* --- Gráficos (Actualizado para mostrar un solo gráfico) --- */
+.single-chart-container {
     margin-top: 3rem;
+    width: 100%;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .chart-container {
@@ -293,17 +269,27 @@ body {
     border-radius: 12px;
     box-shadow: var(--shadow-medium);
     animation: fadeIn 0.8s ease-in-out;
+    height: 500px;
+}
+
+/* Oculta el contenedor de múltiples gráficos si no se usa */
+.multi-chart-container {
+    display: none;
 }
 
 /* --- Estilos para los campos de autocompletado --- */
 .searchable-select {
     position: relative;
-    flex-grow: 1; /* Permite que ocupe el espacio restante */
+    flex-grow: 1;
 }
 
 .searchable-select input {
     width: 100%;
     box-sizing: border-box;
+}
+
+.searchable-select:not(:focus-within) .custom-dropdown {
+    display: none;
 }
 
 .searchable-select .custom-dropdown {
@@ -321,6 +307,7 @@ body {
     list-style: none;
     padding: 0.5rem 0;
     margin: 0;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 .searchable-select .custom-dropdown li {
@@ -339,7 +326,7 @@ body {
     color: #fff;
 }
 
-/* --- Animaciones --- */
+/* --- Animaciones y media queries --- */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -351,39 +338,23 @@ body {
     }
 }
 
-/* --- Responsive design --- */
 @media (max-width: 768px) {
     .trend-analisis-container {
         padding: 1rem;
     }
 
-    .trend-analisis-container h1 {
-        font-size: 2rem;
-        margin-bottom: 1.5rem;
+    .form-wrapper {
+        gap: 1.5rem;
     }
 
     .form-panel {
-        flex: 1 1 100%; /* Los paneles de formulario ocupan todo el ancho */
-        padding: 2rem;
+        flex: 1 1 100%;
+        padding: 1.5rem;
         gap: 1rem;
     }
 
-    .cant-real-group {
-        flex-direction: column; /* Apila el input y el botón en pantallas pequeñas */
-        align-items: stretch;
-    }
-
-    .cant-real-input-and-button {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1rem;
-    }
-
-    .interactive-btn {
-        width: 100%;
-        height: auto;
-        padding: 0.8rem 1.5rem;
-        font-size: 1rem;
+    .search-button {
+        align-self: center;
     }
 
     .results-header {
@@ -391,7 +362,7 @@ body {
         align-items: center;
         gap: 1rem;
     }
-    
+
     .download-pdf-button {
         width: 100%;
         text-align: center;
@@ -400,9 +371,20 @@ body {
     .data-table th,
     .data-table td {
         padding: 1rem 0.8rem;
+        font-size: 0.8rem;
     }
 
     .multi-chart-container {
         grid-template-columns: 1fr;
     }
+}
+
+.cant-real-input-and-button {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cant-real-input-and-button .input-group {
+    flex-grow: 1;
 }
