@@ -278,8 +278,8 @@ useEffect(() => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
-        const chartWidth = 180;
-        const chartHeight = 90;
+        const chartWidth = 190;
+        const chartHeight = 130;
         const headerHeightFirstPage = 60;
         const headerHeightOtherPages = 25;
 
@@ -389,7 +389,7 @@ useEffect(() => {
         }
 
         // --- Insertar gráficos ---
-        const charts = [{ canvas: lineChartRef.current.canvas, title: 'Trend de Análisis' }];
+        const charts = [{ canvas: lineChartRef.current.canvas, title: 'Gráfico' }];
 
         charts.forEach(chart => {
             if (chart.canvas) {
