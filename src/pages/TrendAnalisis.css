@@ -1,15 +1,51 @@
-/* --- Variables y estilos generales --- */
+/* ======================================= */
+/* 1. Variables y Estilos Generales        */
+/* ======================================= */
+
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --accent-color: #e74c3c;
+    /* Colores */
+    --primary-color: #2c3e50; /* Azul oscuro - Texto principal, headers */
+    --secondary-color: #3498db; /* Azul brillante - Énfasis, botones principales */
+    --accent-color: #e74c3c; /* Rojo/Naranja - Acciones destructivas, acentos */
     --success-color: #2ecc71;
-    --background-color: #ecf0f1;
+    --background-color: #ecf0f1; /* Gris claro - Fondo de la página */
     --card-background: #fff;
-    --border-color: #dcdde1;
+    --border-color: #dcdde1; /* Borde suave */
+    --text-muted: #7f8c8d; /* Texto secundario */
+
+    /* Sombras */
     --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.08);
     --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
-    --font-family: 'Segoe UI', 'Lato', sans-serif;
+    --shadow-heavy: 0 12px 30px rgba(0, 0, 0, 0.15);
+
+    /* Tipografía */
+    --font-family: 'Segoe UI', 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* Bordes */
+    --border-radius: 10px;
+    --border-radius-lg: 16px;
+
+    /* Transición */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Espaciado (T-shirt Sizing) */
+    --spacing-05: 0.5rem; 
+    --spacing-10: 1rem;   
+    --spacing-15: 1.5rem; 
+    --spacing-20: 2rem;   
+    --spacing-25: 2.5rem; 
+
+    /* Z-Index */
+    --z-index-sticky: 10;
+    --z-index-dropdown: 1000;
+    --z-index-modal: 2000; /* Nuevo para el modo expandido */
+}
+
+/* Aplicar Box-Sizing globalmente */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
 body {
@@ -19,54 +55,107 @@ body {
     padding: 0;
     color: var(--primary-color);
     line-height: 1.6;
+    /* Mejoras de renderizado de fuente */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Contenedor principal --- */
+/* ======================================= */
+/* 2. Layout Principal y Contenedores      */
+/* ======================================= */
+
+/* Nuevo estilo para bloquear el scroll en modo expandido */
+body.no-scroll {
+    overflow: hidden;
+}
+
 .trend-analisis-container {
-    padding: 2rem;
+    padding: var(--spacing-25);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
 .trend-analisis-container h1 {
     font-size: clamp(2rem, 5vw, 2.5rem);
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: var(--spacing-25);
     font-weight: 700;
     color: var(--primary-color);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Contenedor de los paneles de formulario --- */
+/* Contenedores de Paneles (Formulario, Resultados, Análisis) */
+.form-wrapper,
+.results-container,
+.analysis-summary-wrapper {
+    width: 100%;
+    max-width: 1400px; /* AUMENTADO para pantallas grandes */
+}
+
+/* --- Contenedor de los paneles de formulario (Lado a Lado) --- */
 .form-wrapper {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    width: 100%;
-    max-width: 1200px;
-    margin-bottom: 2.5rem;
+    gap: var(--spacing-20);
+    margin-bottom: var(--spacing-25);
     flex-wrap: wrap;
 }
 
 .form-panel {
-    flex: 1 1 45%;
+    flex: 1 1 45%; /* Lado a Lado en escritorio */
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--spacing-15);
     background-color: var(--card-background);
-    padding: 2.5rem;
-    border-radius: 16px;
+    padding: var(--spacing-25);
+    border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-medium);
-    transition: transform 0.3s ease-in-out;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    min-height: 400px; /* Asegura altura mínima para balance visual */
+}
+
+.form-panel h3 {
+    font-size: 1.35rem;
+    color: var(--secondary-color);
+    margin-top: 0;
+    margin-bottom: var(--spacing-15);
+    font-weight: 700;
+    padding-bottom: var(--spacing-05);
+    border-bottom: 2px solid var(--border-color);
+    letter-spacing: 0.2px;
+}
+
+/* Indicador de acento en hover */
+.form-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+    opacity: 0;
+    transition: var(--transition);
 }
 
 .form-panel:hover {
     transform: translateY(-5px);
+    box-shadow: var(--shadow-heavy);
 }
 
-/* --- Estilos para los grupos de entrada --- */
+.form-panel:hover::before {
+    opacity: 1;
+}
+
+/* ======================================= */
+/* 3. Formularios y Entradas               */
+/* ======================================= */
+
 .input-group {
     position: relative;
     display: flex;
@@ -76,34 +165,49 @@ body {
 .input-group label {
     font-weight: 600;
     color: var(--primary-color);
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--spacing-05);
     font-size: 0.95rem;
-    opacity: 0.8;
+    opacity: 0.9;
+    transition: var(--transition);
 }
 
 .input-group input,
 .input-group select {
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
+    padding: var(--spacing-10);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
     font-size: 1rem;
-    transition: all 0.3s ease;
+    transition: var(--transition);
     background-color: #fcfcfc;
+    font-family: inherit;
+    width: 100%; /* Asegura full width */
 }
 
 .input-group input:focus,
 .input-group select:focus {
     border-color: var(--secondary-color);
-    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
     outline: none;
+    background-color: #fff;
 }
 
-/* Estilos para el contenedor del botón de Cant. Real */
-/* .cant-real-group {
+.input-group input:invalid:focus,
+.input-group select:invalid:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.15);
+}
+
+/* --- Contenedor para input y botón interactivo --- */
+.cant-real-input-and-button {
     display: flex;
     align-items: flex-end;
-    gap: 1rem;
-} */
+    gap: var(--spacing-10);
+}
+
+.cant-real-input-and-button .input-group {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
 
 .interactive-btn {
     width: 50px;
@@ -111,182 +215,31 @@ body {
     background-color: var(--accent-color);
     color: #fff;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition);
     font-size: 1.8rem;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: var(--shadow-light);
+    flex-shrink: 0;
 }
 
 .interactive-btn:hover {
     background-color: #c0392b;
-    transform: scale(1.05);
-}
-
-/* --- Botones principales --- */
-.search-button {
-    padding: 1rem 2rem;
-    background-color: var(--secondary-color);
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 1rem;
-    box-shadow: var(--shadow-light);
-    align-self: flex-end;
-}
-
-.search-button:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-.search-button:hover:not(:disabled) {
-    background-color: #2980b9;
-    transform: translateY(-2px);
+    transform: scale(1.05) translateY(-2px);
     box-shadow: var(--shadow-medium);
 }
 
-.download-pdf-button {
-    padding: 0.8rem 1.5rem;
-    background-color: var(--accent-color);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    font-weight: 500;
-    box-shadow: var(--shadow-light);
+.interactive-btn:active {
+    transform: scale(0.98);
 }
 
-.download-pdf-button:hover {
-    background-color: #c0392b;
-    transform: translateY(-2px);
-}
-
-/* --- Contenedor de resultados --- */
-.results-container {
-    margin-top: 3rem;
-    width: 100%;
-    max-width: 1200px;
-}
-
-.results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.results-header h2 {
-    font-size: 1.8rem;
-    color: var(--primary-color);
-}
-
-/* --- Tabla de datos y paginación --- */
-.table-container {
-    overflow-x: auto;
-    box-shadow: var(--shadow-medium);
-    border-radius: 16px;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: var(--card-background);
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.data-table th,
-.data-table td {
-    padding: 1.2rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.95rem;
-}
-
-.data-table th {
-    background-color: var(--primary-color);
-    color: #ecf0f1;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.data-table tr:hover {
-    background-color: #f9f9f9;
-}
-
-.data-table tr:last-child td {
-    border-bottom: none;
-}
-
-.pagination {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    justify-content: center;
-    margin-top: 2rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.pagination li a {
-    padding: 0.8rem 1.2rem;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: #555;
-    font-weight: 500;
-}
-
-.pagination li.active a {
-    background-color: var(--secondary-color);
-    color: #fff;
-    border-color: var(--secondary-color);
-}
-
-.pagination li a:hover:not(.active) {
-    background-color: #eef7fc;
-    border-color: #beddf4;
-}
-
-/* --- Gráficos (Actualizado para mostrar un solo gráfico) --- */
-.single-chart-container {
-    margin-top: 3rem;
-    width: 100%;
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.chart-container {
-    background-color: var(--card-background);
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: var(--shadow-medium);
-    animation: fadeIn 0.8s ease-in-out;
-    height: 500px;
-}
-
-/* Oculta el contenedor de múltiples gráficos si no se usa */
-.multi-chart-container {
-    display: none;
-}
-
-/* --- Estilos para los campos de autocompletado --- */
+/* --- Estilos para los campos de autocompletado (CORREGIDO) --- */
 .searchable-select {
     position: relative;
-    flex-grow: 1;
+    flex-grow: 0; /* Asegura que ocupe el espacio disponible */
 }
 
 .searchable-select input {
@@ -295,33 +248,41 @@ body {
 }
 
 .searchable-select:not(:focus-within) .custom-dropdown {
-    display: none;
+    display: none; 
 }
 
 .searchable-select .custom-dropdown {
     position: absolute;
-    top: calc(100% + 5px);
+    /* CORRECCIÓN: Inicia justo debajo del input */
+    top: 100%; 
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: var(--z-index-dropdown);
     background-color: var(--card-background);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    /* Ajustes para alineación visual */
+    border-top: none; 
+    border-radius: 0 0 var(--border-radius) var(--border-radius); /* Solo bordes inferiores */
     max-height: 200px;
     overflow-y: auto;
-    box-shadow: var(--shadow-medium);
+    box-shadow: var(--shadow-heavy);
     list-style: none;
-    padding: 0.5rem 0;
+    padding: 0;
     margin: 0;
     animation: fadeIn 0.3s ease-in-out;
 }
 
 .searchable-select .custom-dropdown li {
-    padding: 12px 15px;
+    padding: 0.75rem var(--spacing-10);
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: var(--transition);
     font-size: 0.95rem;
     color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.searchable-select .custom-dropdown li:last-child {
+    border-bottom: none;
 }
 
 .searchable-select .custom-dropdown li:hover {
@@ -333,46 +294,309 @@ body {
     color: #fff;
 }
 
-/* --- Nuevos estilos para el panel de análisis estadístico --- */
+/* ======================================= */
+/* 4. Botones                              */
+/* ======================================= */
+
+.search-button {
+    padding: var(--spacing-10) var(--spacing-20);
+    background-color: var(--secondary-color);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: var(--spacing-10);
+    box-shadow: var(--shadow-light);
+    align-self: flex-end; 
+    font-family: inherit;
+    letter-spacing: 0.5px;
+}
+
+.search-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+.search-button:hover:not(:disabled) {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.download-pdf-button {
+    padding: var(--spacing-05) var(--spacing-15);
+    background-color: var(--accent-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    box-shadow: var(--shadow-light);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.download-pdf-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.download-pdf-button:active {
+    transform: translateY(0);
+}
+
+/* ======================================= */
+/* 5. Resultados y Tablas                  */
+/* ======================================= */
+
+.results-container {
+    margin-top: var(--spacing-25);
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-15);
+    flex-wrap: wrap;
+    gap: var(--spacing-10);
+}
+
+.results-header h2 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin: 0;
+    font-weight: 600;
+}
+
+/* --- Tabla de datos y paginación --- */
+.table-container {
+    overflow-x: auto;
+    box-shadow: var(--shadow-medium);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-20);
+    animation: fadeIn 0.8s ease-in-out; /* Aplicada directamente al contenedor */
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-background);
+    overflow: hidden; 
+    min-width: 600px; 
+}
+
+.data-table th,
+.data-table td {
+    padding: var(--spacing-15) var(--spacing-10);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95rem;
+}
+
+.data-table th {
+    background: linear-gradient(135deg, var(--primary-color), #34495e);
+    color: #ecf0f1;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-index-sticky);
+}
+
+.data-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    justify-content: center;
+    margin-top: var(--spacing-20);
+    flex-wrap: wrap;
+    gap: var(--spacing-05);
+}
+
+.pagination li a {
+    padding: var(--spacing-10) var(--spacing-15);
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-muted);
+    font-weight: 500;
+    text-decoration: none;
+    display: block;
+    min-width: 44px; /* Mínimo para accesibilidad táctil */
+    text-align: center;
+}
+
+.pagination li.active a {
+    background-color: var(--secondary-color);
+    color: #fff;
+    border-color: var(--secondary-color);
+}
+
+.pagination li a:hover:not(.active) {
+    background-color: #eef7fc;
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+/* ======================================= */
+/* 6. Gráficos y Análisis (MEJORADO)       */
+/* ======================================= */
+
+/* CONTENEDOR PARA GRÁFICO Y ANÁLISIS (Layout Lado a Lado) */
+.analysis-summary-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-20);
+    margin: var(--spacing-25) auto; 
+    flex-wrap: wrap; 
+}
+
+/* --- Contenedor Principal del Gráfico --- */
+.single-chart-container {
+    flex: 2 1 65%; /* Toma 2/3 del espacio en pantallas grandes */
+    max-width: 700px; /* Max width razonable */
+    margin: initial;
+    transition: var(--transition); /* Permite transiciones suaves al expandir */
+}
+
+.chart-container {
+    background-color: var(--card-background);
+    padding: var(--spacing-25);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-medium);
+    animation: fadeIn 0.8s ease-in-out; 
+    height: 500px;
+    position: relative;
+}
+
+/* --- Botón de Expansión --- */
+.expand-chart-btn {
+    position: absolute;
+    top: var(--spacing-10);
+    right: var(--spacing-10);
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    line-height: 1;
+    z-index: var(--z-index-sticky);
+}
+
+.expand-chart-btn:hover {
+    background: var(--secondary-color);
+}
+
+/* --- Estilos para el Modo Expandido --- */
+.single-chart-container.chart-expanded {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    z-index: var(--z-index-modal);
+    margin: 0;
+    padding: var(--spacing-15); /* Padding alrededor de la ventana */
+    background-color: rgba(0, 0, 0, 0.9); /* Fondo oscuro para destacar */
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.single-chart-container.chart-expanded .chart-container {
+    width: 100%;
+    height: 100%;
+    padding: var(--spacing-25);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-heavy);
+}
+
+/* Asegura que el botón se muestre como 'Minimizar' */
+.single-chart-container.chart-expanded .expand-chart-btn {
+    top: var(--spacing-25);
+    right: var(--spacing-25);
+    background: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.multi-chart-container {
+    display: none; /* Oculta por defecto */
+}
+
+/* --- Panel de análisis estadístico --- */
+/* En modo expandido, se oculta el panel lateral */
+.single-chart-container.chart-expanded ~ .statistical-analysis-panel {
+    display: none;
+}
+
 .statistical-analysis-panel {
     background-color: var(--card-background);
-    padding: 2.5rem;
-    border-radius: 16px;
+    padding: var(--spacing-25);
+    border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-medium);
-    margin-top: 3rem;
-    width: 100%;
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
-    animation: fadeIn 0.8s ease-in-out;
+    flex: 1 1 30%; 
+    margin: initial;
+    animation: fadeIn 0.8s ease-in-out; 
+    max-height: 500px; 
+    overflow-y: auto;
 }
 
 .statistical-analysis-panel h3 {
     text-align: center;
     font-size: 1.5rem;
     color: var(--primary-color);
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-15);
+    font-weight: 600;
 }
 
 .stats-list {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    display: flex; /* Cambiado a flex */
-    flex-direction: column; /* Agregado para apilarlos verticalmente */
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-10);
 }
 
 .stats-list li {
-    background-color: #f8f8f8;
-    padding: 1rem;
-    border-radius: 10px;
+    background-color: #f8f9fa;
+    padding: var(--spacing-10);
+    border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
-    transition: background-color 0.3s;
+    transition: var(--transition);
 }
 
 .stats-list li:hover {
-    background-color: #f2f2f2;
+    background-color: #f0f8ff;
+    border-color: var(--secondary-color);
+    transform: translateX(5px);
 }
 
 .stats-list li strong {
@@ -380,35 +604,44 @@ body {
     font-weight: 700;
 }
 
-/* --- Estado de carga y error --- */
+/* ======================================= */
+/* 7. Estado de Carga y Error              */
+/* ======================================= */
+
 .loading-state,
 .error-state {
     text-align: center;
     font-size: 1.2rem;
     font-weight: 500;
-    margin-top: 2rem;
-    padding: 1.5rem;
-    border-radius: 10px;
-    background-color: #fff;
+    margin-top: var(--spacing-20);
+    padding: var(--spacing-15);
+    border-radius: var(--border-radius);
+    background-color: var(--card-background);
     box-shadow: var(--shadow-light);
     animation: fadeIn 0.5s ease-in-out;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .loading-state {
-    color: #2980b9;
-    border: 2px solid #3498db;
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
 }
 
 .error-state {
-    color: #e74c3c;
-    border: 2px solid #e74c3c;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
 }
 
-/* --- Animaciones y media queries --- */
+/* ======================================= */
+/* 8. Animaciones                          */
+/* ======================================= */
+
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -416,59 +649,169 @@ body {
     }
 }
 
-@media (max-width: 768px) {
-    .trend-analisis-container {
-        padding: 1rem;
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
     }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
 
+
+/* ======================================= */
+/* 9. Media Queries y Accesibilidad        */
+/* ======================================= */
+
+/* --- Tablet (hasta 1024px) --- */
+@media (max-width: 1024px) {
     .form-wrapper {
-        gap: 1.5rem;
+        gap: var(--spacing-15);
     }
 
     .form-panel {
+        flex: 1 1 100%; 
+        padding: var(--spacing-20);
+    }
+    
+    /* APILAR GRÁFICO Y ANÁLISIS */
+    .analysis-summary-wrapper {
+        flex-direction: column; 
+        gap: var(--spacing-25);
+        max-width: 90%; 
+    }
+
+    .single-chart-container,
+    .statistical-analysis-panel {
+        max-width: 100%; 
         flex: 1 1 100%;
-        padding: 1.5rem;
-        gap: 1rem;
+        max-height: initial; 
+        overflow-y: initial;
+    }
+}
+
+/* --- Móvil grande (hasta 768px) --- */
+@media (max-width: 768px) {
+    .trend-analisis-container {
+        padding: var(--spacing-20);
+    }
+
+    .form-wrapper {
+        gap: var(--spacing-15);
+    }
+
+    .form-panel {
+        padding: var(--spacing-15);
+        gap: var(--spacing-10);
     }
 
     .search-button {
         align-self: center;
+        width: 100%;
+        max-width: 300px;
     }
 
     .results-header {
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: var(--spacing-10);
         text-align: center;
     }
 
     .download-pdf-button {
         width: 100%;
+        max-width: 300px; 
         text-align: center;
     }
 
     .data-table th,
     .data-table td {
-        padding: 1rem 0.8rem;
+        padding: var(--spacing-10) var(--spacing-05);
+        font-size: 0.85rem;
+    }
+
+    .chart-container {
+        height: 400px;
+        padding: var(--spacing-15);
+    }
+
+    .statistical-analysis-panel {
+        padding: var(--spacing-15);
+    }
+
+    .stats-list li {
+        padding: var(--spacing-05);
+    }
+
+    .pagination li a {
+        padding: var(--spacing-05) 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    /* En móvil, el modo expandido es total */
+    .single-chart-container.chart-expanded {
+        padding: var(--spacing-05);
+    }
+
+    .single-chart-container.chart-expanded .expand-chart-btn {
+        top: var(--spacing-15);
+        right: var(--spacing-15);
+    }
+}
+
+/* --- Móvil pequeño (hasta 480px) --- */
+@media (max-width: 480px) {
+    .trend-analisis-container {
+        padding: var(--spacing-15);
+    }
+
+    .data-table {
+        min-width: 100%;
         font-size: 0.8rem;
     }
 
-    .multi-chart-container {
-        grid-template-columns: 1fr;
+    .cant-real-input-and-button {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-05);
     }
 
-    .stats-list {
-        grid-template-columns: 1fr;
+    .interactive-btn {
+        align-self: flex-end; 
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
     }
 }
 
-.cant-real-input-and-button {
-    display: flex;
-    align-items: flex-end;
-    gap: 1rem;
+/* --- Mejoras de Accesibilidad --- */
+
+/* Movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
-.cant-real-input-and-button .input-group {
-    flex-grow: 1;
-    margin-bottom: 0;
+/* Alto contraste */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000;
+        --primary-color: #000;
+        --secondary-color: #0066cc;
+    }
+
+    .input-group input,
+    .input-group select {
+        border-width: 3px;
+    }
+
+    .data-table th {
+        background: var(--primary-color);
+        color: #fff;
+    }
 }

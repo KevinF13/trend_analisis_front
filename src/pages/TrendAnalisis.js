@@ -37,6 +37,31 @@ const formatDate = (dateStr) => {
 };
 
 const TrendAnalisis = () => {
+    // ... dentro de const TrendAnalisis = () => {
+// ... otros estados
+const [isChartExpanded, setIsChartExpanded] = useState(false);
+// --- Lógica del botón de expansión ---
+const handleExpandChart = () => {
+    setIsChartExpanded(prev => !prev);
+    // Nota: Eliminamos la manipulación directa de document.body de aquí
+    document.body.classList.toggle('no-scroll');
+};
+
+// --- Control del scroll en el body ---
+useEffect(() => {
+    if (isChartExpanded) {
+        document.body.classList.add('no-scroll');
+    } else {
+        document.body.classList.remove('no-scroll');
+    }
+    // Función de limpieza para asegurar que la clase se quite al desmontar el componente
+    return () => {
+        document.body.classList.remove('no-scroll');
+    };
+}, [isChartExpanded]); // Se ejecuta cada vez que el estado cambia
+
+
+// ... resto del código
     // Estados principales
     const [data, setData] = useState([]); // Datos que vienen del API
     const [loading, setLoading] = useState(false); // Estado de carga
@@ -596,184 +621,206 @@ const TrendAnalisis = () => {
 
     // --- Render del componente ---
     return (
-        <div className="trend-analisis-container">
-            <h1>Análisis de Tendencias</h1>
+       <div className="trend-analisis-container">
+    <h1>Análisis de Tendencias</h1>
 
-            {/* Formulario de filtros */}
-            <div className="form-wrapper">
-                <div className="form-panel">
-                    <div className="input-group">
-                        <label>UniNeg</label>
-                        <input type="text" value={uniNeg} onChange={e => setUniNeg(e.target.value)} readOnly />
-                    </div>
-                    <div className="input-group">
-                        <label>Fecha Prueba</label>
-                        <input type="date" value={fechaPrueba} onChange={e => setFechaPrueba(e.target.value)} />
-                    </div>
-                    <div className="input-group">
-                        <label>Fecha Fin Test</label>
-                        <input type="date" value={fechaFinTest} onChange={e => setFechaFinTest(e.target.value)} />
-                    </div>
-                    <button className="search-button" onClick={handleFetchProductList} disabled={loading}>
-                        {loading ? 'Buscando Productos...' : 'Buscar Productos'}
-                    </button>
+    {/* FORMULARIOS: Contenedor Flexbox para los 2 paneles (LADO A LADO) */}
+    <div className="form-wrapper">
+        
+        {/* Panel 1: Filtros de Fecha/UniNeg */}
+        <div className="form-panel">
+            <h3>Filtros Principales</h3>
+            <div className="input-group">
+                <label>UniNeg</label>
+                <input type="text" value={uniNeg} onChange={e => setUniNeg(e.target.value)} readOnly />
+            </div>
+            <div className="input-group">
+                <label>Fecha Prueba</label>
+                <input type="date" value={fechaPrueba} onChange={e => setFechaPrueba(e.target.value)} />
+            </div>
+            <div className="input-group">
+                <label>Fecha Fin Test</label>
+                <input type="date" value={fechaFinTest} onChange={e => setFechaFinTest(e.target.value)} />
+            </div>
+            <button className="search-button" onClick={handleFetchProductList} disabled={loading}>
+                {loading ? 'Buscando Productos...' : 'Buscar Productos'}
+            </button>
+        </div>
+
+        {/* Panel 2: Selección de Producto y Prueba (Aparece si hay opciones) */}
+        {productOptions.length > 0 && (
+            <div className="form-panel">
+                <h3>Selección de Producto</h3>
+                
+                {/* Producto */}
+                <div className="input-group searchable-select">
+                    <label>Seleccionar Producto</label>
+                    <input
+                        type="text"
+                        placeholder="Escribe para filtrar..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        onFocus={() => productListRef.current && (productListRef.current.style.display = 'block')}
+                        onClick={handleClearProduct}
+                    />
+                    <ul ref={productListRef} className="custom-dropdown">
+                        {filteredProductOptions.map((item, index) => (
+                            <li key={index} onClick={() => handleProductSelect(item)}>
+                                {`${item.IMLITM} - ${item.IMDSC1}`}
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
-                {/* Sección de selección de producto y prueba */}
-                {productOptions.length > 0 && (
-                    <div className="form-panel">
-                        {/* Producto */}
-                        <div className="input-group searchable-select">
-                            <label>Seleccionar Producto</label>
-                            <input
-                                type="text"
-                                placeholder="Escribe para filtrar..."
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                onFocus={() => productListRef.current && (productListRef.current.style.display = 'block')}
-                                onClick={handleClearProduct}
-                            />
-                            <ul ref={productListRef} className="custom-dropdown">
-                                {filteredProductOptions.map((item, index) => (
-                                    <li key={index} onClick={() => handleProductSelect(item)}>
-                                        {`${item.IMLITM} - ${item.IMDSC1}`}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                {/* Prueba */}
+                {selectedProduct && (
+                    <div className="input-group searchable-select">
+                        <label>Seleccionar Prueba</label>
+                        <input
+                            type="text"
+                            placeholder="Escribe para filtrar..."
+                            value={searchTestTerm}
+                            onChange={e => setSearchTestTerm(e.target.value)}
+                            onFocus={() => testListRef.current && (testListRef.current.style.display = 'block')}
+                            onClick={handleClearTest}
+                        />
+                        <ul ref={testListRef} className="custom-dropdown">
+                            {filteredTests.map((test, index) => (
+                                <li key={index} onClick={() => handleTestSelect(test)}>
+                                    {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
 
-                        {/* Prueba */}
-                        {selectedProduct && (
+                {/* Cantidad Real opcional */}
+                <div className="cant-real-group">
+                    <div className="cant-real-input-and-button">
+                        <button className="interactive-btn" onClick={handleCantRealBtnClick} aria-label={isCantRealActive ? 'Quitar filtro de Cantidad Real' : 'Agregar filtro de Cantidad Real'}>
+                            {isCantRealActive ? '❌' : '➕'}
+                        </button>
+                        {isCantRealActive && (
                             <div className="input-group searchable-select">
-                                <label>Seleccionar Prueba</label>
+                                <label>Cant. Real</label>
                                 <input
                                     type="text"
-                                    placeholder="Escribe para filtrar..."
-                                    value={searchTestTerm}
-                                    onChange={e => setSearchTestTerm(e.target.value)}
-                                    onFocus={() => testListRef.current && (testListRef.current.style.display = 'block')}
-                                    onClick={handleClearTest}
+                                    placeholder="Prueba opcional"
+                                    value={searchCantRealTerm}
+                                    onChange={e => setSearchCantRealTerm(e.target.value)}
+                                    onFocus={() => cantRealListRef.current && (cantRealListRef.current.style.display = 'block')}
+                                    onClick={handleClearCantReal}
                                 />
-                                <ul ref={testListRef} className="custom-dropdown">
-                                    {filteredTests.map((test, index) => (
-                                        <li key={index} onClick={() => handleTestSelect(test)}>
+                                <ul ref={cantRealListRef} className="custom-dropdown">
+                                    {filteredCantRealTests.map((test, index) => (
+                                        <li key={index} onClick={() => handleCantRealSelect(test)}>
                                             {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
                                         </li>
-
                                     ))}
                                 </ul>
                             </div>
                         )}
-
-                        {/* Cantidad Real opcional */}
-                        <div className="cant-real-group">
-                            <div className="cant-real-input-and-button">
-                                <button className="interactive-btn" onClick={handleCantRealBtnClick}>
-                                    {isCantRealActive ? '❌' : '➕'}
-                                </button>
-                                {isCantRealActive && (
-                                    <div className="input-group searchable-select">
-                                        <label>Cant. Real</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Prueba opcional"
-                                            value={searchCantRealTerm}
-                                            onChange={e => setSearchCantRealTerm(e.target.value)}
-                                            onFocus={() => cantRealListRef.current && (cantRealListRef.current.style.display = 'block')}
-                                            onClick={handleClearCantReal}
-                                        />
-                                        <ul ref={cantRealListRef} className="custom-dropdown">
-                                            {filteredCantRealTests.map((test, index) => (
-                                                <li key={index} onClick={() => handleCantRealSelect(test)}>
-                                                    {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Botón para generar análisis */}
-                        <button className="search-button" onClick={handleFetchTrendData} disabled={loading || !selectedProduct || !selectedTest}>
-                            {loading ? 'Cargando Datos...' : 'Generar Análisis'}
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            {/* Mensajes de estado */}
-            {loading && <div className="loading-state">Cargando datos...</div>}
-            {error && <div className="error-state">Error: {error}</div>}
-
-            {/* Resultados */}
-            {data.length > 0 && (
-                <div className="results-container">
-                    <div className="results-header">
-                        <h2>Resultados de la Búsqueda</h2>
-                        <button className="download-pdf-button" onClick={handleDownloadPDF}>Descargar PDF</button>
-                    </div>
-                    <div className="table-container">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Número Lote/Serie</th>
-                                    <th>Resultado Prueba</th>
-                                    <th>Valor Mínimo Permitido</th>
-                                    <th>Valor Máximo Permitido</th>
-                                    <th>Cantidad Real</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentData.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{item['Número Lote/Serie']}</td>
-                                        <td>{item['Resultado Prueba']} {item['Unidad Medida']}</td>
-                                        <td>{item['Valor Mínimo Permitido']}</td>
-                                        <td>{item['Valor Máximo Permitido']}</td>
-                                        <td>{item['Cantidad Real']} {item['Unidad Cantidad Real']}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Paginación */}
-                    <ReactPaginate
-                        previousLabel={'Anterior'}
-                        nextLabel={'Siguiente'}
-                        breakLabel={'...'}
-                        pageCount={pageCount}
-                        marginPagesDisplayed={2}
-                        pageRangeDisplayed={3}
-                        onPageChange={handlePageClick}
-                        containerClassName={'pagination'}
-                        activeClassName={'active'}
-                    />
-
-                    {/* Análisis estadístico */}
-                    {average !== null && standardDeviation !== null && (
-                        <div className="statistical-analysis-panel">
-                            <h3>Análisis Estadístico</h3>
-                            <ul className="stats-list">
-                                <li><strong>Promedio:</strong> {average.toFixed(2)} {testUnit}</li>
-                                <li><strong>Desviación Estándar (σ):</strong> {standardDeviation.toFixed(2)}</li>
-                                <li><strong>Promedio ± 1σ:</strong> {oneStdDev[0].toFixed(2)} a {oneStdDev[1].toFixed(2)} {testUnit}</li>
-                                <li><strong>Promedio ± 2σ:</strong> {twoStdDev[0].toFixed(2)} a {twoStdDev[1].toFixed(2)} {testUnit}</li>
-                                <li><strong>Promedio ± 3σ:</strong> {threeStdDev[0].toFixed(2)} a {threeStdDev[1].toFixed(2)} {testUnit}</li>
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* Gráfico */}
-                    <div className="single-chart-container">
-                        <div className="chart-container">
-                            <Line ref={lineChartRef} data={chartData} options={chartOptions} />
-                        </div>
                     </div>
                 </div>
-            )}
+
+                {/* Botón para generar análisis */}
+                <button className="search-button" onClick={handleFetchTrendData} disabled={loading || !selectedProduct || !selectedTest}>
+                    {loading ? 'Cargando Datos...' : 'Generar Análisis'}
+                </button>
+            </div>
+        )}
+    </div> {/* <--- CIERRE CORRECTO del form-wrapper */}
+
+    {/* Mensajes de estado */}
+    {loading && <div className="loading-state">Cargando datos...</div>}
+    {error && <div className="error-state">Error: {error}</div>}
+
+    {/* RESULTADOS: Contenedor principal de Resultados (HERMANO del form-wrapper) */}
+    {data.length > 0 && (
+        <div className="results-container">
+            
+            {/* Encabezado */}
+            <div className="results-header">
+                <h2>Resultados de la Búsqueda</h2>
+                <button className="download-pdf-button" onClick={handleDownloadPDF}>Descargar PDF</button>
+            </div>
+            
+            {/* Tabla de Datos */}
+            <div className="table-container">
+                <table className="data-table">
+                    <thead>
+                        <tr>
+                            <th>Número Lote/Serie</th>
+                            <th>Resultado Prueba</th>
+                            <th>Valor Mínimo Permitido</th>
+                            <th>Valor Máximo Permitido</th>
+                            <th>Cantidad Real</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentData.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item['Número Lote/Serie']}</td>
+                                <td>{item['Resultado Prueba']} {item['Unidad Medida']}</td>
+                                <td>{item['Valor Mínimo Permitido']}</td>
+                                <td>{item['Valor Máximo Permitido']}</td>
+                                <td>{item['Cantidad Real']} {item['Unidad Cantidad Real']}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Paginación */}
+            <ReactPaginate
+                previousLabel={'Anterior'}
+                nextLabel={'Siguiente'}
+                breakLabel={'...'}
+                pageCount={pageCount}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={3}
+                onPageChange={handlePageClick}
+                containerClassName={'pagination'}
+                activeClassName={'active'}
+            />
+
+            {/* GRÁFICO y ANÁLISIS ESTADÍSTICO (LADO A LADO) */}
+            <div className="analysis-summary-wrapper">
+                
+                {/* 1. Panel de Análisis Estadístico */}
+                {average !== null && standardDeviation !== null && (
+                    <div className="statistical-analysis-panel">
+                        <h3>Análisis Estadístico</h3>
+                        <ul className="stats-list">
+                            <li><strong>Promedio:</strong> {average.toFixed(2)} {testUnit}</li>
+                            <li><strong>Desviación Estándar (σ):</strong> {standardDeviation.toFixed(2)}</li>
+                            <li><strong>Promedio ± 1σ:</strong> {oneStdDev[0].toFixed(2)} a {oneStdDev[1].toFixed(2)} {testUnit}</li>
+                            <li><strong>Promedio ± 2σ:</strong> {twoStdDev[0].toFixed(2)} a {twoStdDev[1].toFixed(2)} {testUnit}</li>
+                            <li><strong>Promedio ± 3σ:</strong> {threeStdDev[0].toFixed(2)} a {threeStdDev[1].toFixed(2)} {testUnit}</li>
+                        </ul>
+                    </div>
+                )}
+                
+                {/* 2. Gráfico */}
+<div className={`single-chart-container ${isChartExpanded ? 'chart-expanded' : ''}`}>
+    <div className="chart-container">
+        {/* ASIGNACIÓN DE LA FUNCIÓN onClick */}
+        <button 
+            className="expand-chart-btn" 
+            onClick={handleExpandChart} // 👈 Función de clic
+            aria-label={isChartExpanded ? 'Minimizar gráfico' : 'Expandir gráfico en pantalla completa'}
+        >
+            {/* CAMBIA EL ICONO O TEXTO BASADO EN EL ESTADO */}
+            {isChartExpanded ? 'X' : '⤡'}
+        </button>
+        <Line ref={lineChartRef} data={chartData} options={chartOptions} />
+    </div>
+</div>
+            </div>
+
         </div>
+    )}
+</div>
     );
 };
 
