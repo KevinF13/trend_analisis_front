@@ -1,34 +1,35 @@
+// Importación de librerías y hooks de React
 import React, { useState, useRef, useEffect } from 'react';
-import ReactPaginate from 'react-paginate';
+import ReactPaginate from 'react-paginate'; // Para paginación de tablas
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
-    BarElement,
     Title,
     Tooltip,
     Legend
-} from 'chart.js';
-import { Line } from 'react-chartjs-2'; // Se eliminan Bar y Scatter
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import './TrendAnalisis.css';
+} from 'chart.js'; // Librería para gráficos
+import { Line } from 'react-chartjs-2'; // Componente de gráficos de línea para React
+import jsPDF from 'jspdf'; // Para generar PDF
+import autoTable from 'jspdf-autotable'; // Para generar tablas en PDF
+import ChartDataLabels from 'chartjs-plugin-datalabels'; // Para mostrar valores en los gráficos
+import './TrendAnalisis.css'; // Importa estilos específicos
 
-// Register Chart.js components
+// Registro de los componentes necesarios de Chart.js y plugins
 ChartJS.register(
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
-    BarElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    ChartDataLabels
 );
 
-// Helper function to format date from 'YYYY-MM-DD' to 'DD-MM-YYYY'
+// Función auxiliar para formatear fechas de 'YYYY-MM-DD' a 'DD-MM-YYYY'
 const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const [year, month, day] = dateStr.split('-');
@@ -36,84 +37,105 @@ const formatDate = (dateStr) => {
 };
 
 const TrendAnalisis = () => {
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    // Estados principales
+    const [data, setData] = useState([]); // Datos que vienen del API
+    const [loading, setLoading] = useState(false); // Estado de carga
+    const [error, setError] = useState(null); // Estado de error
 
-    const [uniNeg, setUniNeg] = useState('');
-    const [fechaPrueba, setFechaPrueba] = useState('');
-    const [fechaFinTest, setFechaFinTest] = useState('');
+    // Estados de filtros
+    const [uniNeg, setUniNeg] = useState(''); // Unidad de negocio (bodega)
+    const [fechaPrueba, setFechaPrueba] = useState(''); // Fecha inicio
+    const [fechaFinTest, setFechaFinTest] = useState(''); // Fecha fin
 
-    const [selectedCantRealTest, setSelectedCantRealTest] = useState('');
-    const [isCantRealActive, setIsCantRealActive] = useState(false);
+    // Estados para selección de Cantidad Real
+    const [selectedCantRealTest, setSelectedCantRealTest] = useState(''); 
+    const [isCantRealActive, setIsCantRealActive] = useState(false); // Controla si se activa campo opcional
 
-    const [productOptions, setProductOptions] = useState([]);
-    const [selectedProduct, setSelectedProduct] = useState('');
-    const [selectedTest, setSelectedTest] = useState('');
+    // Estados para productos y pruebas
+    const [productOptions, setProductOptions] = useState([]); // Lista completa de productos desde API
+    const [selectedProduct, setSelectedProduct] = useState(''); // Producto seleccionado
+    const [selectedTest, setSelectedTest] = useState(''); // Prueba seleccionada
+    const [testUnit, setTestUnit] = useState(''); // Unidad de medida de la prueba
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchTestTerm, setSearchTestTerm] = useState('');
-    const [searchCantRealTerm, setSearchCantRealTerm] = useState('');
+    // Estados para búsqueda en inputs
+    const [searchTerm, setSearchTerm] = useState(''); // Búsqueda de producto
+    const [searchTestTerm, setSearchTestTerm] = useState(''); // Búsqueda de prueba
+    const [searchCantRealTerm, setSearchCantRealTerm] = useState(''); // Búsqueda de Cantidad Real
 
-    const [currentPage, setCurrentPage] = useState(0);
-    const itemsPerPage = 5;
+    // --- Estados para análisis estadístico ---
+    const [average, setAverage] = useState(null); // Promedio
+    const [standardDeviation, setStandardDeviation] = useState(null); // Desviación estándar
+    const [oneStdDev, setOneStdDev] = useState([null, null]); // ±1σ
+    const [twoStdDev, setTwoStdDev] = useState([null, null]); // ±2σ
+    const [threeStdDev, setThreeStdDev] = useState([null, null]); // ±3σ
 
-    const lineChartRef = useRef(null);
-    const productListRef = useRef(null);
-    const testListRef = useRef(null);
-    const cantRealListRef = useRef(null);
+    // --- Estados para paginación ---
+    const [currentPage, setCurrentPage] = useState(0); // Página actual
+    const itemsPerPage = 5; // Items por página
 
+    // --- Referencias a elementos del DOM ---
+    const lineChartRef = useRef(null); // Ref para gráfico
+    const productListRef = useRef(null); // Ref para dropdown de productos
+    const testListRef = useRef(null); // Ref para dropdown de pruebas
+    const cantRealListRef = useRef(null); // Ref para dropdown de Cantidad Real
+
+    // --- Cálculo de datos de la página actual ---
     const offset = currentPage * itemsPerPage;
     const currentData = data.slice(offset, offset + itemsPerPage);
     const pageCount = Math.ceil(data.length / itemsPerPage);
 
+    // --- Manejo de cambio de página ---
     const handlePageClick = (event) => {
         setCurrentPage(event.selected);
     };
 
+    // --- Función para obtener lista de productos desde API ---
     const handleFetchProductList = async () => {
         setLoading(true);
-        setError(null);
-        setData([]);
-        setProductOptions([]);
-        setSelectedProduct('');
-        setSelectedTest('');
-        setSearchTerm('');
-        setSelectedCantRealTest('');
-        setIsCantRealActive(false);
+    setError(null);
+    setData([]);
+    setProductOptions([]);
+    setSelectedProduct('');
+    setSelectedTest('');
+    setSearchTerm('');
+    setSelectedCantRealTest('');
+    setIsCantRealActive(false);
 
-        const apiEndpoint = 'http://172.16.2.25:5000/valor';
-        const requestBody = {
-            bodega: '01PD01',
-            fecha_inicio: formatDate(fechaPrueba),
-            fecha_fin: formatDate(fechaFinTest),
-        };
-
-        try {
-            const response = await fetch(apiEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-            });
-
-            if (!response.ok) {
-                const errText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status} - ${errText}`);
-            }
-
-            const apiResponse = await response.json();
-            setProductOptions(apiResponse.resultados || []);
-            setUniNeg('01PD01');
-        } catch (e) {
-            setError(e.message);
-            setProductOptions([]);
-        } finally {
-            setLoading(false);
-        }
+    const apiEndpoint = 'http://127.0.0.1:5000/valor';
+    const requestBody = {
+        bodega: '01PD01',
+        fecha_inicio: formatDate(fechaPrueba),
+        fecha_fin: formatDate(fechaFinTest),
     };
 
+    try {
+        const response = await fetch(apiEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status} - ${errText}`);
+        }
+
+        const apiResponse = await response.json();
+
+        // 🔹 Aquí imprimimos los resultados en consola
+        console.log('Resultados de la API /valor:', apiResponse.resultados);
+
+        setProductOptions(apiResponse.resultados || []);
+        setUniNeg('01PD01'); // Guardar unidad de negocio
+    } catch (e) {
+        setError(e.message);
+        setProductOptions([]);
+    } finally {
+        setLoading(false);
+    }
+    };
+
+    // --- Función para obtener datos de tendencias según selección ---
     const handleFetchTrendData = async () => {
         if (!selectedProduct || !selectedTest) {
             alert("Por favor, selecciona un producto y una prueba.");
@@ -123,10 +145,16 @@ const TrendAnalisis = () => {
         setLoading(true);
         setError(null);
         setData([]);
+        setAverage(null);
+        setStandardDeviation(null);
+        setOneStdDev([null, null]);
+        setTwoStdDev([null, null]);
+        setThreeStdDev([null, null]);
 
-        const cantRealToSend = isCantRealActive ? selectedCantRealTest : '';
+        // Si no hay Cantidad Real opcional seleccionada, enviar prueba principal
+        const cantRealToSend = selectedCantRealTest || selectedTest;
 
-        const apiEndpoint = 'http://172.16.2.25:5000/consulta';
+        const apiEndpoint = 'http://127.0.0.1:5000/consulta';
         const requestBody = {
             prueba: selectedTest,
             cant_real: cantRealToSend,
@@ -141,9 +169,7 @@ const TrendAnalisis = () => {
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody),
             });
 
@@ -153,17 +179,27 @@ const TrendAnalisis = () => {
             }
 
             const apiResponse = await response.json();
+
+            // Mapear datos del API a formato legible para la tabla
             const formattedData = apiResponse.resultados.map(item => ({
-                'Número Lote/Serie': item.TRLOTN,
+                'Número Lote/Serie': item.LOTE,
                 'Resultado Prueba': item.RESULTADO_PRUEBA,
                 'Valor Mínimo Permitido': item.MIN,
                 'Valor Máximo Permitido': item.MAX,
                 'Unidad Medida': item.UNIDAD_PRUEBA,
                 'Cantidad Real': item.CANTIDAD_REAL,
+                'Unidad Cantidad Real': item.UNIDAD_CANTIDAD,
+                'DESC_PRUEBA': item.DESC_PRUEBA,
+                'CAMPO_ADICIONAL': item.CAMPO_ADICIONAL
             }));
 
             setData(formattedData);
-            setCurrentPage(0);
+            if (formattedData.length > 0) {
+                setTestUnit(formattedData[0]['Unidad Medida']); // Guardar unidad de medida
+            } else {
+                setTestUnit('');
+            }
+            setCurrentPage(0); // Reset de la paginación
         } catch (e) {
             setError(e.message);
             setData([]);
@@ -172,24 +208,61 @@ const TrendAnalisis = () => {
         }
     };
 
+    // --- Función para calcular estadísticas ---
+    const calculateStatistics = (dataArray) => {
+        if (!dataArray || dataArray.length === 0) {
+            setAverage(null);
+            setStandardDeviation(null);
+            setOneStdDev([null, null]);
+            setTwoStdDev([null, null]);
+            setThreeStdDev([null, null]);
+            return;
+        }
+
+        const values = dataArray.map(item => parseFloat(item['Resultado Prueba'])).filter(val => !isNaN(val));
+        const n = values.length;
+
+        if (n === 0) {
+            setAverage(null);
+            setStandardDeviation(null);
+            setOneStdDev([null, null]);
+            setTwoStdDev([null, null]);
+            setThreeStdDev([null, null]);
+            return;
+        }
+
+        const avg = values.reduce((sum, val) => sum + val, 0) / n;
+        setAverage(avg);
+
+        const variance = values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / n;
+        const stdDev = Math.sqrt(variance);
+        setStandardDeviation(stdDev);
+
+        setOneStdDev([avg - stdDev, avg + stdDev]);
+        setTwoStdDev([avg - 2 * stdDev, avg + 2 * stdDev]);
+        setThreeStdDev([avg - 3 * stdDev, avg + 3 * stdDev]);
+    };
+
+    // --- Recalcular estadísticas cada vez que cambian los datos ---
+    useEffect(() => {
+        calculateStatistics(data);
+    }, [data]);
+
+    // --- Función para descargar PDF ---
     const handleDownloadPDF = () => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const chartWidth = 180;
         const chartHeight = 90;
-
         const headerHeightFirstPage = 60;
         const headerHeightOtherPages = 25;
 
         doc.setFont("times", "normal");
 
+        // Función para dibujar el header en cada página
         const drawHeader = (doc, isFirstPage = false) => {
-            const logoX = 14;
-            const logoY = 10;
-            const logoWidth = 30;
-            const logoHeight = 15;
-
+            const logoX = 14, logoY = 10, logoWidth = 30, logoHeight = 15;
             doc.addImage('/images/LOGO_FARMACID_SIN_FONDO.png', 'PNG', logoX, logoY, logoWidth, logoHeight);
 
             doc.setFontSize(18);
@@ -204,36 +277,41 @@ const TrendAnalisis = () => {
 
             const selectedProductDetails = productOptions.find(p => p && p.IMLITM && p.IMLITM.trim() === selectedProduct);
             const productDescription = selectedProductDetails ? selectedProductDetails.IMDSC1 : 'N/A';
-            const testDescription = selectedTest || 'N/A';
+            const testDetails = data.length > 0 ? data[0] : {};
+            const testDescription = testDetails.DESC_PRUEBA || 'N/A';
+            const additionalField = testDetails.CAMPO_ADICIONAL || 'N/A';
 
             if (isFirstPage) {
                 doc.setFontSize(10);
                 doc.setFont("times", "bold");
                 doc.text(`PRODUCTO:`, 14, 40);
-                doc.text(`CODIGO:`, 14, 45);
-                doc.text(`PROCESO:`, 14, 50);
+                doc.text(`CÓDIGO PRODUCTO:`, 14, 45);
+                doc.text(`CÓDIGO:`, 14, 50);
+                doc.text(`PROCESO:`, 110, 50);
                 doc.setFont("times", "normal");
                 doc.text(productDescription, 40, 40);
-                doc.text(selectedProduct, 40, 45);
-                doc.text('TERMINADO', 40, 50);
+                doc.text(selectedProduct, 55, 45);
+                doc.text(additionalField, 35, 50);
+                doc.text('TERMINADO', 135, 50);
 
                 doc.setFont("times", "bold");
                 doc.text(`LABORATORIO:`, 110, 40);
-                doc.text(`TEST:`, 110, 50);
+                doc.text(`TEST:`, 110, 45);
+                
                 doc.setFont("times", "normal");
                 doc.text(`PHARMABRAND S.A.`, 145, 40);
-                doc.text(testDescription, 130, 50);
+                doc.text(testDescription, 125, 45);
             }
         };
 
-        const headers = [['LOTE', 'RESULTADO DE PRUEBA', 'MÁXIMO', 'MÍNIMO', 'CANTIDAD REAL', 'UM']];
+        // Configuración de tabla
+        const headers = [['LOTE', 'RESULTADO PRUEBA', 'MÍNIMO', 'MÁXIMO', 'CANTIDAD REAL']];
         const tableData = data.map(item => [
             item['Número Lote/Serie'],
-            item['Resultado Prueba'],
+            `${item['Resultado Prueba']} ${item['Unidad Medida']}`,
             item['Valor Mínimo Permitido'],
             item['Valor Máximo Permitido'],
-            item['Cantidad Real'],
-            item['Unidad Medida']
+            `${item['Cantidad Real']} ${item['Unidad Cantidad Real']}`
         ]);
 
         autoTable(doc, {
@@ -246,7 +324,7 @@ const TrendAnalisis = () => {
             alternateRowStyles: { fillColor: '#ffffff' },
             theme: 'striped',
             styles: { cellPadding: 3, lineWidth: 0.1, lineColor: '#bdc3c7', font: 'times' },
-            columnStyles: { 0: { halign: 'center' }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' }, 5: { halign: 'center' } },
+            columnStyles: { 0: { halign: 'center' }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' } },
 
             didDrawPage: (data) => {
                 const isFirstPage = data.pageNumber === 1;
@@ -262,10 +340,31 @@ const TrendAnalisis = () => {
 
         let currentY = doc.lastAutoTable.finalY + 20;
 
-        // Se ajusta para solo usar el gráfico de líneas
-        const charts = [
-            { canvas: lineChartRef.current.canvas, title: 'Trend de Análisis' }
-        ];
+        // --- Sección de análisis estadístico en PDF ---
+        if (average !== null && testUnit) {
+            if (currentY + 60 > pageHeight) {
+                doc.addPage();
+                drawHeader(doc, false);
+                currentY = headerHeightOtherPages + 10;
+            }
+
+            doc.setFontSize(12);
+            doc.setFont("times", "bold");
+            doc.text('ANÁLISIS ESTADÍSTICO', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+            currentY += 8;
+            
+            doc.setFontSize(10);
+            doc.setFont("times", "normal");
+            doc.text(`Promedio: ${average.toFixed(2)} ${testUnit}`, 14, currentY + 5);
+            doc.text(`Desviación Estándar: ${standardDeviation.toFixed(2)}`, 14, currentY + 10);
+            doc.text(`Promedio +/- 1 Desviación Estándar: ${oneStdDev[0].toFixed(2)} a ${oneStdDev[1].toFixed(2)} ${testUnit}`, 14, currentY + 15);
+            doc.text(`Promedio +/- 2 Desviación Estándar: ${twoStdDev[0].toFixed(2)} a ${twoStdDev[1].toFixed(2)} ${testUnit}`, 14, currentY + 20);
+            doc.text(`Promedio +/- 3 Desviación Estándar: ${threeStdDev[0].toFixed(2)} a ${threeStdDev[1].toFixed(2)} ${testUnit}`, 14, currentY + 25);
+            currentY += 35;
+        }
+
+        // --- Insertar gráficos ---
+        const charts = [{ canvas: lineChartRef.current.canvas, title: 'Trend de Análisis' }];
 
         charts.forEach(chart => {
             if (chart.canvas) {
@@ -283,9 +382,10 @@ const TrendAnalisis = () => {
             }
         });
 
-        doc.save('reporte_analisis_tendencias.pdf');
+        doc.save('reporte_analisis_tendencias.pdf'); // Descargar PDF
     };
 
+    // --- Datos y configuración del gráfico ---
     const chartData = {
         labels: data.map(item => item['Número Lote/Serie']),
         datasets: [
@@ -319,80 +419,92 @@ const TrendAnalisis = () => {
                 borderDash: [5, 5],
                 pointRadius: 0,
                 type: 'line',
+            },
+            // --- Líneas estadísticas ---
+            {
+                label: 'Promedio',
+                data: data.map(() => average),
+                borderColor: 'rgba(255, 159, 64, 1)',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [10, 5],
+                pointRadius: 0,
+                type: 'line',
+            },
+            {
+                label: '+1σ',
+                data: data.map(() => oneStdDev[1]),
+                borderColor: 'rgba(255, 205, 86, 0.5)',
+                backgroundColor: 'transparent',
+                borderWidth: 1,
+                borderDash: [2, 2],
+                pointRadius: 0,
+                type: 'line',
+            },
+            {
+                label: '-1σ',
+                data: data.map(() => oneStdDev[0]),
+                borderColor: 'rgba(255, 205, 86, 0.5)',
+                backgroundColor: 'transparent',
+                borderWidth: 1,
+                borderDash: [2, 2],
+                pointRadius: 0,
+                type: 'line',
             }
         ]
     };
 
+    // --- Configuración de opciones del gráfico ---
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: {
-                position: 'top',
-            },
+            legend: { position: 'top' },
             title: {
                 display: true,
                 text: 'Comparación de Resultados de Prueba vs. Límites',
-                font: {
-                    size: 18,
-                    weight: 'bold'
-                },
-                padding: {
-                    top: 10,
-                    bottom: 30
-                }
+                font: { size: 18, weight: 'bold' },
+                padding: { top: 10, bottom: 30 }
             },
+            datalabels: {
+                display: context => context.datasetIndex === 0,
+                color: 'black',
+                anchor: 'end',
+                align: 'top',
+                offset: 5,
+                font: { weight: 'bold', size: 10 },
+                formatter: value => value
+            }
         },
         scales: {
             x: {
-                title: {
-                    display: true,
-                    text: 'Número Lote/Serie',
-                    font: {
-                        size: 14,
-                        weight: 'bold'
-                    }
-                },
-                ticks: {
-                    maxRotation: 45,
-                    minRotation: 45,
-                    autoSkip: false,
-                    font: {
-                        size: 10
-                    }
-                }
+                title: { display: true, text: 'Número Lote/Serie', font: { size: 14, weight: 'bold' } },
+                ticks: { maxRotation: 45, minRotation: 45, autoSkip: false, font: { size: 10 } }
             },
             y: {
-                title: {
-                    display: true,
-                    text: 'Valor (mg/Tab.)',
-                    font: {
-                        size: 14,
-                        weight: 'bold'
-                    }
-                },
+                title: { display: true, text: `Valor (${testUnit})`, font: { size: 14, weight: 'bold' } },
                 beginAtZero: false,
-                min: (ctx) => {
+                min: ctx => {
                     let allValues = ctx.chart.data.datasets.flatMap(ds => ds.data);
-                    return Math.min(...allValues) - 5;
+                    const filteredValues = allValues.filter(v => v !== null);
+                    return filteredValues.length === 0 ? 0 : Math.min(...filteredValues) - 5;
                 },
-                max: (ctx) => {
+                max: ctx => {
                     let allValues = ctx.chart.data.datasets.flatMap(ds => ds.data);
-                    return Math.max(...allValues) + 5;
+                    const filteredValues = allValues.filter(v => v !== null);
+                    return filteredValues.length === 0 ? 10 : Math.max(...filteredValues) + 5;
                 }
             }
         }
     };
 
+    // --- Filtrado de productos únicos ---
     const uniqueProducts = Array.from(new Set(productOptions
         .filter(p => p && p.IMLITM)
         .map(p => p.IMLITM)))
         .map(litm => {
             const firstItem = productOptions.find(p => p && p.IMLITM === litm);
-            return {
-                IMLITM: firstItem.IMLITM,
-                IMDSC1: firstItem.IMDSC1
-            };
+            return { IMLITM: firstItem.IMLITM, IMDSC1: firstItem.IMDSC1 };
         });
 
     const filteredProductOptions = uniqueProducts.filter(product => {
@@ -403,18 +515,21 @@ const TrendAnalisis = () => {
         );
     });
 
+    // --- Filtrado de pruebas asociadas al producto seleccionado ---
     const associatedTests = productOptions
         .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct)
         .map(p => p.TRQTST);
 
     const filteredTests = associatedTests.filter(test => test.toLowerCase().includes(searchTestTerm.toLowerCase()));
 
+    // --- Filtrado de Cantidad Real opcional ---
     const cantRealTestOptions = productOptions
         .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct && p.TRQTST !== selectedTest)
         .map(p => p.TRQTST);
 
     const filteredCantRealTests = cantRealTestOptions.filter(test => test.toLowerCase().includes(searchCantRealTerm.toLowerCase()));
 
+    // --- Reset de filtros de prueba y Cantidad Real cuando cambia el producto ---
     useEffect(() => {
         setSearchTestTerm('');
         setSelectedTest('');
@@ -423,12 +538,12 @@ const TrendAnalisis = () => {
         setIsCantRealActive(false);
     }, [selectedProduct]);
 
+    // --- Reset de Cantidad Real cuando se desactiva ---
     useEffect(() => {
-        if (!isCantRealActive) {
-            setSelectedCantRealTest('');
-        }
+        if (!isCantRealActive) setSelectedCantRealTest('');
     }, [isCantRealActive]);
 
+    // --- Manejo de selección de producto ---
     const handleProductSelect = (product) => {
         setSelectedProduct(product.IMLITM);
         setSearchTerm(`${product.IMLITM} - ${product.IMDSC1}`);
@@ -458,7 +573,7 @@ const TrendAnalisis = () => {
         if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
       }
     };
-    
+
     const handleClearProduct = () => {
         setSelectedProduct('');
         setSearchTerm('');
@@ -479,20 +594,17 @@ const TrendAnalisis = () => {
         setSearchCantRealTerm('');
     };
 
+    // --- Render del componente ---
     return (
         <div className="trend-analisis-container">
             <h1>Análisis de Tendencias</h1>
 
+            {/* Formulario de filtros */}
             <div className="form-wrapper">
                 <div className="form-panel">
                     <div className="input-group">
                         <label>UniNeg</label>
-                        <input
-                            type="text"
-                            value={uniNeg}
-                            onChange={e => setUniNeg(e.target.value)}
-                            readOnly
-                        />
+                        <input type="text" value={uniNeg} onChange={e => setUniNeg(e.target.value)} readOnly />
                     </div>
                     <div className="input-group">
                         <label>Fecha Prueba</label>
@@ -507,8 +619,10 @@ const TrendAnalisis = () => {
                     </button>
                 </div>
 
+                {/* Sección de selección de producto y prueba */}
                 {productOptions.length > 0 && (
                     <div className="form-panel">
+                        {/* Producto */}
                         <div className="input-group searchable-select">
                             <label>Seleccionar Producto</label>
                             <input
@@ -516,9 +630,7 @@ const TrendAnalisis = () => {
                                 placeholder="Escribe para filtrar..."
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
-                                onFocus={() => {
-                                    if(productListRef.current) productListRef.current.style.display = 'block';
-                                }}
+                                onFocus={() => productListRef.current && (productListRef.current.style.display = 'block')}
                                 onClick={handleClearProduct}
                             />
                             <ul ref={productListRef} className="custom-dropdown">
@@ -530,6 +642,7 @@ const TrendAnalisis = () => {
                             </ul>
                         </div>
 
+                        {/* Prueba */}
                         {selectedProduct && (
                             <div className="input-group searchable-select">
                                 <label>Seleccionar Prueba</label>
@@ -538,21 +651,21 @@ const TrendAnalisis = () => {
                                     placeholder="Escribe para filtrar..."
                                     value={searchTestTerm}
                                     onChange={e => setSearchTestTerm(e.target.value)}
-                                    onFocus={() => {
-                                        if(testListRef.current) testListRef.current.style.display = 'block';
-                                    }}
+                                    onFocus={() => testListRef.current && (testListRef.current.style.display = 'block')}
                                     onClick={handleClearTest}
                                 />
                                 <ul ref={testListRef} className="custom-dropdown">
                                     {filteredTests.map((test, index) => (
                                         <li key={index} onClick={() => handleTestSelect(test)}>
-                                            {test}
+                                            {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
                                         </li>
+
                                     ))}
                                 </ul>
                             </div>
                         )}
 
+                        {/* Cantidad Real opcional */}
                         <div className="cant-real-group">
                             <div className="cant-real-input-and-button">
                                 <button className="interactive-btn" onClick={handleCantRealBtnClick}>
@@ -566,15 +679,13 @@ const TrendAnalisis = () => {
                                             placeholder="Prueba opcional"
                                             value={searchCantRealTerm}
                                             onChange={e => setSearchCantRealTerm(e.target.value)}
-                                            onFocus={() => {
-                                                if(cantRealListRef.current) cantRealListRef.current.style.display = 'block';
-                                            }}
+                                            onFocus={() => cantRealListRef.current && (cantRealListRef.current.style.display = 'block')}
                                             onClick={handleClearCantReal}
                                         />
                                         <ul ref={cantRealListRef} className="custom-dropdown">
                                             {filteredCantRealTests.map((test, index) => (
                                                 <li key={index} onClick={() => handleCantRealSelect(test)}>
-                                                    {test}
+                                                    {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
                                                 </li>
                                             ))}
                                         </ul>
@@ -582,6 +693,8 @@ const TrendAnalisis = () => {
                                 )}
                             </div>
                         </div>
+
+                        {/* Botón para generar análisis */}
                         <button className="search-button" onClick={handleFetchTrendData} disabled={loading || !selectedProduct || !selectedTest}>
                             {loading ? 'Cargando Datos...' : 'Generar Análisis'}
                         </button>
@@ -589,9 +702,11 @@ const TrendAnalisis = () => {
                 )}
             </div>
 
+            {/* Mensajes de estado */}
             {loading && <div className="loading-state">Cargando datos...</div>}
             {error && <div className="error-state">Error: {error}</div>}
 
+            {/* Resultados */}
             {data.length > 0 && (
                 <div className="results-container">
                     <div className="results-header">
@@ -607,23 +722,23 @@ const TrendAnalisis = () => {
                                     <th>Valor Mínimo Permitido</th>
                                     <th>Valor Máximo Permitido</th>
                                     <th>Cantidad Real</th>
-                                    <th>Unidad Medida</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {currentData.map((item, index) => (
                                     <tr key={index}>
                                         <td>{item['Número Lote/Serie']}</td>
-                                        <td>{item['Resultado Prueba']}</td>
+                                        <td>{item['Resultado Prueba']} {item['Unidad Medida']}</td>
                                         <td>{item['Valor Mínimo Permitido']}</td>
                                         <td>{item['Valor Máximo Permitido']}</td>
-                                        <td>{item['Cantidad Real']}</td>
-                                        <td>{item['Unidad Medida']}</td>
+                                        <td>{item['Cantidad Real']} {item['Unidad Cantidad Real']}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Paginación */}
                     <ReactPaginate
                         previousLabel={'Anterior'}
                         nextLabel={'Siguiente'}
@@ -635,6 +750,22 @@ const TrendAnalisis = () => {
                         containerClassName={'pagination'}
                         activeClassName={'active'}
                     />
+
+                    {/* Análisis estadístico */}
+                    {average !== null && standardDeviation !== null && (
+                        <div className="statistical-analysis-panel">
+                            <h3>Análisis Estadístico</h3>
+                            <ul className="stats-list">
+                                <li><strong>Promedio:</strong> {average.toFixed(2)} {testUnit}</li>
+                                <li><strong>Desviación Estándar (σ):</strong> {standardDeviation.toFixed(2)}</li>
+                                <li><strong>Promedio ± 1σ:</strong> {oneStdDev[0].toFixed(2)} a {oneStdDev[1].toFixed(2)} {testUnit}</li>
+                                <li><strong>Promedio ± 2σ:</strong> {twoStdDev[0].toFixed(2)} a {twoStdDev[1].toFixed(2)} {testUnit}</li>
+                                <li><strong>Promedio ± 3σ:</strong> {threeStdDev[0].toFixed(2)} a {threeStdDev[1].toFixed(2)} {testUnit}</li>
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* Gráfico */}
                     <div className="single-chart-container">
                         <div className="chart-container">
                             <Line ref={lineChartRef} data={chartData} options={chartOptions} />

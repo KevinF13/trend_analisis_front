@@ -9,14 +9,16 @@
     --border-color: #dcdde1;
     --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.08);
     --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
+    --font-family: 'Segoe UI', 'Lato', sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', 'Lato', sans-serif;
+    font-family: var(--font-family);
     background-color: var(--background-color);
     margin: 0;
     padding: 0;
     color: var(--primary-color);
+    line-height: 1.6;
 }
 
 /* --- Contenedor principal --- */
@@ -33,6 +35,8 @@ body {
     text-align: center;
     margin-bottom: 2.5rem;
     font-weight: 700;
+    color: var(--primary-color);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 /* --- Contenedor de los paneles de formulario --- */
@@ -53,7 +57,7 @@ body {
     gap: 1.5rem;
     background-color: var(--card-background);
     padding: 2.5rem;
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: var(--shadow-medium);
     transition: transform 0.3s ease-in-out;
 }
@@ -71,16 +75,17 @@ body {
 
 .input-group label {
     font-weight: 600;
-    color: #555;
+    color: var(--primary-color);
     margin-bottom: 0.5rem;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    opacity: 0.8;
 }
 
 .input-group input,
 .input-group select {
-    padding: 0.8rem;
+    padding: 1rem;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
     background-color: #fcfcfc;
@@ -89,27 +94,27 @@ body {
 .input-group input:focus,
 .input-group select:focus {
     border-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2);
     outline: none;
 }
 
 /* Estilos para el contenedor del botón de Cant. Real */
-.cant-real-group {
+/* .cant-real-group {
     display: flex;
     align-items: flex-end;
     gap: 1rem;
-}
+} */
 
 .interactive-btn {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     background-color: var(--accent-color);
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -154,10 +159,11 @@ body {
     background-color: var(--accent-color);
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
     font-weight: 500;
+    box-shadow: var(--shadow-light);
 }
 
 .download-pdf-button:hover {
@@ -188,14 +194,14 @@ body {
 .table-container {
     overflow-x: auto;
     box-shadow: var(--shadow-medium);
-    border-radius: 12px;
+    border-radius: 16px;
 }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
     background-color: var(--card-background);
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
 }
 
@@ -204,7 +210,7 @@ body {
     padding: 1.2rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
 }
 
 .data-table th {
@@ -230,12 +236,12 @@ body {
     justify-content: center;
     margin-top: 2rem;
     flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .pagination li a {
     padding: 0.8rem 1.2rem;
-    margin: 0 0.5rem;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid var(--border-color);
     cursor: pointer;
     transition: all 0.3s ease;
@@ -266,7 +272,7 @@ body {
 .chart-container {
     background-color: var(--card-background);
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: var(--shadow-medium);
     animation: fadeIn 0.8s ease-in-out;
     height: 500px;
@@ -300,7 +306,7 @@ body {
     z-index: 1000;
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 10px;
     max-height: 200px;
     overflow-y: auto;
     box-shadow: var(--shadow-medium);
@@ -311,10 +317,11 @@ body {
 }
 
 .searchable-select .custom-dropdown li {
-    padding: 10px 15px;
+    padding: 12px 15px;
     cursor: pointer;
     transition: background-color 0.2s;
     font-size: 0.95rem;
+    color: var(--primary-color);
 }
 
 .searchable-select .custom-dropdown li:hover {
@@ -324,6 +331,77 @@ body {
 .searchable-select .custom-dropdown li.selected {
     background-color: var(--secondary-color);
     color: #fff;
+}
+
+/* --- Nuevos estilos para el panel de análisis estadístico --- */
+.statistical-analysis-panel {
+    background-color: var(--card-background);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-medium);
+    margin-top: 3rem;
+    width: 100%;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.statistical-analysis-panel h3 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.stats-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* Cambiado a flex */
+    flex-direction: column; /* Agregado para apilarlos verticalmente */
+    gap: 1rem;
+}
+
+.stats-list li {
+    background-color: #f8f8f8;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s;
+}
+
+.stats-list li:hover {
+    background-color: #f2f2f2;
+}
+
+.stats-list li strong {
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+/* --- Estado de carga y error --- */
+.loading-state,
+.error-state {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: var(--shadow-light);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.loading-state {
+    color: #2980b9;
+    border: 2px solid #3498db;
+}
+
+.error-state {
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
 }
 
 /* --- Animaciones y media queries --- */
@@ -361,6 +439,7 @@ body {
         flex-direction: column;
         align-items: center;
         gap: 1rem;
+        text-align: center;
     }
 
     .download-pdf-button {
@@ -377,14 +456,19 @@ body {
     .multi-chart-container {
         grid-template-columns: 1fr;
     }
+
+    .stats-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .cant-real-input-and-button {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: 1rem;
 }
 
 .cant-real-input-and-button .input-group {
     flex-grow: 1;
+    margin-bottom: 0;
 }
