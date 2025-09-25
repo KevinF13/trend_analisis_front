@@ -488,23 +488,23 @@ useEffect(() => {
             title: {
                 display: true,
                 text: 'Comparación de Resultados de Prueba vs. Límites',
-                font: { size: 18, weight: 'bold' },
-                padding: { top: 10, bottom: 30 }
+                font: { size: 20, weight: 'bold' },
+                padding: { top: 0, bottom: 15 }
             },
             datalabels: {
                 display: context => context.datasetIndex === 0,
-                color: 'black',
+                color: '#000000ff',
                 anchor: 'end',
                 align: 'top',
-                offset: 5,
-                font: { weight: 'bold', size: 10 },
+                offset: 1,
+                font: { weight: 'normal', size: 11 },
                 formatter: value => value
             }
         },
         scales: {
             x: {
                 title: { display: true, text: 'Número Lote/Serie', font: { size: 14, weight: 'bold' } },
-                ticks: { maxRotation: 45, minRotation: 45, autoSkip: false, font: { size: 10 } }
+                ticks: { maxRotation: 45, minRotation: 45, autoSkip: false, font: { size: 11 } }
             },
             y: {
                 title: { display: true, text: `Valor (${testUnit})`, font: { size: 14, weight: 'bold' } },
