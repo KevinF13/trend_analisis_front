@@ -38,30 +38,30 @@ const formatDate = (dateStr) => {
 
 const TrendAnalisis = () => {
     // ... dentro de const TrendAnalisis = () => {
-// ... otros estados
-const [isChartExpanded, setIsChartExpanded] = useState(false);
-// --- Lógica del botón de expansión ---
-const handleExpandChart = () => {
-    setIsChartExpanded(prev => !prev);
-    // Nota: Eliminamos la manipulación directa de document.body de aquí
-    document.body.classList.toggle('no-scroll');
-};
-
-// --- Control del scroll en el body ---
-useEffect(() => {
-    if (isChartExpanded) {
-        document.body.classList.add('no-scroll');
-    } else {
-        document.body.classList.remove('no-scroll');
-    }
-    // Función de limpieza para asegurar que la clase se quite al desmontar el componente
-    return () => {
-        document.body.classList.remove('no-scroll');
+    // ... otros estados
+    const [isChartExpanded, setIsChartExpanded] = useState(false);
+    // --- Lógica del botón de expansión ---
+    const handleExpandChart = () => {
+        setIsChartExpanded(prev => !prev);
+        // Nota: Eliminamos la manipulación directa de document.body de aquí
+        document.body.classList.toggle('no-scroll');
     };
-}, [isChartExpanded]); // Se ejecuta cada vez que el estado cambia
+
+    // --- Control del scroll en el body ---
+    useEffect(() => {
+        if (isChartExpanded) {
+            document.body.classList.add('no-scroll');
+        } else {
+            document.body.classList.remove('no-scroll');
+        }
+        // Función de limpieza para asegurar que la clase se quite al desmontar el componente
+        return () => {
+            document.body.classList.remove('no-scroll');
+        };
+    }, [isChartExpanded]); // Se ejecuta cada vez que el estado cambia
 
 
-// ... resto del código
+    // ... resto del código
     // Estados principales
     const [data, setData] = useState([]); // Datos que vienen del API
     const [loading, setLoading] = useState(false); // Estado de carga
@@ -73,7 +73,7 @@ useEffect(() => {
     const [fechaFinTest, setFechaFinTest] = useState(''); // Fecha fin
 
     // Estados para selección de Cantidad Real
-    const [selectedCantRealTest, setSelectedCantRealTest] = useState(''); 
+    const [selectedCantRealTest, setSelectedCantRealTest] = useState('');
     const [isCantRealActive, setIsCantRealActive] = useState(false); // Controla si se activa campo opcional
 
     // Estados para productos y pruebas
@@ -117,47 +117,47 @@ useEffect(() => {
     // --- Función para obtener lista de productos desde API ---
     const handleFetchProductList = async () => {
         setLoading(true);
-    setError(null);
-    setData([]);
-    setProductOptions([]);
-    setSelectedProduct('');
-    setSelectedTest('');
-    setSearchTerm('');
-    setSelectedCantRealTest('');
-    setIsCantRealActive(false);
-
-    const apiEndpoint = 'http://127.0.0.1:5000/valor';
-    const requestBody = {
-        bodega: '01PD01',
-        fecha_inicio: formatDate(fechaPrueba),
-        fecha_fin: formatDate(fechaFinTest),
-    };
-
-    try {
-        const response = await fetch(apiEndpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
-        });
-
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`HTTP error! status: ${response.status} - ${errText}`);
-        }
-
-        const apiResponse = await response.json();
-
-        // 🔹 Aquí imprimimos los resultados en consola
-        console.log('Resultados de la API /valor:', apiResponse.resultados);
-
-        setProductOptions(apiResponse.resultados || []);
-        setUniNeg('01PD01'); // Guardar unidad de negocio
-    } catch (e) {
-        setError(e.message);
+        setError(null);
+        setData([]);
         setProductOptions([]);
-    } finally {
-        setLoading(false);
-    }
+        setSelectedProduct('');
+        setSelectedTest('');
+        setSearchTerm('');
+        setSelectedCantRealTest('');
+        setIsCantRealActive(false);
+
+        const apiEndpoint = 'http://127.0.0.1:5000/valor';
+        const requestBody = {
+            bodega: '01PD01',
+            fecha_inicio: formatDate(fechaPrueba),
+            fecha_fin: formatDate(fechaFinTest),
+        };
+
+        try {
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status} - ${errText}`);
+            }
+
+            const apiResponse = await response.json();
+
+            // 🔹 Aquí imprimimos los resultados en consola
+            console.log('Resultados de la API /valor:', apiResponse.resultados);
+
+            setProductOptions(apiResponse.resultados || []);
+            setUniNeg('01PD01'); // Guardar unidad de negocio
+        } catch (e) {
+            setError(e.message);
+            setProductOptions([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
     // --- Función para obtener datos de tendencias según selección ---
@@ -322,7 +322,7 @@ useEffect(() => {
                 doc.setFont("times", "bold");
                 doc.text(`LABORATORIO:`, 110, 40);
                 doc.text(`TEST:`, 110, 45);
-                
+
                 doc.setFont("times", "normal");
                 doc.text(`PHARMABRAND S.A.`, 145, 40);
                 doc.text(testDescription, 125, 45);
@@ -377,7 +377,7 @@ useEffect(() => {
             doc.setFont("times", "bold");
             doc.text('ANÁLISIS ESTADÍSTICO', doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
             currentY += 8;
-            
+
             doc.setFontSize(10);
             doc.setFont("times", "normal");
             doc.text(`Promedio: ${average.toFixed(2)} ${testUnit}`, 14, currentY + 5);
@@ -407,9 +407,15 @@ useEffect(() => {
             }
         });
 
+        doc.setFontSize(11);
+        doc.setFont("times", "bold");
+        doc.text(`Realizado por: `, 14, currentY + 5);
+        doc.text(`Fecha: ${formattedDate}`, 14, currentY + 10);
+
         doc.save('reporte_analisis_tendencias.pdf'); // Descargar PDF
     };
-
+    const today = new Date(); 
+    const formattedDate = today.toLocaleDateString(); 
     // --- Datos y configuración del gráfico ---
     const chartData = {
         labels: data.map(item => item['Número Lote/Serie']),
@@ -487,6 +493,7 @@ useEffect(() => {
             legend: { position: 'top' },
             title: {
                 display: true,
+                color: '#000000ff',
                 text: 'Comparación de Resultados de Prueba vs. Límites',
                 font: { size: 20, weight: 'bold' },
                 padding: { top: 0, bottom: 15 }
@@ -572,31 +579,31 @@ useEffect(() => {
     const handleProductSelect = (product) => {
         setSelectedProduct(product.IMLITM);
         setSearchTerm(`${product.IMLITM} - ${product.IMDSC1}`);
-        if(productListRef.current) productListRef.current.style.display = 'none';
+        if (productListRef.current) productListRef.current.style.display = 'none';
     };
 
     const handleTestSelect = (test) => {
         setSelectedTest(test);
         setSearchTestTerm(test);
-        if(testListRef.current) testListRef.current.style.display = 'none';
+        if (testListRef.current) testListRef.current.style.display = 'none';
     };
 
     const handleCantRealSelect = (test) => {
         setSelectedCantRealTest(test);
         setSearchCantRealTerm(test);
-        if(cantRealListRef.current) cantRealListRef.current.style.display = 'none';
+        if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
     };
 
     const handleCantRealBtnClick = () => {
-      const newState = !isCantRealActive;
-      setIsCantRealActive(newState);
-      if (newState) {
-        if (cantRealListRef.current) cantRealListRef.current.style.display = 'block';
-      } else {
-        setSearchCantRealTerm('');
-        setSelectedCantRealTest('');
-        if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
-      }
+        const newState = !isCantRealActive;
+        setIsCantRealActive(newState);
+        if (newState) {
+            if (cantRealListRef.current) cantRealListRef.current.style.display = 'block';
+        } else {
+            setSearchCantRealTerm('');
+            setSelectedCantRealTest('');
+            if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
+        }
     };
 
     const handleClearProduct = () => {
@@ -621,206 +628,206 @@ useEffect(() => {
 
     // --- Render del componente ---
     return (
-       <div className="trend-analisis-container">
-    <h1>Análisis de Tendencias</h1>
+        <div className="trend-analisis-container">
+            <h1>Análisis de Tendencias</h1>
 
-    {/* FORMULARIOS: Contenedor Flexbox para los 2 paneles (LADO A LADO) */}
-    <div className="form-wrapper">
-        
-        {/* Panel 1: Filtros de Fecha/UniNeg */}
-        <div className="form-panel">
-            <h3>Filtros Principales</h3>
-            <div className="input-group">
-                <label>UniNeg</label>
-                <input type="text" value={uniNeg} onChange={e => setUniNeg(e.target.value)} readOnly />
-            </div>
-            <div className="input-group">
-                <label>Fecha Prueba</label>
-                <input type="date" value={fechaPrueba} onChange={e => setFechaPrueba(e.target.value)} />
-            </div>
-            <div className="input-group">
-                <label>Fecha Fin Test</label>
-                <input type="date" value={fechaFinTest} onChange={e => setFechaFinTest(e.target.value)} />
-            </div>
-            <button className="search-button" onClick={handleFetchProductList} disabled={loading}>
-                {loading ? 'Buscando Productos...' : 'Buscar Productos'}
-            </button>
-        </div>
+            {/* FORMULARIOS: Contenedor Flexbox para los 2 paneles (LADO A LADO) */}
+            <div className="form-wrapper">
 
-        {/* Panel 2: Selección de Producto y Prueba (Aparece si hay opciones) */}
-        {productOptions.length > 0 && (
-            <div className="form-panel">
-                <h3>Selección de Producto</h3>
-                
-                {/* Producto */}
-                <div className="input-group searchable-select">
-                    <label>Seleccionar Producto</label>
-                    <input
-                        type="text"
-                        placeholder="Escribe para filtrar..."
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        onFocus={() => productListRef.current && (productListRef.current.style.display = 'block')}
-                        onClick={handleClearProduct}
-                    />
-                    <ul ref={productListRef} className="custom-dropdown">
-                        {filteredProductOptions.map((item, index) => (
-                            <li key={index} onClick={() => handleProductSelect(item)}>
-                                {`${item.IMLITM} - ${item.IMDSC1}`}
-                            </li>
-                        ))}
-                    </ul>
+                {/* Panel 1: Filtros de Fecha/UniNeg */}
+                <div className="form-panel">
+                    <h3>Filtros Principales</h3>
+                    <div className="input-group">
+                        <label>UniNeg</label>
+                        <input type="text" value={uniNeg} onChange={e => setUniNeg(e.target.value)} readOnly />
+                    </div>
+                    <div className="input-group">
+                        <label>Fecha Prueba</label>
+                        <input type="date" value={fechaPrueba} onChange={e => setFechaPrueba(e.target.value)} />
+                    </div>
+                    <div className="input-group">
+                        <label>Fecha Fin Test</label>
+                        <input type="date" value={fechaFinTest} onChange={e => setFechaFinTest(e.target.value)} />
+                    </div>
+                    <button className="search-button" onClick={handleFetchProductList} disabled={loading}>
+                        {loading ? 'Buscando Productos...' : 'Buscar Productos'}
+                    </button>
                 </div>
 
-                {/* Prueba */}
-                {selectedProduct && (
-                    <div className="input-group searchable-select">
-                        <label>Seleccionar Prueba</label>
-                        <input
-                            type="text"
-                            placeholder="Escribe para filtrar..."
-                            value={searchTestTerm}
-                            onChange={e => setSearchTestTerm(e.target.value)}
-                            onFocus={() => testListRef.current && (testListRef.current.style.display = 'block')}
-                            onClick={handleClearTest}
-                        />
-                        <ul ref={testListRef} className="custom-dropdown">
-                            {filteredTests.map((test, index) => (
-                                <li key={index} onClick={() => handleTestSelect(test)}>
-                                    {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+                {/* Panel 2: Selección de Producto y Prueba (Aparece si hay opciones) */}
+                {productOptions.length > 0 && (
+                    <div className="form-panel">
+                        <h3>Selección de Producto</h3>
 
-                {/* Cantidad Real opcional */}
-                <div className="cant-real-group">
-                    <div className="cant-real-input-and-button">
-                        <button className="interactive-btn" onClick={handleCantRealBtnClick} aria-label={isCantRealActive ? 'Quitar filtro de Cantidad Real' : 'Agregar filtro de Cantidad Real'}>
-                            {isCantRealActive ? '❌' : '➕'}
-                        </button>
-                        {isCantRealActive && (
+                        {/* Producto */}
+                        <div className="input-group searchable-select">
+                            <label>Seleccionar Producto</label>
+                            <input
+                                type="text"
+                                placeholder="Escribe para filtrar..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                onFocus={() => productListRef.current && (productListRef.current.style.display = 'block')}
+                                onClick={handleClearProduct}
+                            />
+                            <ul ref={productListRef} className="custom-dropdown">
+                                {filteredProductOptions.map((item, index) => (
+                                    <li key={index} onClick={() => handleProductSelect(item)}>
+                                        {`${item.IMLITM} - ${item.IMDSC1}`}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Prueba */}
+                        {selectedProduct && (
                             <div className="input-group searchable-select">
-                                <label>Cant. Real</label>
+                                <label>Seleccionar Prueba</label>
                                 <input
                                     type="text"
-                                    placeholder="Prueba opcional"
-                                    value={searchCantRealTerm}
-                                    onChange={e => setSearchCantRealTerm(e.target.value)}
-                                    onFocus={() => cantRealListRef.current && (cantRealListRef.current.style.display = 'block')}
-                                    onClick={handleClearCantReal}
+                                    placeholder="Escribe para filtrar..."
+                                    value={searchTestTerm}
+                                    onChange={e => setSearchTestTerm(e.target.value)}
+                                    onFocus={() => testListRef.current && (testListRef.current.style.display = 'block')}
+                                    onClick={handleClearTest}
                                 />
-                                <ul ref={cantRealListRef} className="custom-dropdown">
-                                    {filteredCantRealTests.map((test, index) => (
-                                        <li key={index} onClick={() => handleCantRealSelect(test)}>
+                                <ul ref={testListRef} className="custom-dropdown">
+                                    {filteredTests.map((test, index) => (
+                                        <li key={index} onClick={() => handleTestSelect(test)}>
                                             {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
                                         </li>
                                     ))}
                                 </ul>
                             </div>
                         )}
-                    </div>
-                </div>
 
-                {/* Botón para generar análisis */}
-                <button className="search-button" onClick={handleFetchTrendData} disabled={loading || !selectedProduct || !selectedTest}>
-                    {loading ? 'Cargando Datos...' : 'Generar Análisis'}
-                </button>
-            </div>
-        )}
-    </div> {/* <--- CIERRE CORRECTO del form-wrapper */}
+                        {/* Cantidad Real opcional */}
+                        <div className="cant-real-group">
+                            <div className="cant-real-input-and-button">
+                                <button className="interactive-btn" onClick={handleCantRealBtnClick} aria-label={isCantRealActive ? 'Quitar filtro de Cantidad Real' : 'Agregar filtro de Cantidad Real'}>
+                                    {isCantRealActive ? '❌' : '➕'}
+                                </button>
+                                {isCantRealActive && (
+                                    <div className="input-group searchable-select">
+                                        <label>Cant. Real</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Prueba opcional"
+                                            value={searchCantRealTerm}
+                                            onChange={e => setSearchCantRealTerm(e.target.value)}
+                                            onFocus={() => cantRealListRef.current && (cantRealListRef.current.style.display = 'block')}
+                                            onClick={handleClearCantReal}
+                                        />
+                                        <ul ref={cantRealListRef} className="custom-dropdown">
+                                            {filteredCantRealTests.map((test, index) => (
+                                                <li key={index} onClick={() => handleCantRealSelect(test)}>
+                                                    {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
-    {/* Mensajes de estado */}
-    {loading && <div className="loading-state">Cargando datos...</div>}
-    {error && <div className="error-state">Error: {error}</div>}
-
-    {/* RESULTADOS: Contenedor principal de Resultados (HERMANO del form-wrapper) */}
-    {data.length > 0 && (
-        <div className="results-container">
-            
-            {/* Encabezado */}
-            <div className="results-header">
-                <h2>Resultados de la Búsqueda</h2>
-                <button className="download-pdf-button" onClick={handleDownloadPDF}>Descargar PDF</button>
-            </div>
-            
-            {/* Tabla de Datos */}
-            <div className="table-container">
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Número Lote/Serie</th>
-                            <th>Resultado Prueba</th>
-                            <th>Valor Mínimo Permitido</th>
-                            <th>Valor Máximo Permitido</th>
-                            <th>Cantidad Real</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentData.map((item, index) => (
-                            <tr key={index}>
-                                <td>{item['Número Lote/Serie']}</td>
-                                <td>{item['Resultado Prueba']} {item['Unidad Medida']}</td>
-                                <td>{item['Valor Mínimo Permitido']}</td>
-                                <td>{item['Valor Máximo Permitido']}</td>
-                                <td>{item['Cantidad Real']} {item['Unidad Cantidad Real']}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Paginación */}
-            <ReactPaginate
-                previousLabel={'Anterior'}
-                nextLabel={'Siguiente'}
-                breakLabel={'...'}
-                pageCount={pageCount}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={3}
-                onPageChange={handlePageClick}
-                containerClassName={'pagination'}
-                activeClassName={'active'}
-            />
-
-            {/* GRÁFICO y ANÁLISIS ESTADÍSTICO (LADO A LADO) */}
-            <div className="analysis-summary-wrapper">
-                
-                {/* 1. Panel de Análisis Estadístico */}
-                {average !== null && standardDeviation !== null && (
-                    <div className="statistical-analysis-panel">
-                        <h3>Análisis Estadístico</h3>
-                        <ul className="stats-list">
-                            <li><strong>Promedio:</strong> {average.toFixed(2)} {testUnit}</li>
-                            <li><strong>Desviación Estándar (σ):</strong> {standardDeviation.toFixed(2)}</li>
-                            <li><strong>Promedio ± 1σ:</strong> {oneStdDev[0].toFixed(2)} a {oneStdDev[1].toFixed(2)} {testUnit}</li>
-                            <li><strong>Promedio ± 2σ:</strong> {twoStdDev[0].toFixed(2)} a {twoStdDev[1].toFixed(2)} {testUnit}</li>
-                            <li><strong>Promedio ± 3σ:</strong> {threeStdDev[0].toFixed(2)} a {threeStdDev[1].toFixed(2)} {testUnit}</li>
-                        </ul>
+                        {/* Botón para generar análisis */}
+                        <button className="search-button" onClick={handleFetchTrendData} disabled={loading || !selectedProduct || !selectedTest}>
+                            {loading ? 'Cargando Datos...' : 'Generar Análisis'}
+                        </button>
                     </div>
                 )}
-                
-                {/* 2. Gráfico */}
-<div className={`single-chart-container ${isChartExpanded ? 'chart-expanded' : ''}`}>
-    <div className="chart-container">
-        {/* ASIGNACIÓN DE LA FUNCIÓN onClick */}
-        <button 
-            className="expand-chart-btn" 
-            onClick={handleExpandChart} // 👈 Función de clic
-            aria-label={isChartExpanded ? 'Minimizar gráfico' : 'Expandir gráfico en pantalla completa'}
-        >
-            {/* CAMBIA EL ICONO O TEXTO BASADO EN EL ESTADO */}
-            {isChartExpanded ? 'X' : '⤡'}
-        </button>
-        <Line ref={lineChartRef} data={chartData} options={chartOptions} />
-    </div>
-</div>
-            </div>
+            </div> {/* <--- CIERRE CORRECTO del form-wrapper */}
 
+            {/* Mensajes de estado */}
+            {loading && <div className="loading-state">Cargando datos...</div>}
+            {error && <div className="error-state">Error: {error}</div>}
+
+            {/* RESULTADOS: Contenedor principal de Resultados (HERMANO del form-wrapper) */}
+            {data.length > 0 && (
+                <div className="results-container">
+
+                    {/* Encabezado */}
+                    <div className="results-header">
+                        <h2>Resultados de la Búsqueda</h2>
+                        <button className="download-pdf-button" onClick={handleDownloadPDF}>Descargar PDF</button>
+                    </div>
+
+                    {/* Tabla de Datos */}
+                    <div className="table-container">
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Número Lote/Serie</th>
+                                    <th>Resultado Prueba</th>
+                                    <th>Valor Mínimo Permitido</th>
+                                    <th>Valor Máximo Permitido</th>
+                                    <th>Cantidad Real</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentData.map((item, index) => (
+                                    <tr key={index}>
+                                        <td>{item['Número Lote/Serie']}</td>
+                                        <td>{item['Resultado Prueba']} {item['Unidad Medida']}</td>
+                                        <td>{item['Valor Mínimo Permitido']}</td>
+                                        <td>{item['Valor Máximo Permitido']}</td>
+                                        <td>{item['Cantidad Real']} {item['Unidad Cantidad Real']}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Paginación */}
+                    <ReactPaginate
+                        previousLabel={'Anterior'}
+                        nextLabel={'Siguiente'}
+                        breakLabel={'...'}
+                        pageCount={pageCount}
+                        marginPagesDisplayed={2}
+                        pageRangeDisplayed={3}
+                        onPageChange={handlePageClick}
+                        containerClassName={'pagination'}
+                        activeClassName={'active'}
+                    />
+
+                    {/* GRÁFICO y ANÁLISIS ESTADÍSTICO (LADO A LADO) */}
+                    <div className="analysis-summary-wrapper">
+
+                        {/* 1. Panel de Análisis Estadístico */}
+                        {average !== null && standardDeviation !== null && (
+                            <div className="statistical-analysis-panel">
+                                <h3>Análisis Estadístico</h3>
+                                <ul className="stats-list">
+                                    <li><strong>Promedio:</strong> {average.toFixed(2)} {testUnit}</li>
+                                    <li><strong>Desviación Estándar (σ):</strong> {standardDeviation.toFixed(2)}</li>
+                                    <li><strong>Promedio ± 1σ:</strong> {oneStdDev[0].toFixed(2)} a {oneStdDev[1].toFixed(2)} {testUnit}</li>
+                                    <li><strong>Promedio ± 2σ:</strong> {twoStdDev[0].toFixed(2)} a {twoStdDev[1].toFixed(2)} {testUnit}</li>
+                                    <li><strong>Promedio ± 3σ:</strong> {threeStdDev[0].toFixed(2)} a {threeStdDev[1].toFixed(2)} {testUnit}</li>
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* 2. Gráfico */}
+                        <div className={`single-chart-container ${isChartExpanded ? 'chart-expanded' : ''}`}>
+                            <div className="chart-container">
+                                {/* ASIGNACIÓN DE LA FUNCIÓN onClick */}
+                                <button
+                                    className="expand-chart-btn"
+                                    onClick={handleExpandChart} // 👈 Función de clic
+                                    aria-label={isChartExpanded ? 'Minimizar gráfico' : 'Expandir gráfico en pantalla completa'}
+                                >
+                                    {/* CAMBIA EL ICONO O TEXTO BASADO EN EL ESTADO */}
+                                    {isChartExpanded ? 'X' : '⤡'}
+                                </button>
+                                <Line ref={lineChartRef} data={chartData} options={chartOptions} />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            )}
         </div>
-    )}
-</div>
     );
 };
 
