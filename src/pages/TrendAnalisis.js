@@ -17,6 +17,8 @@ import autoTable from 'jspdf-autotable'; // Para generar tablas en PDF
 import ChartDataLabels from 'chartjs-plugin-datalabels'; // Para mostrar valores en los gráficos
 import './TrendAnalisis.css'; // Importa estilos específicos
 
+import Swal from 'sweetalert2';
+
 // Registro de los componentes necesarios de Chart.js y plugins
 ChartJS.register(
     CategoryScale,
@@ -273,8 +275,32 @@ const TrendAnalisis = () => {
         calculateStatistics(data);
     }, [data]);
 
+    // Función Wrapper para la descarga
+    const handleDownloadWithPrompt = async () => {
+        // Pide el nombre del usuario
+        const { value: nombre } = await Swal.fire({
+            title: 'Ingresa tu Nombre',
+            input: 'text',
+            inputLabel: 'Nombre y Apellido:',
+            inputPlaceholder: 'Ingresa tu nombre para el reporte',
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar y Descargar',
+            cancelButtonText: 'Cancelar',
+            inputValidator: (value) => {
+                if (!value) {
+                    return '¡Debes ingresar tu nombre!';
+                }
+            }
+        });
+
+        if (nombre) {
+            // Llama a la función principal de descarga con el nombre
+            handleDownloadPDF(nombre.trim());
+        }
+    };
+
     // --- Función para descargar PDF ---
-    const handleDownloadPDF = () => {
+    const handleDownloadPDF = (realizadoPorNombre) => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
@@ -407,15 +433,25 @@ const TrendAnalisis = () => {
             }
         });
 
+        // --- LÍNEAS MODIFICADAS: Usar el nombre recibido ---
+        if (currentY + 15 > pageHeight) {
+            doc.addPage();
+            drawHeader(doc, false);
+            currentY = headerHeightOtherPages + 10;
+        }
+
         doc.setFontSize(11);
         doc.setFont("times", "bold");
-        doc.text(`Realizado por: `, 14, currentY + 5);
-        doc.text(`Fecha: ${formattedDate}`, 14, currentY + 10);
+        doc.text(`Realizado por: ${realizadoPorNombre}`, 14, currentY + 5);
+        doc.text(`Fecha: ${formattedDate}`, 14, currentY + 15);
+        // ---------------------------------------------------
+        doc.text(`Revisado por: `, 130, currentY + 5);
+        doc.text(`Fecha: `, 130, currentY + 15);
 
         doc.save('reporte_analisis_tendencias.pdf'); // Descargar PDF
     };
-    const today = new Date(); 
-    const formattedDate = today.toLocaleDateString(); 
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString();
     // --- Datos y configuración del gráfico ---
     const chartData = {
         labels: data.map(item => item['Número Lote/Serie']),
@@ -749,7 +785,8 @@ const TrendAnalisis = () => {
                     {/* Encabezado */}
                     <div className="results-header">
                         <h2>Resultados de la Búsqueda</h2>
-                        <button className="download-pdf-button" onClick={handleDownloadPDF}>Descargar PDF</button>
+                        {/* CAMBIO CLAVE: Llama a la nueva función wrapper */}
+                        <button className="download-pdf-button" onClick={handleDownloadWithPrompt}>Descargar PDF</button>
                     </div>
 
                     {/* Tabla de Datos */}
