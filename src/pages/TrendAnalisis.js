@@ -39,10 +39,9 @@ const formatDate = (dateStr) => {
 };
 
 const TrendAnalisis = () => {
-    // ... dentro de const TrendAnalisis = () => {
-    // ... otros estados
+
     const [isChartExpanded, setIsChartExpanded] = useState(false);
-    // --- Lógica del botón de expansión ---
+
     const handleExpandChart = () => {
         setIsChartExpanded(prev => !prev);
         // Nota: Eliminamos la manipulación directa de document.body de aquí
@@ -298,8 +297,25 @@ const TrendAnalisis = () => {
         }
     };
 
+    // Mapa centralizado de marcas por UniNeg
+    const BRANDS = {
+        '01PD01': { title: 'FARMACID S.A.', logo: '/images/LOGO_FARMACID_SIN_FONDO.png' },
+        '04PD01': { title: 'GENA S.A.', logo: '/images/LOGO_GENA-removebg-preview.png' },
+        '03PD01': { title: 'BLENASTOR S.A.', logo: '/images/LOGO_BLENASTOR-removebg-preview.png' },
+        default: { title: 'GENA S.A.', logo: '/images/LOGO_FARMACID_SIN_FONDO.png' }, // fallback
+    };
+    // Utilidad para cargar imágenes de forma segura
+    const loadImage = (src) =>
+        new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous'; 
+            img.onload = () => resolve(img);
+            img.onerror = (e) => reject(e);
+            img.src = src;
+        });
+
     // --- Función para descargar PDF ---
-    const handleDownloadPDF = (realizadoPorNombre) => {
+    const handleDownloadPDF = async (realizadoPorNombre) => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
@@ -309,21 +325,38 @@ const TrendAnalisis = () => {
         const headerHeightOtherPages = 25;
 
         doc.setFont("times", "normal");
+        const brand = BRANDS[uniNeg] || BRANDS.default;
+        const logoImg = await loadImage(brand.logo);
+        const imgFormat = brand.logo.toLowerCase().endsWith('.jpg') || brand.logo.toLowerCase().endsWith('.jpeg')
+            ? 'JPEG'
+            : 'PNG';
 
-        // Función para dibujar el header en cada página
+        // // Función para dibujar el header en cada página
+        // const drawHeader = (doc, isFirstPage = false) => {
+        //     const logoX = 14, logoY = 10, logoWidth = 30, logoHeight = 15;
+        //     doc.addImage('/images/LOGO GENA.png', 'PNG', logoX, logoY, logoWidth, logoHeight);
+        //     doc.setFontSize(18);
+        //     const title1 = 'GENA S.A.';
+        //     const title1Width = doc.getTextWidth(title1);
+        //     doc.text(title1, (pageWidth - title1Width) / 2, 15);
+
+        //     doc.setFontSize(14);
+
+        // 3) Header con logo/título dinámicos
         const drawHeader = (doc, isFirstPage = false) => {
-            const logoX = 14, logoY = 10, logoWidth = 30, logoHeight = 15;
-            doc.addImage('/images/LOGO GENA.png', 'PNG', logoX, logoY, logoWidth, logoHeight);
-            doc.setFontSize(18);
-            const title1 = 'GENA S.A.';
-            const title1Width = doc.getTextWidth(title1);
-            doc.text(title1, (pageWidth - title1Width) / 2, 15);
+            const logoX = 14, logoY = 10, logoWidth = 35, logoHeight = 15;
 
-            doc.setFontSize(14);
-            
+            doc.addImage(logoImg, imgFormat, logoX, logoY, logoWidth, logoHeight);
+
+            doc.setFontSize(18);
+            const title1Width = doc.getTextWidth(brand.title);
+            doc.text(brand.title, ((pageWidth - title1Width) / 2)+15, 15);
+
+            doc.setFontSize(14)
+
             const title2 = 'TREND DE ANALISIS DE PRODUCTO TERMINADO';
             const title2Width = doc.getTextWidth(title2);
-            doc.text(title2, (pageWidth - title2Width) / 2, 23);
+            doc.text(title2, ((pageWidth - title2Width) / 2)+15, 23);
 
             const selectedProductDetails = productOptions.find(p => p && p.IMLITM && p.IMLITM.trim() === selectedProduct);
             const productDescription = selectedProductDetails ? selectedProductDetails.IMDSC1 : 'N/A';
@@ -681,8 +714,8 @@ const TrendAnalisis = () => {
                         <label>UniNeg</label>
                         <select value={uniNeg} onChange={e => setUniNeg(e.target.value)}>
                             <option value="">Seleccione una opción</option>
-                            <option value="01PD01">01PD01</option>
-                            <option value="04PD01">04PD01</option>
+                            <option value="01PD01">01PD01 - FARMACID S.A.</option>
+                            <option value="04PD01">04PD01 - GENA S.A.</option>
                         </select>
                     </div>
 
