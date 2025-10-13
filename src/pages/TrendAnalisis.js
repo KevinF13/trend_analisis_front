@@ -130,7 +130,7 @@ const TrendAnalisis = () => {
 
         const apiEndpoint = 'http://127.0.0.1:5000/valor';
         const requestBody = {
-            bodega: '01PD01',
+            bodega: uniNeg,
             fecha_inicio: formatDate(fechaPrueba),
             fecha_fin: formatDate(fechaFinTest),
         };
@@ -153,7 +153,6 @@ const TrendAnalisis = () => {
             console.log('Resultados de la API /valor:', apiResponse.resultados);
 
             setProductOptions(apiResponse.resultados || []);
-            setUniNeg('01PD01'); // Guardar unidad de negocio
         } catch (e) {
             setError(e.message);
             setProductOptions([]);
@@ -314,14 +313,14 @@ const TrendAnalisis = () => {
         // Función para dibujar el header en cada página
         const drawHeader = (doc, isFirstPage = false) => {
             const logoX = 14, logoY = 10, logoWidth = 30, logoHeight = 15;
-            doc.addImage('/images/LOGO_FARMACID_SIN_FONDO.png', 'PNG', logoX, logoY, logoWidth, logoHeight);
-
+            doc.addImage('/images/LOGO GENA.png', 'PNG', logoX, logoY, logoWidth, logoHeight);
             doc.setFontSize(18);
-            const title1 = 'FARMACID S.A.';
+            const title1 = 'GENA S.A.';
             const title1Width = doc.getTextWidth(title1);
             doc.text(title1, (pageWidth - title1Width) / 2, 15);
 
             doc.setFontSize(14);
+            
             const title2 = 'TREND DE ANALISIS DE PRODUCTO TERMINADO';
             const title2Width = doc.getTextWidth(title2);
             doc.text(title2, (pageWidth - title2Width) / 2, 23);
@@ -445,13 +444,18 @@ const TrendAnalisis = () => {
         doc.text(`Realizado por: ${realizadoPorNombre}`, 14, currentY + 5);
         doc.text(`Fecha: ${formattedDate}`, 14, currentY + 15);
         // ---------------------------------------------------
-        doc.text(`Revisado por: `, 130, currentY + 5);
-        doc.text(`Fecha: `, 130, currentY + 15);
+        doc.text(`Revisado por: Nelly Rocha`, 130, currentY + 5);
+        doc.text(`Fecha: 2025-10-08`, 130, currentY + 15);
 
         doc.save('reporte_analisis_tendencias.pdf'); // Descargar PDF
     };
     const today = new Date();
-    const formattedDate = today.toLocaleDateString();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    console.log(formattedDate); // 2025-10-10
+
     // --- Datos y configuración del gráfico ---
     const chartData = {
         labels: data.map(item => item['Número Lote/Serie']),
@@ -675,8 +679,13 @@ const TrendAnalisis = () => {
                     <h3>Filtros Principales</h3>
                     <div className="input-group">
                         <label>UniNeg</label>
-                        <input type="text" value={uniNeg} onChange={e => setUniNeg(e.target.value)} readOnly />
+                        <select value={uniNeg} onChange={e => setUniNeg(e.target.value)}>
+                            <option value="">Seleccione una opción</option>
+                            <option value="01PD01">01PD01</option>
+                            <option value="04PD01">04PD01</option>
+                        </select>
                     </div>
+
                     <div className="input-group">
                         <label>Fecha Prueba</label>
                         <input type="date" value={fechaPrueba} onChange={e => setFechaPrueba(e.target.value)} />
