@@ -19,6 +19,7 @@ import './TrendAnalisis.css'; // Importa estilos específicos
 
 import Swal from 'sweetalert2';
 
+
 // Registro de los componentes necesarios de Chart.js y plugins
 ChartJS.register(
     CategoryScale,
@@ -476,13 +477,13 @@ const TrendAnalisis = () => {
 
         doc.setFontSize(11);
         doc.setFont("times", "bold");
-        doc.text(`Realizado por: ${realizadoPorNombre}`, 14, currentY + 5);
-        doc.text(`Fecha: ${formattedDate}`, 14, currentY + 15);
+        doc.text(`Realizado por: ${realizadoPorNombre}`, 14, currentY + 20);
+        doc.text(`Fecha: ${formattedDate}`, 14, currentY + 25);
         // ---------------------------------------------------
-        doc.text(`Revisado por: Nelly Rocha`, 130, currentY + 5);
-        doc.text(`Fecha: 2025-10-08`, 130, currentY + 15);
+        doc.text(`Revisado por: `, 120, currentY + 20);
+        doc.text(`Fecha: `, 120, currentY + 25);
 
-        doc.save('reporte_analisis_tendencias.pdf'); // Descargar PDF
+        doc.save(`reporte_analisis_${formattedDate}.pdf`); // Descargar PDF
     };
     const today = new Date();
     const year = today.getFullYear();
@@ -753,6 +754,10 @@ const TrendAnalisis = () => {
     const getTestDesc = (product, test) =>
         productOptions.find(p => p.IMLITM === product && p.TRQTST === test)?.QADSC1 ?? '';
 
+
+    // Crea el collator una sola vez (fuera del componente o en módulo)
+    const collator = new Intl.Collator('es', { sensitivity: 'base', numeric: true });
+
     // --- Render del componente ---
     return (
         <div className="trend-analisis-container">
@@ -802,13 +807,17 @@ const TrendAnalisis = () => {
                                 onFocus={() => productListRef.current && (productListRef.current.style.display = 'block')}
                                 onClick={handleClearProduct}
                             />
+
                             <ul ref={productListRef} className="custom-dropdown">
-                                {filteredProductOptions.map((item, index) => (
-                                    <li key={index} onClick={() => handleProductSelect(item)}>
-                                        {`${item.IMLITM} - ${item.IMDSC1}`}
-                                    </li>
-                                ))}
+                                {[...filteredProductOptions]
+                                    .sort((a, b) => collator.compare(a.IMDSC1 ?? '', b.IMDSC1 ?? '')) // Orden A→Z por IMDSC1
+                                    .map((item, index) => (
+                                        <li key={index} onClick={() => handleProductSelect(item)}>
+                                            {`${item.IMLITM} - ${item.IMDSC1}`}
+                                        </li>
+                                    ))}
                             </ul>
+
                         </div>
 
                         {/* Prueba */}
@@ -823,13 +832,21 @@ const TrendAnalisis = () => {
                                     onFocus={() => testListRef.current && (testListRef.current.style.display = 'block')}
                                     onClick={handleClearTest}
                                 />
+
                                 <ul ref={testListRef} className="custom-dropdown">
-                                    {filteredTests.map((item, index) => (
-                                        <li key={index} onClick={() => handleTestSelect(item.test)}>
-                                            {item.test} - {item.desc}
-                                        </li>
-                                    ))}
+                                    {[...filteredTests]
+                                        .sort((a, b) => {
+                                            // A→Z por descripción (QADSC1), con desempate por código de prueba
+                                            const byDesc = collator.compare(a.desc ?? '', b.desc ?? '');
+                                            return byDesc !== 0 ? byDesc : collator.compare(a.test ?? '', b.test ?? '');
+                                        })
+                                        .map((item, index) => (
+                                            <li key={index} onClick={() => handleTestSelect(item.test)}>
+                                                {item.test} - {item.desc}
+                                            </li>
+                                        ))}
                                 </ul>
+
                             </div>
                         )}
 
@@ -857,13 +874,20 @@ const TrendAnalisis = () => {
                                             }
                                             onClick={handleClearCantReal}
                                         />
+
                                         <ul ref={cantRealListRef} className="custom-dropdown">
-                                            {filteredCantRealTests.map((item, index) => (
-                                                <li key={index} onClick={() => handleCantRealSelect(item.test)}>
-                                                    {item.test} - {item.desc}
-                                                </li>
-                                            ))}
+                                            {[...filteredCantRealTests]
+                                                .sort((a, b) => {
+                                                    const byDesc = collator.compare(a.desc ?? '', b.desc ?? '');
+                                                    return byDesc !== 0 ? byDesc : collator.compare(a.test ?? '', b.test ?? '');
+                                                })
+                                                .map((item, index) => (
+                                                    <li key={index} onClick={() => handleCantRealSelect(item.test)}>
+                                                        {item.test} - {item.desc}
+                                                    </li>
+                                                ))}
                                         </ul>
+
                                     </div>
                                 )}
                             </div>
