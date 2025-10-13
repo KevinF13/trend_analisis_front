@@ -115,7 +115,7 @@ const TrendAnalisis = () => {
         setCurrentPage(event.selected);
     };
 
-    
+
 
     // --- Función para obtener lista de productos desde API ---
     const handleFetchProductList = async () => {
@@ -310,7 +310,7 @@ const TrendAnalisis = () => {
     const loadImage = (src) =>
         new Promise((resolve, reject) => {
             const img = new Image();
-            img.crossOrigin = 'anonymous'; 
+            img.crossOrigin = 'anonymous';
             img.onload = () => resolve(img);
             img.onerror = (e) => reject(e);
             img.src = src;
@@ -352,13 +352,13 @@ const TrendAnalisis = () => {
 
             doc.setFontSize(18);
             const title1Width = doc.getTextWidth(brand.title);
-            doc.text(brand.title, ((pageWidth - title1Width) / 2)+15, 15);
+            doc.text(brand.title, ((pageWidth - title1Width) / 2) + 15, 15);
 
             doc.setFontSize(14)
 
             const title2 = 'TREND DE ANALISIS DE PRODUCTO TERMINADO';
             const title2Width = doc.getTextWidth(title2);
-            doc.text(title2, ((pageWidth - title2Width) / 2)+15, 23);
+            doc.text(title2, ((pageWidth - title2Width) / 2) + 15, 23);
 
             const selectedProductDetails = productOptions.find(p => p && p.IMLITM && p.IMLITM.trim() === selectedProduct);
             const productDescription = selectedProductDetails ? selectedProductDetails.IMDSC1 : 'N/A';
@@ -622,19 +622,64 @@ const TrendAnalisis = () => {
         );
     });
 
-    // --- Filtrado de pruebas asociadas al producto seleccionado ---
-    const associatedTests = productOptions
-        .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct)
-        .map(p => p.TRQTST);
 
-    const filteredTests = associatedTests.filter(test => test.toLowerCase().includes(searchTestTerm.toLowerCase()));
+    // ---- Utilidades ----
+    const normalize = (s = '') =>
+        s.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-    // --- Filtrado de Cantidad Real opcional ---
-    const cantRealTestOptions = productOptions
-        .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct && p.TRQTST !== selectedTest)
-        .map(p => p.TRQTST);
+    const matchesTerm = (term, ...fields) => {
+        const nt = normalize(term);
+        return fields.some(f => normalize(f).includes(nt));
+    };
 
-    const filteredCantRealTests = cantRealTestOptions.filter(test => test.toLowerCase().includes(searchCantRealTerm.toLowerCase()));
+    // ---- Construye objetos únicos { test, desc } para el producto ----
+    const associatedTestObjs = Array.from(
+        new Map(
+            productOptions
+                .filter(p => p && p.IMLITM === selectedProduct && p.TRQTST)
+                .map(p => [p.TRQTST, { test: p.TRQTST, desc: p.QADSC1 ?? '' }])
+        ).values()
+    );
+
+    // ---- Filtra por test o desc ----
+    const filteredTests = associatedTestObjs.filter(t =>
+        matchesTerm(searchTestTerm, t.test, t.desc)
+    );
+
+    // ---- Cantidad Real: mismos objetos, excluyendo el test seleccionado ----
+    const cantRealTestObjs = Array.from(
+        new Map(
+            productOptions
+                .filter(
+                    p =>
+                        p &&
+                        p.IMLITM === selectedProduct &&
+                        p.TRQTST &&
+                        p.TRQTST !== selectedTest
+                )
+                .map(p => [p.TRQTST, { test: p.TRQTST, desc: p.QADSC1 ?? '' }])
+        ).values()
+    );
+
+    const filteredCantRealTests = cantRealTestObjs.filter(t =>
+        matchesTerm(searchCantRealTerm, t.test, t.desc)
+    );
+
+
+
+    // // --- Filtrado de pruebas asociadas al producto seleccionado ---
+    // const associatedTests = productOptions
+    //     .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct)
+    //     .map(p => p.TRQTST);
+
+    // const filteredTests = associatedTests.filter(test => test.toLowerCase().includes(searchTestTerm.toLowerCase()));
+
+    // // --- Filtrado de Cantidad Real opcional ---
+    // const cantRealTestOptions = productOptions
+    //     .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct && p.TRQTST !== selectedTest)
+    //     .map(p => p.TRQTST);
+
+    // const filteredCantRealTests = cantRealTestOptions.filter(test => test.toLowerCase().includes(searchCantRealTerm.toLowerCase()));
 
     // --- Reset de filtros de prueba y Cantidad Real cuando cambia el producto ---
     useEffect(() => {
@@ -657,20 +702,20 @@ const TrendAnalisis = () => {
         if (productListRef.current) productListRef.current.style.display = 'none';
     };
 
-    
-const handleTestSelect = (test) => {
-  setSelectedTest(test);
-  const desc = getTestDesc(selectedProduct, test);
-  setSearchTestTerm(`${test}${desc ? ` - ${desc}` : ''}`); // muestra las dos variables
-  if (testListRef.current) testListRef.current.style.display = 'none';
-};
 
-const handleCantRealSelect = (test) => {
-  setSelectedCantRealTest(test);
-  const desc = getTestDesc(selectedProduct, test);
-  setSearchCantRealTerm(`${test}${desc ? ` - ${desc}` : ''}`);
-  if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
-};
+    const handleTestSelect = (test) => {
+        setSelectedTest(test);
+        const desc = getTestDesc(selectedProduct, test);
+        setSearchTestTerm(`${test}${desc ? ` - ${desc}` : ''}`); // muestra las dos variables
+        if (testListRef.current) testListRef.current.style.display = 'none';
+    };
+
+    const handleCantRealSelect = (test) => {
+        setSelectedCantRealTest(test);
+        const desc = getTestDesc(selectedProduct, test);
+        setSearchCantRealTerm(`${test}${desc ? ` - ${desc}` : ''}`);
+        if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
+    };
 
 
     const handleCantRealBtnClick = () => {
@@ -706,7 +751,7 @@ const handleCantRealSelect = (test) => {
     };
 
     const getTestDesc = (product, test) =>
-  productOptions.find(p => p.IMLITM === product && p.TRQTST === test)?.QADSC1 ?? '';
+        productOptions.find(p => p.IMLITM === product && p.TRQTST === test)?.QADSC1 ?? '';
 
     // --- Render del componente ---
     return (
@@ -772,16 +817,16 @@ const handleCantRealSelect = (test) => {
                                 <label>Seleccionar Prueba</label>
                                 <input
                                     type="text"
-                                    placeholder="Escribe para filtrar..."
+                                    placeholder="Escribe para filtrar por código o descripción..."
                                     value={searchTestTerm}
                                     onChange={e => setSearchTestTerm(e.target.value)}
                                     onFocus={() => testListRef.current && (testListRef.current.style.display = 'block')}
                                     onClick={handleClearTest}
                                 />
                                 <ul ref={testListRef} className="custom-dropdown">
-                                    {filteredTests.map((test, index) => (
-                                        <li key={index} onClick={() => handleTestSelect(test)}>
-                                            {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
+                                    {filteredTests.map((item, index) => (
+                                        <li key={index} onClick={() => handleTestSelect(item.test)}>
+                                            {item.test} - {item.desc}
                                         </li>
                                     ))}
                                 </ul>
@@ -791,24 +836,31 @@ const handleCantRealSelect = (test) => {
                         {/* Cantidad Real opcional */}
                         <div className="cant-real-group">
                             <div className="cant-real-input-and-button">
-                                <button className="interactive-btn" onClick={handleCantRealBtnClick} aria-label={isCantRealActive ? 'Quitar filtro de Cantidad Real' : 'Agregar filtro de Cantidad Real'}>
+                                <button
+                                    className="interactive-btn"
+                                    onClick={handleCantRealBtnClick}
+                                    aria-label={isCantRealActive ? 'Quitar filtro de Cantidad Real' : 'Agregar filtro de Cantidad Real'}
+                                >
                                     {isCantRealActive ? '❌' : '➕'}
                                 </button>
+
                                 {isCantRealActive && (
                                     <div className="input-group searchable-select">
                                         <label>Cant. Real</label>
                                         <input
                                             type="text"
-                                            placeholder="Prueba opcional"
+                                            placeholder="Escribe para filtrar por código o descripción..."
                                             value={searchCantRealTerm}
                                             onChange={e => setSearchCantRealTerm(e.target.value)}
-                                            onFocus={() => cantRealListRef.current && (cantRealListRef.current.style.display = 'block')}
+                                            onFocus={() =>
+                                                cantRealListRef.current && (cantRealListRef.current.style.display = 'block')
+                                            }
                                             onClick={handleClearCantReal}
                                         />
                                         <ul ref={cantRealListRef} className="custom-dropdown">
-                                            {filteredCantRealTests.map((test, index) => (
-                                                <li key={index} onClick={() => handleCantRealSelect(test)}>
-                                                    {test} - {productOptions.find(p => p.IMLITM === selectedProduct && p.TRQTST === test)?.QADSC1 || ''}
+                                            {filteredCantRealTests.map((item, index) => (
+                                                <li key={index} onClick={() => handleCantRealSelect(item.test)}>
+                                                    {item.test} - {item.desc}
                                                 </li>
                                             ))}
                                         </ul>
@@ -816,6 +868,7 @@ const handleCantRealSelect = (test) => {
                                 )}
                             </div>
                         </div>
+
 
                         {/* Botón para generar análisis */}
                         <button className="search-button" onClick={handleFetchTrendData} disabled={loading || !selectedProduct || !selectedTest}>
