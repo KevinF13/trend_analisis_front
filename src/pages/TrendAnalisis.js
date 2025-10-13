@@ -115,6 +115,8 @@ const TrendAnalisis = () => {
         setCurrentPage(event.selected);
     };
 
+    
+
     // --- Función para obtener lista de productos desde API ---
     const handleFetchProductList = async () => {
         setLoading(true);
@@ -655,17 +657,21 @@ const TrendAnalisis = () => {
         if (productListRef.current) productListRef.current.style.display = 'none';
     };
 
-    const handleTestSelect = (test) => {
-        setSelectedTest(test);
-        setSearchTestTerm(test);
-        if (testListRef.current) testListRef.current.style.display = 'none';
-    };
+    
+const handleTestSelect = (test) => {
+  setSelectedTest(test);
+  const desc = getTestDesc(selectedProduct, test);
+  setSearchTestTerm(`${test}${desc ? ` - ${desc}` : ''}`); // muestra las dos variables
+  if (testListRef.current) testListRef.current.style.display = 'none';
+};
 
-    const handleCantRealSelect = (test) => {
-        setSelectedCantRealTest(test);
-        setSearchCantRealTerm(test);
-        if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
-    };
+const handleCantRealSelect = (test) => {
+  setSelectedCantRealTest(test);
+  const desc = getTestDesc(selectedProduct, test);
+  setSearchCantRealTerm(`${test}${desc ? ` - ${desc}` : ''}`);
+  if (cantRealListRef.current) cantRealListRef.current.style.display = 'none';
+};
+
 
     const handleCantRealBtnClick = () => {
         const newState = !isCantRealActive;
@@ -698,6 +704,9 @@ const TrendAnalisis = () => {
         setSelectedCantRealTest('');
         setSearchCantRealTerm('');
     };
+
+    const getTestDesc = (product, test) =>
+  productOptions.find(p => p.IMLITM === product && p.TRQTST === test)?.QADSC1 ?? '';
 
     // --- Render del componente ---
     return (
