@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import './ActualizacionDatosProducto.css'; // Importa el archivo CSS
 // Función simulada para obtener datos de la API
 // En un caso real, harías una llamada 'fetch' o 'axios' aquí
