@@ -7,15 +7,17 @@ const Footer = () => {
     <footer className="footer-container">
       <div className="footer-content">
         <div className="footer-section footer-logo">
-          <img src="./images/LOGO FARMACID.png" alt="Logo" className="logo-img" />
+          <img src="./images/LOGO_GRUPO_CID-removebg-preview.png" alt="Logo" className="logo-img" />
           <p className="description">Análisis y datos de alta calidad.</p>
         </div>
         
         <div className="footer-section footer-links">
           <h4>Síguenos</h4>
+          
           <div className="social-links">
+            
             {/* <a href="https://twitomter.c" target="_blank" rel="noopener noreferrer" className="social-link">Twitter</a> */}
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">LinkedIn</a>
+            <a href="https://ec.linkedin.com/company/grupo-corporativo-cid"  target="_blank" rel="noopener noreferrer" className="social-link">LinkedIn</a>
           </div>
         </div>
       </div>

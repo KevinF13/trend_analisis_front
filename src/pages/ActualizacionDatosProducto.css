@@ -1,0 +1,275 @@
+/* ======================================= */
+/* 1. Variables y Estilos Generales        */
+/* ======================================= */
+/* Nota: Las variables se definen en el archivo global o en el componente superior. */
+/* Aquí se redefinen para que el ejemplo sea autocontenido, si es necesario. */
+:root {
+    --primary-color: #2c3e50;      /* Azul oscuro */
+    --secondary-color: #3498db;    /* Azul brillante */
+    --accent-color: #e74c3c;       /* Rojo/Naranja */
+    --warning-color: #f1c40f;      /* Amarillo para observaciones */
+    /* --background-color: #ecf0f1;   Gris claro */
+    --card-background: #fff;       /* Fondo de las tarjetas */
+    --border-color: #dcdde1;       /* Borde suave */
+    --text-muted: #7f8c8d;
+    --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
+    --font-family: 'Segoe UI', 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+    --border-radius: 10px;
+    --spacing-05: 0.5rem; 
+    --spacing-10: 1rem;
+    --spacing-15: 1.5rem;
+    --spacing-20: 2rem;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-search-container {
+    padding: var(--spacing-20);
+    background-color: var(--background-color);
+    min-height: 100vh;
+    font-family: var(--font-family);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* Estilos para la imagen de fondo con efecto parallax */
+  background-image: url('/public/images/actdatos.jpg'); /* Ruta a la imagen en la carpeta public */
+  background-position: center;
+  background-size: cover; /* Ajusta la imagen para cubrir todo el contenedor */
+  background-attachment: fixed; /* ¡Este es el secreto del efecto parallax! */
+  
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-20);
+    font-weight: 700;
+}
+
+/* ======================================= */
+/* 2. Estructura del Panel y Formulario   */
+/* ======================================= */
+
+.form-panel {
+    width: 100%;
+    max-width: 650px; /* Ancho cómodo para el formulario */
+    background-color: var(--card-background);
+    padding: var(--spacing-20);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-15);
+}
+
+.form-panel h3 {
+    color: var(--secondary-color);
+    margin: 0 0 var(--spacing-10) 0;
+    padding-bottom: var(--spacing-05);
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 600;
+}
+
+/* ======================================= */
+/* 3. Fila de Datos y Etiquetas           */
+/* ======================================= */
+
+.data-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    /* Alineación de ítems al inicio para el textarea */
+    align-items: flex-start;
+}
+
+.data-label {
+    /* Estilo de etiqueta similar a la imagen original */
+    background-color: var(--primary-color); /* Azul oscuro */
+    color: white;
+    padding: var(--spacing-10);
+    font-weight: 600;
+    text-align: right;
+    width: 180px; /* Ancho fijo para las etiquetas */
+    flex-shrink: 0;
+    margin-right: -1px; /* Para 'fusionar' visualmente con el campo */
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+    height: 100%; /* Ocupa la altura del contenido */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    box-sizing: border-box;
+    min-height: 45px; /* Altura mínima para alineación */
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.data-value-wrapper {
+    flex-grow: 1;
+    min-height: 45px;
+}
+
+/* Estilo para la etiqueta de Observaciones (Accent) */
+.data-row.editable .data-label {
+    background-color: var(--warning-color); /* Amarillo/Dorado */
+    color: var(--primary-color);
+}
+
+/* ======================================= */
+/* 4. Campos de Entrada y Display         */
+/* ======================================= */
+
+.input-field {
+    padding: var(--spacing-10);
+    border: 1px solid var(--border-color);
+    flex-grow: 1;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: var(--transition);
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    width: 100%;
+}
+
+.display-value {
+    background-color: #f7f7f7; /* Fondo sutil para campos de solo lectura */
+    color: var(--primary-color);
+    font-weight: 500;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+}
+
+.editable-textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.editable-textarea:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+
+/* Estilo especial para el campo Producto/Lote destacado */
+.lote-value {
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+/* ======================================= */
+/* 5. Sección de Búsqueda (LOTE)          */
+/* ======================================= */
+
+.search-group {
+    display: flex;
+    gap: var(--spacing-10);
+    align-items: flex-end;
+    margin-bottom: var(--spacing-10);
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: var(--spacing-15);
+}
+
+.search-group .input-group {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-group .input-group label {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-05);
+    font-size: 0.95rem;
+}
+
+.search-group input {
+    padding: var(--spacing-10);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    background-color: #fcfcfc;
+    font-family: inherit;
+}
+
+.search-group input:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+    outline: none;
+    background-color: #fff;
+}
+
+.search-button {
+    padding: var(--spacing-10) var(--spacing-15);
+    background-color: var(--secondary-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.search-button:hover:not(:disabled) {
+    background-color: #2980b9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* ======================================= */
+/* 6. Mensajes de Estado                  */
+/* ======================================= */
+
+.error-message {
+    color: var(--accent-color);
+    font-weight: 600;
+    text-align: center;
+    margin-top: var(--spacing-05);
+    margin-bottom: var(--spacing-10);
+}
+
+/* ======================================= */
+/* 7. Media Queries                       */
+/* ======================================= */
+
+@media (max-width: 600px) {
+    .data-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .data-label {
+        width: 100%;
+        text-align: left;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        margin-right: 0;
+        min-height: 40px;
+    }
+
+    .data-value-wrapper {
+        min-height: initial;
+    }
+
+    .input-field,
+    .display-value,
+    .editable-textarea {
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        border-top: none;
+    }
+
+    .search-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-button {
+        width: 100%;
+    }
+}
