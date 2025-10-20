@@ -1,18 +1,27 @@
 import React, { useState, useCallback } from 'react';
 import './ActualizacionDatosProducto.css'; // Asegúrate de que este archivo exista
 
-// --- 1. CONFIGURACIÓN DE DATOS DE ANÁLISIS ---
+// --- 1. CONFIGURACIÓN DE DATOS DE ANÁLISIS Y CLASIFICACIÓN ---
 
 // Lista completa de campos de análisis disponibles
+const ANALYSIS_FIELDS_MAP = {
+  'ANALISIS DE MATERIA PRIMA': [
+    'AGUA DESTILADA', 'AGUA DE ENJUAGUE', 'AGUA DESMINERALIZADA',
+    'HUMEDAD', 'IDENTIFICACION', 'CUANTIFICACION',
+  ],
+  'ANALISIS DE PRODUCTO EN PROCESO': [
+    'POLVO', 'DESINTEGRACION', 'NUCLEO', 'DESINTEGRACION DE BARRERA',
+    'DISOLUCION', 'ACTIVO DE CUBIERTA', 'OBSERVACION MICROSCOPICA',
+    'GRANEL', 'BIOBURDEN'
+  ]
+};
+
+// Aplanamos la lista para referencia general
 const ALL_ANALYSIS_FIELDS = [
-  // Análisis de Materia Prima
-  'AGUA DESTILADA', 'AGUA DE ENJUAGUE', 'AGUA DESMINERALIZADA',
-  'HUMEDAD', 'IDENTIFICACION', 'CUANTIFICACION',
-  // Análisis de Producto en Proceso
-  'POLVO', 'DESINTEGRACION', 'NUCLEO', 'DESINTEGRACION DE BARRERA',
-  'DISOLUCION', 'ACTIVO DE CUBIERTA', 'OBSERVACION MICROSCOPICA',
-  'GRANEL', 'BIOBURDEN'
+  ...ANALYSIS_FIELDS_MAP['ANALISIS DE MATERIA PRIMA'],
+  ...ANALYSIS_FIELDS_MAP['ANALISIS DE PRODUCTO EN PROCESO'],
 ];
+
 
 // Función simulada para obtener datos de la API
 const fetchProductData = async (lote) => {
@@ -29,7 +38,8 @@ const fetchProductData = async (lote) => {
         'AGUA DESTILADA': 'Cumple',
         'HUMEDAD': '3.5%',
         'POLVO': 'Aprobado',
-        'DESINTEGRACION': '15:30 min (2025-06-04)', // Simula el formato de fecha de la imagen
+        // Nota: Los datos de DESINTEGRACION y NUCLEO usan el mismo sufijo de fecha para simular el ejemplo de la imagen
+        'DESINTEGRACION': '15:30 min (2025-06-04)', 
         'DISOLUCION': '99.8%',
         'BIOBURDEN': 'Aprobado'
       }
@@ -66,6 +76,7 @@ const ActualizacionDatosProducto = () => {
     setIsLoading(true);
     setError(null);
     setAnalysisData({});
+    setObservaciones(''); // Limpiar observaciones al buscar un nuevo lote
     setNewAnalysisField('');
     setNewAnalysisValue('');
     
@@ -137,10 +148,31 @@ const ActualizacionDatosProducto = () => {
 
   const availableAnalysisFields = ALL_ANALYSIS_FIELDS.filter(field => !analysisData.hasOwnProperty(field));
 
+  // --- NUEVA FUNCIÓN PARA RENDERIZAR LOS GRUPOS DE ANÁLISIS ---
+  const renderAnalysisGroup = (groupTitle, fields) => {
+    const filledFields = fields.filter(field => analysisData.hasOwnProperty(field));
+    
+    if (filledFields.length === 0) return null; // No mostrar el grupo si no tiene datos
+
+    return (
+      <div key={groupTitle} className="analysis-group">
+        <h4 className="analysis-group-title">{groupTitle}</h4>
+        <div className="analysis-results-grid">
+          {filledFields.map(field => (
+            <div key={field} className="analysis-row">
+              <span className="analysis-label">{field}:</span>
+              <span className="analysis-value">{analysisData[field]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="product-search-container">
       <header>
-          <h1>Consulta y Actualización de Datos</h1>
+        <h1 className="header-title">Consulta y Actualización de Datos de Lote</h1>
       </header>
       
       {/* --- NUEVO CONTENEDOR DE DOBLE COLUMNA --- */}
@@ -191,8 +223,8 @@ const ActualizacionDatosProducto = () => {
                 onChange={(e) => setObservaciones(e.target.value)}
               />
               
-              <button className="save-button" disabled={!data.producto}>
-                  Guardar Cambios y Observaciones
+              <button className="save-button" onClick={() => showMessage('¡Guardado simulado!')} disabled={!data.producto}>
+                Guardar Cambios y Observaciones
               </button>
             </>
           )}
@@ -201,19 +233,16 @@ const ActualizacionDatosProducto = () => {
         {/* --- COLUMNA DERECHA: DATOS DE ANÁLISIS --- */}
         {data.producto && (
           <div className="analysis-panel">
-            <h3>Resultados de Análisis (Solo Campos Llenos)</h3>
+            <h3>Resultados de Análisis</h3>
             
-            {/* Muestra solo los campos con datos */}
+            {/* --- Renderizado de los grupos de análisis --- */}
             <div className="analysis-results">
-              {Object.entries(analysisData).length > 0 ? (
-                  Object.entries(analysisData).map(([key, value]) => (
-                      <div key={key} className="analysis-row">
-                          <span className="analysis-label">{key}:</span>
-                          <span className="analysis-value">{value}</span>
-                      </div>
-                  ))
-              ) : (
-                  <p className="no-data-message">No hay resultados de análisis registrados para este lote.</p>
+              {renderAnalysisGroup('ANALISIS DE MATERIA PRIMA', ANALYSIS_FIELDS_MAP['ANALISIS DE MATERIA PRIMA'])}
+              {renderAnalysisGroup('ANALISIS DE PRODUCTO EN PROCESO', ANALYSIS_FIELDS_MAP['ANALISIS DE PRODUCTO EN PROCESO'])}
+              
+              {/* Mensaje de no datos si ambos grupos están vacíos */}
+              {Object.entries(analysisData).length === 0 && (
+                <p className="no-data-message">No hay resultados de análisis registrados para este lote.</p>
               )}
             </div>
 
@@ -223,32 +252,32 @@ const ActualizacionDatosProducto = () => {
             <div className="new-analysis-group">
               <h4>➕ Ingresar Nuevo Dato</h4>
               <div className="input-group-inline">
-                  <select
-                      className="select-field"
-                      value={newAnalysisField}
-                      onChange={(e) => setNewAnalysisField(e.target.value)}
-                      disabled={availableAnalysisFields.length === 0}
-                  >
-                      <option value="">-- Seleccionar Campo --</option>
-                      {availableAnalysisFields.map(field => (
-                          <option key={field} value={field}>{field}</option>
-                      ))}
-                  </select>
-                  <input
-                      type="text"
-                      className="input-field"
-                      value={newAnalysisValue}
-                      onChange={(e) => setNewAnalysisValue(e.target.value)}
-                      placeholder="Valor / Resultado"
-                      disabled={!newAnalysisField}
-                  />
-                  <button 
-                      className="add-button" 
-                      onClick={handleAddAnalysisData}
-                      disabled={!newAnalysisField || !newAnalysisValue.trim()}
-                  >
-                      Añadir
-                  </button>
+                <select
+                  className="select-field"
+                  value={newAnalysisField}
+                  onChange={(e) => setNewAnalysisField(e.target.value)}
+                  disabled={availableAnalysisFields.length === 0}
+                >
+                  <option value="">-- Seleccionar Campo --</option>
+                  {availableAnalysisFields.map(field => (
+                    <option key={field} value={field}>{field}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  className="input-field"
+                  value={newAnalysisValue}
+                  onChange={(e) => setNewAnalysisValue(e.target.value)}
+                  placeholder="Valor / Resultado"
+                  disabled={!newAnalysisField}
+                />
+                <button 
+                  className="add-button" 
+                  onClick={handleAddAnalysisData}
+                  disabled={!newAnalysisField || !newAnalysisValue.trim()}
+                >
+                  Añadir
+                </button>
               </div>
             </div>
           </div>
