@@ -40,10 +40,17 @@
 }
 
 h1 {
-    color: var(--primary-color);
+   
     margin-bottom: var(--spacing-20);
     font-weight: 700;
+    color: white;
+    background-color: var(--primary-color);
+    border-radius: 15px;
+    padding: var(--spacing);
+    width: 650px;
 }
+
+
 
 /* ======================================= */
 /* 2. Estructura del Panel y Formulario   */

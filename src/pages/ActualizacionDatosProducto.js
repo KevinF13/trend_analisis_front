@@ -90,7 +90,9 @@ const ActualizacionDatosProducto = () => {
   return (
     <div className="product-search-container">
       <header>
-        <h1>Consulta y Actualización de Datos</h1>
+        
+          <h1>Consulta y Actualización de Datos</h1>
+        
       </header>
 
       <div className="form-panel">
@@ -142,7 +144,7 @@ const ActualizacionDatosProducto = () => {
             Guardar Observaciones
         </button> 
       </div>
-
+      
     </div>
   );
 };
