@@ -1,25 +1,34 @@
 /* ======================================= */
-/* 1. Variables y Estilos Generales        */
+/* 1. Variables y Estilos Generales        */
 /* ======================================= */
-/* Nota: Las variables se definen en el archivo global o en el componente superior. */
-/* Aquí se redefinen para que el ejemplo sea autocontenido, si es necesario. */
 :root {
-    --primary-color: #2c3e50;      /* Azul oscuro */
-    --secondary-color: #3498db;    /* Azul brillante */
-    --accent-color: #e74c3c;       /* Rojo/Naranja */
-    --warning-color: #f1c40f;      /* Amarillo para observaciones */
-    /* --background-color: #ecf0f1;   Gris claro */
-    --card-background: #fff;       /* Fondo de las tarjetas */
-    --border-color: #dcdde1;       /* Borde suave */
+    --primary-color: #2c3e50;
+    /* Azul oscuro */
+    --secondary-color: #3498db;
+    /* Azul brillante */
+    --accent-color: #e74c3c;
+    /* Rojo/Naranja */
+    --warning-color: #f1c40f;
+    /* Amarillo para observaciones */
+    --background-color: #ecf0f1;
+    /* Gris claro */
+    --card-background: #fff;
+    /* Fondo de las tarjetas */
+    --border-color: #dcdde1;
+    /* Borde suave */
     --text-muted: #7f8c8d;
     --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
     --font-family: 'Segoe UI', 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
     --border-radius: 10px;
-    --spacing-05: 0.5rem; 
+    --spacing-05: 0.5rem;
     --spacing-10: 1rem;
     --spacing-15: 1.5rem;
     --spacing-20: 2rem;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
 }
 
 .product-search-container {
@@ -32,33 +41,48 @@
     align-items: center;
 
     /* Estilos para la imagen de fondo con efecto parallax */
-  background-image: url('/public/images/actdatos.jpg'); /* Ruta a la imagen en la carpeta public */
-  background-position: center;
-  background-size: cover; /* Ajusta la imagen para cubrir todo el contenedor */
-  background-attachment: fixed; /* ¡Este es el secreto del efecto parallax! */
-  
+    background-image: url('/public/images/actdatos.jpg');
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
 }
 
 h1 {
-   
+    text-align: center;
     margin-bottom: var(--spacing-20);
     font-weight: 700;
     color: white;
     background-color: var(--primary-color);
-    border-radius: 15px;
-    padding: var(--spacing);
-    width: 650px;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-10);
+    width: auto;
+    max-width: 90%;
 }
 
-
-
 /* ======================================= */
-/* 2. Estructura del Panel y Formulario   */
+/* 2. ESTRUCTURA DE DOBLE COLUMNA (GRID) */
 /* ======================================= */
 
-.form-panel {
+.main-content-wrapper {
+    width: 95%;
+    max-width: 1300px;
+    /* Ancho máximo para la doble columna */
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Dos columnas iguales por defecto */
+    gap: var(--spacing-20);
+    align-items: flex-start;
+    /* Alinea los paneles arriba */
+}
+
+/* ======================================= */
+/* 3. Estructura del Panel y Formulario   */
+/* ======================================= */
+
+.form-panel,
+.analysis-panel {
     width: 100%;
-    max-width: 650px; /* Ancho cómodo para el formulario */
     background-color: var(--card-background);
     padding: var(--spacing-20);
     border-radius: var(--border-radius);
@@ -68,7 +92,8 @@ h1 {
     gap: var(--spacing-15);
 }
 
-.form-panel h3 {
+.form-panel h3,
+.analysis-panel h3 {
     color: var(--secondary-color);
     margin: 0 0 var(--spacing-10) 0;
     padding-bottom: var(--spacing-05);
@@ -77,35 +102,39 @@ h1 {
 }
 
 /* ======================================= */
-/* 3. Fila de Datos y Etiquetas           */
+/* 4. Fila de Datos y Etiquetas           */
 /* ======================================= */
 
 .data-row {
     display: flex;
-    align-items: center;
-    width: 100%;
-    /* Alineación de ítems al inicio para el textarea */
     align-items: flex-start;
+    width: 100%;
+}
+
+.data-display-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-05);
+    margin-bottom: var(--spacing-10);
 }
 
 .data-label {
-    /* Estilo de etiqueta similar a la imagen original */
-    background-color: var(--primary-color); /* Azul oscuro */
+    background-color: var(--primary-color);
     color: white;
     padding: var(--spacing-10);
     font-weight: 600;
     text-align: right;
-    width: 180px; /* Ancho fijo para las etiquetas */
+    width: 180px;
     flex-shrink: 0;
-    margin-right: -1px; /* Para 'fusionar' visualmente con el campo */
+    margin-right: -1px;
     border-top-left-radius: var(--border-radius);
     border-bottom-left-radius: var(--border-radius);
-    height: 100%; /* Ocupa la altura del contenido */
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     box-sizing: border-box;
-    min-height: 45px; /* Altura mínima para alineación */
+    min-height: 45px;
     text-transform: uppercase;
     font-size: 0.85rem;
 }
@@ -115,17 +144,18 @@ h1 {
     min-height: 45px;
 }
 
-/* Estilo para la etiqueta de Observaciones (Accent) */
 .data-row.editable .data-label {
-    background-color: var(--warning-color); /* Amarillo/Dorado */
+    background-color: var(--warning-color);
     color: var(--primary-color);
 }
 
 /* ======================================= */
-/* 4. Campos de Entrada y Display         */
+/* 5. Campos de Entrada y Display         */
 /* ======================================= */
 
-.input-field {
+.input-field,
+.select-field {
+    /* Aplica a inputs y selects */
     padding: var(--spacing-10);
     border: 1px solid var(--border-color);
     flex-grow: 1;
@@ -135,10 +165,11 @@ h1 {
     border-top-right-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
     width: 100%;
+    font-family: inherit;
 }
 
 .display-value {
-    background-color: #f7f7f7; /* Fondo sutil para campos de solo lectura */
+    background-color: #f7f7f7;
     color: var(--primary-color);
     font-weight: 500;
     min-height: 45px;
@@ -150,22 +181,25 @@ h1 {
     resize: vertical;
     min-height: 80px;
     font-family: inherit;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
-.editable-textarea:focus {
+.editable-textarea:focus,
+.input-field:focus,
+.select-field:focus {
     border-color: var(--secondary-color);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     outline: none;
 }
 
-/* Estilo especial para el campo Producto/Lote destacado */
 .lote-value {
     font-weight: 700;
     color: var(--secondary-color);
 }
 
 /* ======================================= */
-/* 5. Sección de Búsqueda (LOTE)          */
+/* 6. Sección de Búsqueda y Botones       */
 /* ======================================= */
 
 .search-group {
@@ -191,20 +225,8 @@ h1 {
 }
 
 .search-group input {
-    padding: var(--spacing-10);
-    border: 2px solid var(--border-color);
+    /* Sobreescribe el radio de borde para que solo se aplique aquí, no el global */
     border-radius: var(--border-radius);
-    font-size: 1rem;
-    transition: var(--transition);
-    background-color: #fcfcfc;
-    font-family: inherit;
-}
-
-.search-group input:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
-    outline: none;
-    background-color: #fff;
 }
 
 .search-button {
@@ -230,26 +252,173 @@ h1 {
     cursor: not-allowed;
 }
 
-/* ======================================= */
-/* 6. Mensajes de Estado                  */
-/* ======================================= */
+.save-button {
+    width: 100%;
+    padding: var(--spacing-10);
+    margin-top: var(--spacing-10);
+    background-color: var(--warning-color);
+    /* Usamos el color de Observaciones */
+    color: var(--primary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-.error-message {
-    color: var(--accent-color);
-    font-weight: 600;
-    text-align: center;
-    margin-top: var(--spacing-05);
-    margin-bottom: var(--spacing-10);
+.save-button:hover:not(:disabled) {
+    background-color: #e6b800;
 }
 
 /* ======================================= */
-/* 7. Media Queries                       */
+/* 7. ESTILOS DE ANÁLISIS (COLUMNA DERECHA) */
 /* ======================================= */
 
+.analysis-panel {
+    gap: var(--spacing-10);
+    /* Ajuste de espaciado interno */
+}
+
+.analysis-panel h4 {
+    color: var(--primary-color);
+    margin: 0;
+    padding-bottom: var(--spacing-05);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: var(--spacing-10) 0;
+}
+
+.analysis-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-05);
+    max-height: 400px;
+    /* Limite de altura para scroll si hay muchos datos */
+    overflow-y: auto;
+    padding-right: 5px;
+    /* Espacio para la barra de scroll */
+}
+
+.analysis-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-05) var(--spacing-10);
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    border-left: 5px solid var(--secondary-color);
+    transition: box-shadow 0.2s;
+}
+
+.analysis-row:hover {
+    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+}
+
+.analysis-label {
+    font-weight: 600;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+}
+
+.analysis-value {
+    color: var(--primary-color);
+    font-weight: 500;
+    font-style: italic;
+    text-align: right;
+    font-size: 0.95rem;
+}
+
+.no-data-message {
+    text-align: center;
+    color: var(--text-muted);
+    padding: var(--spacing-10);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+/* Estilo para el grupo de añadir nuevo dato */
+.new-analysis-group {
+    padding-top: var(--spacing-10);
+    border-top: 1px dashed var(--border-color);
+}
+
+.input-group-inline {
+    display: flex;
+    gap: var(--spacing-10);
+    align-items: center;
+}
+
+.select-field {
+    flex: 2;
+    min-width: 150px;
+    border-radius: var(--border-radius);
+    /* Aplica el radio a los selectores */
+}
+
+.new-analysis-group .input-field {
+    flex: 3;
+    border-radius: var(--border-radius);
+    /* Aplica el radio a los inputs */
+}
+
+.add-button {
+    flex-shrink: 0;
+    padding: var(--spacing-10) var(--spacing-15);
+    background-color: #2ecc71;
+    /* Verde esmeralda */
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.add-button:hover:not(:disabled) {
+    background-color: #27ae60;
+}
+
+.add-button:disabled {
+    background-color: #a8e6b1;
+    cursor: not-allowed;
+}
+
+/* ======================================= */
+/* 8. Media Queries (Responsividad)       */
+/* ======================================= */
+
+@media (max-width: 1050px) {
+
+    /* En pantallas medianas, apilamos las dos columnas verticalmente */
+    .main-content-wrapper {
+        grid-template-columns: 1fr;
+        max-width: 650px;
+    }
+}
+
 @media (max-width: 600px) {
+    .product-search-container {
+        padding: var(--spacing-10);
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
     .data-row {
         flex-direction: column;
         align-items: stretch;
+        gap: 1px;
     }
 
     .data-label {
@@ -260,15 +429,26 @@ h1 {
         min-height: 40px;
     }
 
-    .data-value-wrapper {
-        min-height: initial;
-    }
-
     .input-field,
     .display-value,
-    .editable-textarea {
+    .editable-textarea,
+    .input-field,
+    .select-field {
         border-radius: 0 0 var(--border-radius) var(--border-radius);
         border-top: none;
+    }
+
+    .input-group-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .select-field,
+    .new-analysis-group .input-field,
+    .add-button {
+        width: 100%;
+        flex-grow: 1;
+        min-width: unset;
     }
 
     .search-group {
