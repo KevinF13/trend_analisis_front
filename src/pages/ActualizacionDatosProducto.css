@@ -42,7 +42,8 @@ body {
     margin: 0; /* Aseguramos que no haya margen predeterminado en el body */
 }
 
-.product-search-container {
+/* 🎯 CORRECCIÓN CLAVE: Aplicamos los estilos al nuevo contenedor principal <main> */
+.app-main-container {
     padding: 0;
     width: 100%;
     background-color: var(--background-color);
@@ -56,10 +57,11 @@ body {
     background-attachment: fixed;
 }
 
+
 /* 🎯 AJUSTE: Mantenemos el espaciado vertical en el header */
 header {
-    width: 95%;
-    max-width: 1300px;
+    width: 100%;
+    max-width: auto;
     padding-top: var(--spacing-20);
     margin-bottom: var(--spacing-20);
 }
@@ -559,64 +561,57 @@ header {
 
 @media (max-width: 650px) {
     
-    /* 🎯 AJUSTE: El header y el main-content-wrapper usan 100% de ancho 
-       y los 10px de padding se usan como margen lateral para evitar que toque el borde */
+    /* 🎯 AJUSTE: El header y el main-content-wrapper no deben tener un 
+       max-width en pantallas muy pequeñas para evitar el scroll horizontal */
+    .main-content-wrapper,
     header {
-        width: 100%;
+        max-width: 100%;
         padding-left: var(--spacing-10);
         padding-right: var(--spacing-10);
-    }
-    
-    .main-content-wrapper {
         width: 100%;
-        padding-left: var(--spacing-10);
-        padding-right: var(--spacing-10);
-        gap: var(--spacing-10);
     }
     
-    .top-sections-grid {
-        gap: var(--spacing-10);
-    }
-
-    .header-title {
-        font-size: 1.5rem;
-    }
-
-    /* Columnas de Datos y Labels apiladas */
-    .data-row { flex-direction: column; align-items: stretch; }
-    .data-display-section { gap: 0; border: none; border-radius: 0; }
-    .data-label { width: 100%; text-align: left; border-radius: var(--border-radius) var(--border-radius) 0 0; margin-right: 0; }
-    .input-field, .display-value, .editable-textarea { border-radius: 0 0 var(--border-radius) var(--border-radius) !important; border-top: none; }
-
-    /* Búsqueda y Añadir Datos apilados */
-    .input-group-inline, .search-group { flex-direction: column; align-items: stretch; }
-    .search-button, .select-field, .new-analysis-group .input-field, .add-button { width: 100%; flex-grow: 1; min-width: unset; }
-
-    /* Ajuste para grids de trazabilidad */
-    .trazability-content-grid {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-10);
-    }
-
-    .production-grid { grid-template-columns: repeat(2, 1fr); }
-    .packed-grid { grid-template-columns: repeat(2, 1fr); } 
-
-    .time-control-grid {
-        flex-direction: column;
-        gap: 1px;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        overflow: hidden;
-    }
-
-    .time-control-item {
-        border-right: none;
-        border-bottom: 1px dashed var(--border-color);
-        background-color: var(--card-background);
+    /* Aseguramos que los paneles no se salgan del 100% de ancho */
+    .form-panel,
+    .analysis-panel,
+    .trazability-panel {
         padding: var(--spacing-10);
     }
+    
+    /* Adaptamos las filas de datos al formato de columna en móviles */
+    .data-row {
+        flex-direction: column; 
+    }
+    
+    .data-label {
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+        /* Reajustamos los bordes para el nuevo diseño apilado */
+        border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+        border-bottom: 1px solid var(--border-color);
+    }
 
-    .time-control-item:last-child {
-        border-bottom: none;
+    .display-value,
+    .editable-textarea {
+        /* Reajustamos los bordes para el nuevo diseño apilado */
+        border-radius: 0 0 var(--border-radius) var(--border-radius) !important;
+        border-left: 1px solid var(--border-color); /* Restauramos el borde izquierdo */
+    }
+
+    /* Adaptamos la búsqueda y el añadido de análisis al formato de columna */
+    .search-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .input-group-inline {
+        flex-direction: column;
+    }
+    
+    .input-group-inline .select-field,
+    .input-group-inline .input-field,
+    .input-group-inline .add-button {
+        width: 100%;
     }
 }
