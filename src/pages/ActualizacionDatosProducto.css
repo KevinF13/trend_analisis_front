@@ -3,13 +3,17 @@
 /* ======================================= */
 :root {
     --primary-color: #2c3e50;
-    /* Azul oscuro */
+    /* Azul oscuro - Base */
     --secondary-color: #3498db;
-    /* Azul brillante */
+    /* Azul brillante - Acento 1 */
     --accent-color: #e74c3c;
-    /* Rojo/Naranja */
+    /* Rojo/Naranja - Peligro */
     --warning-color: #f1c40f;
-    /* Amarillo para observaciones */
+    /* Amarillo - Observaciones */
+    --success-color: #2ecc71;
+    /* Verde - Aprobado */
+    --danger-color: #c0392b;
+    /* Rojo oscuro - Rechazado */
     --background-color: #ecf0f1;
     /* Gris claro */
     --card-background: #fff;
@@ -19,7 +23,8 @@
     --text-muted: #7f8c8d;
     --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
     --font-family: 'Segoe UI', 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
-    --border-radius: 10px;
+    --border-radius: 8px;
+    /* Reducido ligeramente */
     --spacing-05: 0.5rem;
     --spacing-10: 1rem;
     --spacing-15: 1.5rem;
@@ -31,25 +36,37 @@
     box-sizing: border-box;
 }
 
+/* 🎯 CORRECCIÓN CLAVE: Aseguramos que el BODY no tenga scroll horizontal */
+body {
+    overflow-x: hidden; 
+    margin: 0; /* Aseguramos que no haya margen predeterminado en el body */
+}
+
 .product-search-container {
-    padding: var(--spacing-20);
+    padding: 0;
+    width: 100%;
     background-color: var(--background-color);
     min-height: 100vh;
     font-family: var(--font-family);
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    /* Estilos para la imagen de fondo con efecto parallax */
-    background-image: url('/public/images/actdatos.jpg');
     background-position: center;
     background-size: cover;
     background-attachment: fixed;
 }
 
-h1 {
-    text-align: center;
+/* 🎯 AJUSTE: Mantenemos el espaciado vertical en el header */
+header {
+    width: 95%;
+    max-width: 1300px;
+    padding-top: var(--spacing-20);
     margin-bottom: var(--spacing-20);
+}
+
+.header-title {
+    text-align: center;
+    margin: 0;
     font-weight: 700;
     color: white;
     background-color: var(--primary-color);
@@ -57,32 +74,66 @@ h1 {
     padding: var(--spacing-10);
     width: auto;
     max-width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.error-message {
+    color: var(--danger-color);
+    background-color: #fcebeb;
+    padding: var(--spacing-10);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--danger-color);
+    font-weight: 600;
+    text-align: center;
 }
 
 /* ======================================= */
-/* 2. ESTRUCTURA DE DOBLE COLUMNA (GRID) */
+/* 2. ESTRUCTURA PRINCIPAL (TRES BLOQUES) */
 /* ======================================= */
 
 .main-content-wrapper {
-    width: 95%;
+    /* Mantenemos el width/max-width y el centrado */
+    width: 95%; 
     max-width: 1300px;
-    /* Ancho máximo para la doble columna */
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    /* Dos columnas iguales por defecto */
+    margin: 0 auto var(--spacing-20) auto; 
+    display: flex; 
+    flex-direction: column;
     gap: var(--spacing-20);
     align-items: flex-start;
-    /* Alinea los paneles arriba */
+}
+
+/* NUEVO: Contenedor para las dos columnas superiores */
+.top-sections-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr; /* Mantiene la proporción de las columnas originales */
+    gap: var(--spacing-20);
+    width: 100%; /* Ocupa el 100% del main-content-wrapper */
+}
+
+/* Modo columna única para el estado inicial */
+.main-content-wrapper.single-column-mode {
+    max-width: 650px;
+    /* Quitamos el align-items: flex-start aquí para centrar el bloque único si es más pequeño que el 95% */
+    align-items: center; 
+}
+
+/* Para que la grilla de búsqueda se centre en modo single-column */
+.main-content-wrapper.single-column-mode .top-sections-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+}
+.main-content-wrapper.single-column-mode .analysis-panel,
+.main-content-wrapper.single-column-mode .trazability-panel {
+    display: none;
 }
 
 /* ======================================= */
-/* 3. Estructura del Panel y Formulario   */
+/* 3. Estructura del Panel y Títulos      */
 /* ======================================= */
 
 .form-panel,
-.analysis-panel {
-    width: 100%;
+.analysis-panel,
+.trazability-panel { 
     background-color: var(--card-background);
     padding: var(--spacing-20);
     border-radius: var(--border-radius);
@@ -90,32 +141,45 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-15);
+    width: 100%; /* Asegura que dentro de la grilla ocupan todo el espacio de su celda */
 }
 
 .form-panel h3,
-.analysis-panel h3 {
+.analysis-panel h3,
+.trazability-panel h3 {
     color: var(--secondary-color);
     margin: 0 0 var(--spacing-10) 0;
     padding-bottom: var(--spacing-05);
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--secondary-color);
     font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.trazability-panel h3 {
+    color: var(--primary-color) !important;
+    border-bottom: 2px solid var(--border-color) !important;
+    font-size: 1.3rem !important;
+    font-weight: 700;
 }
 
 /* ======================================= */
-/* 4. Fila de Datos y Etiquetas           */
+/* 4. Fila de Datos y Etiquetas (General) */
 /* ======================================= */
 
 .data-row {
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     width: 100%;
 }
 
 .data-display-section {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-05);
+    gap: 1px;
     margin-bottom: var(--spacing-10);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 
 .data-label {
@@ -126,10 +190,7 @@ h1 {
     text-align: right;
     width: 180px;
     flex-shrink: 0;
-    margin-right: -1px;
-    border-top-left-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-    height: 100%;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -139,14 +200,22 @@ h1 {
     font-size: 0.85rem;
 }
 
+.data-row:first-child .data-label {
+    border-top-left-radius: var(--border-radius);
+}
+
+.data-row:last-child .data-label {
+    border-bottom-left-radius: var(--border-radius);
+}
+
 .data-value-wrapper {
     flex-grow: 1;
-    min-height: 45px;
 }
 
 .data-row.editable .data-label {
     background-color: var(--warning-color);
     color: var(--primary-color);
+    font-weight: 700;
 }
 
 /* ======================================= */
@@ -155,47 +224,50 @@ h1 {
 
 .input-field,
 .select-field {
-    /* Aplica a inputs y selects */
     padding: var(--spacing-10);
     border: 1px solid var(--border-color);
+    border-left: none;
     flex-grow: 1;
     box-sizing: border-box;
     font-size: 1rem;
     transition: var(--transition);
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
     width: 100%;
     font-family: inherit;
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.data-row:first-child .input-field.display-value {
+    border-top-right-radius: var(--border-radius);
+}
+
+.data-row:last-child .input-field.display-value {
+    border-bottom-right-radius: var(--border-radius);
 }
 
 .display-value {
-    background-color: #f7f7f7;
+    background-color: #f7f9fb;
     color: var(--primary-color);
     font-weight: 500;
     min-height: 45px;
     display: flex;
     align-items: center;
+    border: 1px solid var(--border-color);
+    border-left: none;
 }
 
 .editable-textarea {
     resize: vertical;
     min-height: 80px;
     font-family: inherit;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.editable-textarea:focus,
-.input-field:focus,
-.select-field:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-    outline: none;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
 .lote-value {
     font-weight: 700;
-    color: var(--secondary-color);
+    color: var(--danger-color);
 }
 
 /* ======================================= */
@@ -207,26 +279,13 @@ h1 {
     gap: var(--spacing-10);
     align-items: flex-end;
     margin-bottom: var(--spacing-10);
-    border-bottom: 1px dashed var(--border-color);
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: var(--spacing-15);
 }
 
-.search-group .input-group {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.search-group .input-group label {
-    font-weight: 600;
-    color: var(--primary-color);
-    margin-bottom: var(--spacing-05);
-    font-size: 0.95rem;
-}
-
 .search-group input {
-    /* Sobreescribe el radio de borde para que solo se aplique aquí, no el global */
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) !important;
+    border: 1px solid var(--border-color) !important;
 }
 
 .search-button {
@@ -240,71 +299,47 @@ h1 {
     cursor: pointer;
     transition: var(--transition);
     flex-shrink: 0;
-}
-
-.search-button:hover:not(:disabled) {
-    background-color: #2980b9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.search-button:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
+    height: 45px;
 }
 
 .save-button {
-    width: 100%;
-    padding: var(--spacing-10);
-    margin-top: var(--spacing-10);
-    background-color: var(--warning-color);
-    /* Usamos el color de Observaciones */
-    color: var(--primary-color);
+    padding: var(--spacing-10) var(--spacing-15);
+    background-color: var(--success-color);
+    color: #fff;
     border: none;
     border-radius: var(--border-radius);
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.save-button:hover:not(:disabled) {
-    background-color: #e6b800;
+    text-transform: uppercase;
 }
 
 /* ======================================= */
 /* 7. ESTILOS DE ANÁLISIS (COLUMNA DERECHA) */
 /* ======================================= */
 
-.analysis-panel {
-    gap: var(--spacing-10);
-    /* Ajuste de espaciado interno */
+.analysis-group {
+    margin-bottom: var(--spacing-10);
+    padding: var(--spacing-10);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: #f9f9f9;
 }
 
-.analysis-panel h4 {
-    color: var(--primary-color);
-    margin: 0;
-    padding-bottom: var(--spacing-05);
-    font-weight: 600;
-    font-size: 1.1rem;
+.analysis-group-title {
+    color: var(--secondary-color);
+    margin: 0 0 var(--spacing-10) 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 5px;
 }
 
-.divider {
-    border: 0;
-    height: 1px;
-    background-color: var(--border-color);
-    margin: var(--spacing-10) 0;
-}
-
-.analysis-results {
-    display: flex;
-    flex-direction: column;
+.analysis-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: var(--spacing-05);
-    max-height: 400px;
-    /* Limite de altura para scroll si hay muchos datos */
-    overflow-y: auto;
-    padding-right: 5px;
-    /* Espacio para la barra de scroll */
 }
 
 .analysis-row {
@@ -312,176 +347,276 @@ h1 {
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-05) var(--spacing-10);
-    background-color: var(--background-color);
+    background-color: var(--card-background);
     border-radius: var(--border-radius);
     border-left: 5px solid var(--secondary-color);
-    transition: box-shadow 0.2s;
-}
-
-.analysis-row:hover {
-    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .analysis-label {
     font-weight: 600;
     color: var(--primary-color);
-    text-transform: uppercase;
+    text-transform: capitalize;
     flex-shrink: 0;
     font-size: 0.85rem;
+    margin-right: 10px;
 }
 
-.analysis-value {
-    color: var(--primary-color);
-    font-weight: 500;
-    font-style: italic;
-    text-align: right;
-    font-size: 0.95rem;
+.analysis-value.status-approved,
+.analysis-value.status-rejected {
+    font-weight: 700;
 }
 
-.no-data-message {
-    text-align: center;
-    color: var(--text-muted);
-    padding: var(--spacing-10);
-    border: 1px dashed var(--border-color);
-    border-radius: var(--border-radius);
+.analysis-value.status-approved {
+    color: var(--success-color);
 }
 
-/* Estilo para el grupo de añadir nuevo dato */
+.analysis-value.status-rejected {
+    color: var(--danger-color);
+}
+
 .new-analysis-group {
     padding-top: var(--spacing-10);
-    border-top: 1px dashed var(--border-color);
+    border-top: 1px solid var(--border-color);
 }
 
 .input-group-inline {
     display: flex;
     gap: var(--spacing-10);
-    align-items: center;
-}
-
-.select-field {
-    flex: 2;
-    min-width: 150px;
-    border-radius: var(--border-radius);
-    /* Aplica el radio a los selectores */
-}
-
-.new-analysis-group .input-field {
-    flex: 3;
-    border-radius: var(--border-radius);
-    /* Aplica el radio a los inputs */
-}
-
-.add-button {
-    flex-shrink: 0;
-    padding: var(--spacing-10) var(--spacing-15);
-    background-color: #2ecc71;
-    /* Verde esmeralda */
-    color: white;
-    border: none;
-    border-radius: var(--border-radius);
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.add-button:hover:not(:disabled) {
-    background-color: #27ae60;
-}
-
-.add-button:disabled {
-    background-color: #a8e6b1;
-    cursor: not-allowed;
 }
 
 /* ======================================= */
-/* 8. Media Queries (Responsividad)       */
+/* 8. ESTILOS DE TRAZABILIDAD (NUEVO PANEL) */
+/* ======================================= */
+
+.trazability-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: var(--spacing-15);
+}
+
+.trazability-card {
+    background-color: #f9f9f9;
+    padding: var(--spacing-15);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid var(--warning-color);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-10);
+}
+
+.trazability-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.card-title {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: var(--spacing-05);
+}
+
+.highlight-text {
+    color: var(--danger-color);
+    font-weight: 700;
+}
+
+.record-row-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+}
+
+.record-label-mini {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    flex-shrink: 0;
+    margin-right: var(--spacing-10);
+}
+
+.record-value-bold {
+    font-weight: 700;
+    color: var(--primary-color);
+    text-align: right;
+}
+
+.record-value-bold.status-approved {
+    color: var(--success-color);
+}
+
+.record-value-bold.status-rejected {
+    color: var(--danger-color);
+}
+
+/* --- Estilos de Grids para Lotes/Registros --- */
+.production-block-grid {
+    display: grid;
+    text-align: center;
+    gap: 1px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    border-radius: var(--border-radius);
+}
+
+.production-grid {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.packed-grid {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1.2fr;
+}
+
+.header-cell,
+.data-cell {
+    padding: var(--spacing-05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+}
+
+.header-cell {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.data-cell {
+    background-color: var(--card-background);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.data-cell:nth-child(even) {
+    background-color: #f7f7f7;
+}
+
+/* Grid de Tiempos de Control */
+.time-control-group {
+    border-left: 5px solid var(--secondary-color);
+}
+
+.time-control-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-10);
+    flex-wrap: wrap;
+}
+
+.time-control-item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    flex: 1;
+    min-width: 150px;
+    padding: var(--spacing-05);
+    border-right: 1px dashed var(--border-color);
+}
+
+.time-control-item:last-child {
+    border-right: none;
+}
+
+.time-value {
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+    margin-top: 5px;
+}
+
+.release-date-value {
+    color: var(--danger-color);
+    font-style: italic;
+    font-size: 1.2rem;
+}
+
+
+/* ======================================= */
+/* 9. Media Queries (Responsividad)        */
 /* ======================================= */
 
 @media (max-width: 1050px) {
 
-    /* En pantallas medianas, apilamos las dos columnas verticalmente */
+    /* El max-width se reduce para dispositivos medianos */
     .main-content-wrapper,
-    .main-content-wrapper.single-column-mode {
-        /* Aplica a ambos estados */
+    header {
+        max-width: 750px;
+    }
+    
+    .top-sections-grid {
         grid-template-columns: 1fr;
-        max-width: 650px;
+        max-width: 100%; /* Permite que ocupe el ancho del main-content-wrapper */
+    }
+
+    .trazability-content-grid {
+        grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 600px) {
-    .product-search-container {
-        padding: var(--spacing-10);
+@media (max-width: 650px) {
+    
+    /* 🎯 AJUSTE: El header y el main-content-wrapper usan 100% de ancho 
+       y los 10px de padding se usan como margen lateral para evitar que toque el borde */
+    header {
+        width: 100%;
+        padding-left: var(--spacing-10);
+        padding-right: var(--spacing-10);
+    }
+    
+    .main-content-wrapper {
+        width: 100%;
+        padding-left: var(--spacing-10);
+        padding-right: var(--spacing-10);
+        gap: var(--spacing-10);
+    }
+    
+    .top-sections-grid {
+        gap: var(--spacing-10);
     }
 
-    h1 {
+    .header-title {
         font-size: 1.5rem;
     }
 
-    .data-row {
+    /* Columnas de Datos y Labels apiladas */
+    .data-row { flex-direction: column; align-items: stretch; }
+    .data-display-section { gap: 0; border: none; border-radius: 0; }
+    .data-label { width: 100%; text-align: left; border-radius: var(--border-radius) var(--border-radius) 0 0; margin-right: 0; }
+    .input-field, .display-value, .editable-textarea { border-radius: 0 0 var(--border-radius) var(--border-radius) !important; border-top: none; }
+
+    /* Búsqueda y Añadir Datos apilados */
+    .input-group-inline, .search-group { flex-direction: column; align-items: stretch; }
+    .search-button, .select-field, .new-analysis-group .input-field, .add-button { width: 100%; flex-grow: 1; min-width: unset; }
+
+    /* Ajuste para grids de trazabilidad */
+    .trazability-content-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-10);
+    }
+
+    .production-grid { grid-template-columns: repeat(2, 1fr); }
+    .packed-grid { grid-template-columns: repeat(2, 1fr); } 
+
+    .time-control-grid {
         flex-direction: column;
-        align-items: stretch;
         gap: 1px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
     }
 
-    .data-label {
-        width: 100%;
-        text-align: left;
-        border-radius: var(--border-radius) var(--border-radius) 0 0;
-        margin-right: 0;
-        min-height: 40px;
+    .time-control-item {
+        border-right: none;
+        border-bottom: 1px dashed var(--border-color);
+        background-color: var(--card-background);
+        padding: var(--spacing-10);
     }
 
-    .input-field,
-    .display-value,
-    .editable-textarea,
-    .input-field,
-    .select-field {
-        border-radius: 0 0 var(--border-radius) var(--border-radius);
-        border-top: none;
-    }
-
-    .input-group-inline {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .select-field,
-    .new-analysis-group .input-field,
-    .add-button {
-        width: 100%;
-        flex-grow: 1;
-        min-width: unset;
-    }
-
-    .search-group {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .search-button {
-        width: 100%;
+    .time-control-item:last-child {
+        border-bottom: none;
     }
 }
-
-/* ======================================= */
-/* 9. Estilos de Estado Dinámico (Centrado) */
-/* ======================================= */
-
-/* 1. Estado Inicial / Sin Datos: Centrar la primera columna.
-  Usamos el ancho de 650px para que se vea compacto y centrado.
-*/
-.main-content-wrapper.single-column-mode {
-    /* Mantiene el ancho maximo de la doble columna pero con el ancho reducido */
-    max-width: 650px;
-    /* Cambia a una sola columna */
-    grid-template-columns: 1fr;
-    /* Ajustamos el padding para el modo single, si es necesario */
-    padding: 0;
-}
-
-/* 2. Ocultar el panel de análisis cuando estamos en modo de columna única.
-*/
-.main-content-wrapper.single-column-mode .analysis-panel {
-    display: none;
-}
-
