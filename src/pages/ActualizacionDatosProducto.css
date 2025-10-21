@@ -38,30 +38,31 @@
 
 /* 🎯 CORRECCIÓN CLAVE: Aseguramos que el BODY no tenga scroll horizontal */
 body {
-    overflow-x: hidden; 
-    margin: 0; /* Aseguramos que no haya margen predeterminado en el body */
+    overflow-x: hidden;
+    margin: 0;
 }
 
 /* 🎯 CORRECCIÓN CLAVE: Aplicamos los estilos al nuevo contenedor principal <main> */
 .app-main-container {
     padding: 0;
     width: 100%;
-    background-color: var(--background-color);
+    /* Estilos para la imagen de fondo con efecto parallax */
+    background-image: url('/public/images/actdatos.jpg');
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+    /* Parallax effect */
     min-height: 100vh;
     font-family: var(--font-family);
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-position: center;
-    background-size: cover;
-    background-attachment: fixed;
 }
 
 
 /* 🎯 AJUSTE: Mantenemos el espaciado vertical en el header */
 header {
-    width: 100%;
-    max-width: auto;
+
     padding-top: var(--spacing-20);
     margin-bottom: var(--spacing-20);
 }
@@ -95,10 +96,10 @@ header {
 
 .main-content-wrapper {
     /* Mantenemos el width/max-width y el centrado */
-    width: 95%; 
+    width: 95%;
     max-width: 1300px;
-    margin: 0 auto var(--spacing-20) auto; 
-    display: flex; 
+    margin: 0 auto var(--spacing-20) auto;
+    display: flex;
     flex-direction: column;
     gap: var(--spacing-20);
     align-items: flex-start;
@@ -107,16 +108,16 @@ header {
 /* NUEVO: Contenedor para las dos columnas superiores */
 .top-sections-grid {
     display: grid;
-    grid-template-columns: 1.3fr 1fr; /* Mantiene la proporción de las columnas originales */
+    grid-template-columns: 1.3fr 1fr;
+    /* Mantiene la proporción de las columnas originales */
     gap: var(--spacing-20);
-    width: 100%; /* Ocupa el 100% del main-content-wrapper */
+    width: 100%;
 }
 
 /* Modo columna única para el estado inicial */
 .main-content-wrapper.single-column-mode {
     max-width: 650px;
-    /* Quitamos el align-items: flex-start aquí para centrar el bloque único si es más pequeño que el 95% */
-    align-items: center; 
+    align-items: center;
 }
 
 /* Para que la grilla de búsqueda se centre en modo single-column */
@@ -124,6 +125,7 @@ header {
     grid-template-columns: 1fr;
     width: 100%;
 }
+
 .main-content-wrapper.single-column-mode .analysis-panel,
 .main-content-wrapper.single-column-mode .trazability-panel {
     display: none;
@@ -135,7 +137,7 @@ header {
 
 .form-panel,
 .analysis-panel,
-.trazability-panel { 
+.trazability-panel {
     background-color: var(--card-background);
     padding: var(--spacing-20);
     border-radius: var(--border-radius);
@@ -143,7 +145,7 @@ header {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-15);
-    width: 100%; /* Asegura que dentro de la grilla ocupan todo el espacio de su celda */
+    width: 100%;
 }
 
 .form-panel h3,
@@ -191,6 +193,7 @@ header {
     font-weight: 600;
     text-align: right;
     width: 180px;
+    /* Ancho fijo para escritorio */
     flex-shrink: 0;
     height: auto;
     display: flex;
@@ -235,6 +238,7 @@ header {
     transition: var(--transition);
     width: 100%;
     font-family: inherit;
+    /* Bordes por defecto para diseño en fila */
     border-top-right-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
     border-top-left-radius: 0;
@@ -256,6 +260,8 @@ header {
     min-height: 45px;
     display: flex;
     align-items: center;
+    padding: var(--spacing-10);
+    /* Asegurar el padding para display */
     border: 1px solid var(--border-color);
     border-left: none;
 }
@@ -290,9 +296,9 @@ header {
     border: 1px solid var(--border-color) !important;
 }
 
-.search-button {
+.search-button,
+.save-button {
     padding: var(--spacing-10) var(--spacing-15);
-    background-color: var(--secondary-color);
     color: #fff;
     border: none;
     border-radius: var(--border-radius);
@@ -302,19 +308,17 @@ header {
     transition: var(--transition);
     flex-shrink: 0;
     height: 45px;
+    text-transform: uppercase;
+}
+
+.search-button {
+    background-color: var(--secondary-color);
 }
 
 .save-button {
-    padding: var(--spacing-10) var(--spacing-15);
     background-color: var(--success-color);
-    color: #fff;
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    text-transform: uppercase;
+    height: auto;
+    /* Permite que el botón de guardar crezca si es necesario */
 }
 
 /* ======================================= */
@@ -340,6 +344,7 @@ header {
 
 .analysis-results-grid {
     display: grid;
+    /* Auto-fit para que se adapte automáticamente al ancho */
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: var(--spacing-05);
 }
@@ -393,7 +398,7 @@ header {
 
 .trazability-content-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; 
+    grid-template-columns: 1fr 1fr;
     gap: var(--spacing-15);
 }
 
@@ -541,77 +546,164 @@ header {
 /* 9. Media Queries (Responsividad)        */
 /* ======================================= */
 
+/* --- Breakpoint 1: Tabletas y Escritorios Pequeños (max-width: 1050px) --- */
 @media (max-width: 1050px) {
 
-    /* El max-width se reduce para dispositivos medianos */
+    /* Reducimos el ancho máximo del contenedor principal */
     .main-content-wrapper,
     header {
-        max-width: 750px;
-    }
-    
-    .top-sections-grid {
-        grid-template-columns: 1fr;
-        max-width: 100%; /* Permite que ocupe el ancho del main-content-wrapper */
+        max-width: 900px;
     }
 
-    .trazability-content-grid {
+    /* Apilamos las dos columnas principales (búsqueda y análisis) */
+    .top-sections-grid {
         grid-template-columns: 1fr;
+        max-width: 100%;
+    }
+
+    /* Reducimos ligeramente el ancho de la etiqueta para dar más espacio al contenido */
+    .data-label {
+        width: 150px;
+    }
+
+    /* Aseguramos que los contenedores de análisis ocupen el 100% */
+    .analysis-panel,
+    .form-panel {
+        max-width: 100%;
     }
 }
 
-@media (max-width: 650px) {
-    
-    /* 🎯 AJUSTE: El header y el main-content-wrapper no deben tener un 
-       max-width en pantallas muy pequeñas para evitar el scroll horizontal */
+
+/* --- Breakpoint 2: Tabletas en Vertical y Móviles Grandes (max-width: 768px) --- */
+@media (max-width: 768px) {
+
     .main-content-wrapper,
     header {
+        /* Eliminamos el max-width para ocupar el 100% con padding */
         max-width: 100%;
-        padding-left: var(--spacing-10);
-        padding-right: var(--spacing-10);
-        width: 100%;
+        padding-left: var(--spacing-15);
+        padding-right: var(--spacing-15);
     }
-    
-    /* Aseguramos que los paneles no se salgan del 100% de ancho */
+
+    /* Forzamos una columna en el panel de trazabilidad */
+    .trazability-content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Ajuste de tipografía y espaciado */
+    .header-title {
+        font-size: 1.6rem;
+    }
+
+    .form-panel h3,
+    .analysis-panel h3 {
+        font-size: 1.3rem;
+    }
+
+    /* Etiqueta más pequeña para dar espacio en el diseño en fila */
+    .data-label {
+        width: 120px;
+        font-size: 0.75rem;
+    }
+
+    /* Adaptación de las grillas de datos a tamaños más pequeños */
+    .production-grid,
+    .packed-grid {
+        /* Permite 2, 3 o 4 columnas si el espacio lo permite */
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+
+    .analysis-results-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+/* --- Breakpoint 3: Móviles (max-width: 480px) --- */
+@media (max-width: 480px) {
+
+    /* Espaciado más compacto en móvil */
+    .main-content-wrapper {
+        gap: var(--spacing-10);
+        margin-bottom: var(--spacing-10);
+    }
+
     .form-panel,
     .analysis-panel,
     .trazability-panel {
         padding: var(--spacing-10);
     }
-    
-    /* Adaptamos las filas de datos al formato de columna en móviles */
+
+    /* 🎯 Formulario Apilado: La clave para la usabilidad en móvil */
     .data-row {
-        flex-direction: column; 
+        flex-direction: column;
     }
-    
+
     .data-label {
         width: 100%;
         text-align: left;
         justify-content: flex-start;
-        /* Reajustamos los bordes para el nuevo diseño apilado */
+        /* Reajustamos los bordes para el diseño apilado */
         border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
         border-bottom: 1px solid var(--border-color);
+        min-height: 40px;
+        padding: var(--spacing-05) var(--spacing-10);
     }
 
     .display-value,
+    .input-field,
+    .select-field,
     .editable-textarea {
-        /* Reajustamos los bordes para el nuevo diseño apilado */
+        /* Reajustamos los bordes para el diseño apilado */
         border-radius: 0 0 var(--border-radius) var(--border-radius) !important;
-        border-left: 1px solid var(--border-color); /* Restauramos el borde izquierdo */
+        border-left: 1px solid var(--border-color) !important;
+        /* Restauramos el borde izquierdo */
+        border-top: none !important;
+        /* Eliminamos el borde superior duplicado */
     }
 
     /* Adaptamos la búsqueda y el añadido de análisis al formato de columna */
-    .search-group {
+    .search-group,
+    .input-group-inline {
         flex-direction: column;
         align-items: stretch;
     }
-    
-    .input-group-inline {
-        flex-direction: column;
-    }
-    
-    .input-group-inline .select-field,
-    .input-group-inline .input-field,
-    .input-group-inline .add-button {
+
+    .search-button,
+    .save-button {
         width: 100%;
+        height: 40px;
+        /* Altura uniforme para botones */
+    }
+
+    /* Simplificación de las grillas de datos */
+    .production-grid,
+    .packed-grid {
+        /* Mostramos solo 2 columnas clave, si es necesario */
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        overflow-x: auto;
+    }
+
+    .header-cell,
+    .data-cell {
+        font-size: 0.7rem;
+        padding: var(--spacing-05);
+    }
+
+    /* Control de Tiempos: Cada item en su propia línea */
+    .time-control-item {
+        min-width: 100%;
+        border-right: none;
+        border-bottom: 1px dashed var(--border-color);
+        padding-bottom: var(--spacing-10);
+    }
+
+    .time-control-item:last-child {
+        border-bottom: none;
+    }
+
+    /* Reducimos el minmax para el grid de análisis */
+    .analysis-results-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: var(--spacing-10);
     }
 }

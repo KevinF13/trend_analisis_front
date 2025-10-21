@@ -15,8 +15,7 @@
   align-items: center;
   
   /* 🎯 ARREGLO: Limita el ancho y centra el contenido de la navegación */
-  max-width: auto;
-  width: auto;
+  
   margin: 0 auto;
   padding: 0 2rem; /* Restauramos el padding horizontal aquí */
 }

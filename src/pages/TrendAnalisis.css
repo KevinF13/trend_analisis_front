@@ -98,7 +98,7 @@ body.no-scroll {
 .form-wrapper,
 .results-container,
 .analysis-summary-wrapper {
-    width: 100%;
+    width: 50%;
     max-width: 1400px; /* AUMENTADO para pantallas grandes */
 }
 
