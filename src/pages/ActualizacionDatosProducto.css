@@ -56,7 +56,7 @@ h1 {
     border-radius: var(--border-radius);
     padding: var(--spacing-10);
     width: auto;
-    max-width: 90%;
+    max-width: 100%;
 }
 
 /* ======================================= */
@@ -400,7 +400,9 @@ h1 {
 @media (max-width: 1050px) {
 
     /* En pantallas medianas, apilamos las dos columnas verticalmente */
-    .main-content-wrapper {
+    .main-content-wrapper,
+    .main-content-wrapper.single-column-mode {
+        /* Aplica a ambos estados */
         grid-template-columns: 1fr;
         max-width: 650px;
     }
@@ -460,3 +462,26 @@ h1 {
         width: 100%;
     }
 }
+
+/* ======================================= */
+/* 9. Estilos de Estado Dinámico (Centrado) */
+/* ======================================= */
+
+/* 1. Estado Inicial / Sin Datos: Centrar la primera columna.
+  Usamos el ancho de 650px para que se vea compacto y centrado.
+*/
+.main-content-wrapper.single-column-mode {
+    /* Mantiene el ancho maximo de la doble columna pero con el ancho reducido */
+    max-width: 650px;
+    /* Cambia a una sola columna */
+    grid-template-columns: 1fr;
+    /* Ajustamos el padding para el modo single, si es necesario */
+    padding: 0;
+}
+
+/* 2. Ocultar el panel de análisis cuando estamos en modo de columna única.
+*/
+.main-content-wrapper.single-column-mode .analysis-panel {
+    display: none;
+}
+
