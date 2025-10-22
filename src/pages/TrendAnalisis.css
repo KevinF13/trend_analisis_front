@@ -90,7 +90,7 @@ body.no-scroll {
     text-align: center;
     margin-bottom: var(--spacing-25);
     font-weight: 700;
-    color: white;
+    color: var(--primary-color);
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -98,7 +98,7 @@ body.no-scroll {
 .form-wrapper,
 .results-container,
 .analysis-summary-wrapper {
-    width: 50%;
+    width: 100%;
     max-width: 1400px; /* AUMENTADO para pantallas grandes */
 }
 
