@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import './ActualizacionDatosProducto.css';
 
 // Componente auxiliar para determinar la clase de color basada en el estado
@@ -33,6 +33,11 @@ const ALL_ANALYSIS_FIELDS = [
   ...ANALYSIS_FIELDS_MAP['ANALISIS DE PRODUCTO EN PROCESO'],
 ];
 
+// Fila inicial de registro de producción (para agregar)
+const INITIAL_RECORD_ROW = { orden: '', unidStd: '', unidReal: '', rendimiento: '' };
+// Fila inicial de producto empacado (para agregar)
+const INITIAL_PACKED_ROW = { recepcion: '', unidStd: '', unidReal: '', rendimiento: '', presentacion: '' };
+
 
 // --- 2. FUNCIÓN SIMULADA PARA OBTENER DATOS DE LA API ---
 const fetchProductData = async (lote) => {
@@ -43,7 +48,7 @@ const fetchProductData = async (lote) => {
       producto: 'BIOFIT FIBRA NATURAL',
       laboratorio: 'PHARMBRAND',
       control: 'PH0783-Y',
-      fechaIngreso: '4/6/2025',
+      fechaIngreso: '2025-06-04', // Formato YYYY-MM-DD para input type="date"
       
       // Datos de análisis existentes
       analysis: {
@@ -68,7 +73,7 @@ const fetchProductData = async (lote) => {
           areaBiologica: 'NO APR' 
         },
         recordProduccion: {
-          fechaRecepcion: '02-feb-2030',
+          fechaRecepcion: '2030-02-02', // Formato YYYY-MM-DD para input type="date"
           lotes: [
             { orden: 34, unidStd: 34, unidReal: 3, rendimiento: '8.82%' },
             { orden: 35, unidStd: 50, unidReal: 48, rendimiento: '96.00%' },
@@ -76,14 +81,14 @@ const fetchProductData = async (lote) => {
         },
         productoEmpacado: {
           registros: [
-            { recepcion: '12-dic-20', unidStd: 12, unidReal: 12, rendimiento: '100%', presentacion: 123 },
-            { recepcion: '15-dic-20', unidStd: 20, unidReal: 18, rendimiento: '90%', presentacion: 456 },
+            { recepcion: '2020-12-12', unidStd: 12, unidReal: 12, rendimiento: '100%', presentacion: 123 },
+            { recepcion: '2020-12-15', unidStd: 20, unidReal: 18, rendimiento: '90%', presentacion: 456 },
           ]
         },
         tiemposControl: {
           controlProceso: 12,
           revisionRecord: 12,
-          liberacionProducto: '08-oct-25'
+          liberacionProducto: '2025-10-08' // Formato YYYY-MM-DD para input type="date"
         }
       }
     };
@@ -115,6 +120,7 @@ const ActualizacionDatosProducto = () => {
       setError('Por favor, ingresa un número de LOTE.');
       setData({ producto: '', laboratorio: '', control: '', fechaIngreso: '', trazabilidad: null });
       setAnalysisData({}); 
+      setObservaciones('');
       return;
     }
 
@@ -130,7 +136,12 @@ const ActualizacionDatosProducto = () => {
 
       if (result) {
         const { analysis, trazabilidad, ...productData } = result;
-        setData({ ...productData, trazabilidad: trazabilidad || null });
+        setData({ 
+          ...productData, 
+          // Aseguramos que los valores sean strings para evitar warnings en inputs controlados.
+          // Además, es mejor si la API devuelve fechas en formato ISO (YYYY-MM-DD)
+          trazabilidad: trazabilidad || null 
+        });
         setAnalysisData(analysis || {}); 
       } else {
         setError(`⚠️ No se encontraron datos para el LOTE: ${lote}`);
@@ -154,7 +165,32 @@ const ActualizacionDatosProducto = () => {
 
   const showMessage = (message) => {
     alert(message);
-    console.log(message);
+    console.log('Datos a guardar (Simulado):', {
+      lote,
+      data,
+      analysisData,
+      observaciones
+    });
+  };
+  
+  // --- LÓGICA DE ACTUALIZACIÓN DEL CAMPO DE ANÁLISIS ---
+  const handleUpdateAnalysis = (field, value) => {
+    setAnalysisData(prevData => ({
+      ...prevData,
+      [field]: value // Esto ya funciona correctamente
+    }));
+  };
+
+  // --- LÓGICA DE ELIMINACIÓN DEL CAMPO DE ANÁLISIS ---
+  const handleRemoveAnalysis = (field) => {
+    if (window.confirm(`¿Estás seguro de que quieres eliminar el campo de análisis "${field}"?`)) {
+      setAnalysisData(prevData => {
+        const newData = { ...prevData };
+        delete newData[field];
+        return newData;
+      });
+      showMessage(`Análisis "${field}" eliminado.`);
+    }
   };
 
   const handleAddAnalysisData = () => {
@@ -171,7 +207,102 @@ const ActualizacionDatosProducto = () => {
     }
   };
 
-  const DataRow = ({ label, value, isEditable = false, onChange = () => {}, isLote = false }) => (
+  // ** CORRECCIÓN: Manejador de actualización para campos simples del panel principal (como fechaIngreso) **
+  const handleUpdateDataField = (field, value) => {
+    setData(prevData => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
+
+  // --- LÓGICA DE EDICIÓN DE TRAZABILIDAD (CAMPOS SIMPLES) ---
+  const handleUpdateTrazabilidadField = (section, field, value) => {
+    setData(prevData => ({
+      ...prevData,
+      trazabilidad: {
+        ...prevData.trazabilidad,
+        [section]: {
+          ...prevData.trazabilidad[section],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  // --- LÓGICA DE EDICIÓN DE TABLA DE RECORD DE PRODUCCIÓN ---
+  const handleUpdateRecordCell = (rowIndex, key, value) => {
+    setData(prevData => {
+      const newLotes = [...prevData.trazabilidad.recordProduccion.lotes];
+      newLotes[rowIndex] = {
+        ...newLotes[rowIndex],
+        [key]: value,
+      };
+      return {
+        ...prevData,
+        trazabilidad: {
+          ...prevData.trazabilidad,
+          recordProduccion: {
+            ...prevData.trazabilidad.recordProduccion,
+            lotes: newLotes,
+          }
+        }
+      };
+    });
+  };
+
+  // --- LÓGICA PARA AGREGAR FILA EN RECORD DE PRODUCCIÓN ---
+  const handleAddNewRecordRow = () => {
+    setData(prevData => ({
+      ...prevData,
+      trazabilidad: {
+        ...prevData.trazabilidad,
+        recordProduccion: {
+          ...prevData.trazabilidad.recordProduccion,
+          lotes: [...prevData.trazabilidad.recordProduccion.lotes, { ...INITIAL_RECORD_ROW }],
+        }
+      }
+    }));
+  };
+
+  // --- LÓGICA DE EDICIÓN DE TABLA DE PRODUCTO EMPACADO ---
+  const handleUpdatePackedCell = (rowIndex, key, value) => {
+    setData(prevData => {
+      const newRegistros = [...prevData.trazabilidad.productoEmpacado.registros];
+      newRegistros[rowIndex] = {
+        ...newRegistros[rowIndex],
+        [key]: value,
+      };
+      return {
+        ...prevData,
+        trazabilidad: {
+          ...prevData.trazabilidad,
+          productoEmpacado: {
+            ...prevData.trazabilidad.productoEmpacado,
+            registros: newRegistros,
+          }
+        }
+      };
+    });
+  };
+
+  // --- LÓGICA PARA AGREGAR FILA EN PRODUCTO EMPACADO ---
+  const handleAddNewPackedRow = () => {
+    setData(prevData => ({
+      ...prevData,
+      trazabilidad: {
+        ...prevData.trazabilidad,
+        productoEmpacado: {
+          ...prevData.trazabilidad.productoEmpacado,
+          registros: [...prevData.trazabilidad.productoEmpacado.registros, { ...INITIAL_PACKED_ROW }],
+        }
+      }
+    }));
+  };
+  
+  // --- COMPONENTES AUXILIARES DE RENDERIZADO ---
+
+  // Componente modificado para aceptar dateType
+  const DataRow = ({ label, value, isEditable = false, onChange = () => {}, isLote = false, dateType = false, field = null }) => (
     <div className={`data-row ${isEditable ? 'editable' : ''}`}>
       <div className={`data-label ${isEditable ? 'label-accent' : ''}`}>{label}</div>
       <div className="data-value-wrapper">
@@ -183,6 +314,14 @@ const ActualizacionDatosProducto = () => {
             placeholder="Escribe aquí las observaciones..."
             rows="3"
           />
+        ) : dateType ? ( // Usamos input type="date" para los campos de fecha
+          <input 
+            type="date"
+            className="input-field editable-date-input"
+            value={value}
+            onChange={(e) => field && handleUpdateDataField(field, e.target.value)}
+            disabled={!field} // Deshabilitar si no es editable
+          />
         ) : (
           <div className={`input-field display-value ${isLote ? 'lote-value' : ''}`}>
             {value || 'N/A'}
@@ -192,19 +331,44 @@ const ActualizacionDatosProducto = () => {
     </div>
   );
 
+  // --- RENDERIZADO DE ANÁLISIS ---
   const renderAnalysisGroup = (groupTitle, fields) => {
-    const filledFields = fields.filter(field => analysisData.hasOwnProperty(field));
+    // Filtramos solo los campos que están en analysisData para que solo se muestren los "registrados"
+    const currentFields = fields.filter(field => analysisData.hasOwnProperty(field));
     
-    if (filledFields.length === 0) return null;
+    // Filtramos los análisis personalizados que no estén en la lista predefinida
+    const customFields = Object.keys(analysisData).filter(field => 
+        !ALL_ANALYSIS_FIELDS.includes(field) && 
+        (groupTitle === 'ANALISIS DE MATERIA PRIMA' ? field.toUpperCase().includes('MATERIA') : field.toUpperCase().includes('PROCESO') || true) // Asignación simple para el ejemplo
+    );
+    
+    // Concatenamos para mostrar los campos existentes y personalizados.
+    // En un sistema real, necesitarías una forma más robusta de categorizar campos personalizados.
+    const fieldsToRender = [...new Set([...currentFields, ...customFields])];
+
+    if (fieldsToRender.length === 0) return null;
 
     return (
       <div key={groupTitle} className="analysis-group">
         <h4 className="analysis-group-title">{groupTitle}</h4>
-        <div className="analysis-results-grid">
-          {filledFields.map(field => (
-            <div key={field} className="analysis-row">
+        <div className="analysis-results-grid editable-grid">
+          {fieldsToRender.map(field => (
+            <div key={field} className="analysis-row editable-row">
               <span className="analysis-label">{field}:</span>
-              <span className={`analysis-value ${getStatusClass(analysisData[field])}`}>{analysisData[field]}</span>
+              <input
+                type="text"
+                className={`analysis-value-input ${getStatusClass(analysisData[field])}`}
+                value={analysisData[field] || ''} // Aseguramos que sea string, ya que analysisData[field] puede ser undefined si es un campo custom recién agregado
+                onChange={(e) => handleUpdateAnalysis(field, e.target.value)}
+                placeholder="Valor de análisis"
+              />
+              <button 
+                className="remove-button" 
+                onClick={() => handleRemoveAnalysis(field)}
+                title="Eliminar este análisis"
+              >
+                🗑️
+              </button>
             </div>
           ))}
         </div>
@@ -212,54 +376,97 @@ const ActualizacionDatosProducto = () => {
     );
   };
   
-  // --- COMPONENTE DE TRAZABILIDAD (Mantenido el contenido, se mueve su ubicación) ---
+  // --- COMPONENTE DE TRAZABILIDAD (MODIFICADO PARA USAR type="date") ---
   const TrazabilidadSection = ({ trazabilidad }) => {
     if (!trazabilidad) return null;
 
     return (
-      // CLASE AHORA ES UN PANEL GRANDE SEPARADO
       <div className="trazability-panel"> 
         <h3 className="trazability-title">📜 Registro Histórico y Trazabilidad</h3>
         
         <div className="trazability-content-grid">
           
-          {/* 1. Análisis Semi-Elaborado */}
+          {/* 1. Análisis Semi-Elaborado (EDITABLE) */}
           <div className="trazability-card half-width">
             <p className="card-title">Análisis de Producto Semi-Elaborado</p>
-            <div className="record-row-display">
+            {/* NO IMPRESOS */}
+            <div className="record-row-display editable-row">
               <span className="record-label-mini">NO IMPRESOS (P)</span>
-              <span className="record-value-bold">{trazabilidad.analisisSemiElaborado.noImpresos}</span>
+              <input 
+                type="text" 
+                className="record-value-input" 
+                value={trazabilidad.analisisSemiElaborado.noImpresos || ''}
+                onChange={(e) => handleUpdateTrazabilidadField('analisisSemiElaborado', 'noImpresos', e.target.value)}
+              />
             </div>
-            <div className="record-row-display">
+            {/* IMPRESOS */}
+            <div className="record-row-display editable-row">
               <span className="record-label-mini">IMPRESOS (Q)</span>
-              <span className="record-value-bold">{trazabilidad.analisisSemiElaborado.impresos}</span>
+              <input 
+                type="text" 
+                className="record-value-input" 
+                value={trazabilidad.analisisSemiElaborado.impresos || ''}
+                onChange={(e) => handleUpdateTrazabilidadField('analisisSemiElaborado', 'impresos', e.target.value)}
+              />
             </div>
-            <div className="record-row-display">
+            {/* ÁREA QUÍMICA */}
+            <div className="record-row-display editable-row">
               <span className="record-label-mini">ÁREA QUÍMICA</span>
-              <span className={`record-value-bold ${getStatusClass(trazabilidad.analisisSemiElaborado.areaQuimica)}`}>{trazabilidad.analisisSemiElaborado.areaQuimica}</span>
+              <input 
+                type="text" 
+                className={`record-value-input ${getStatusClass(trazabilidad.analisisSemiElaborado.areaQuimica)}`}
+                value={trazabilidad.analisisSemiElaborado.areaQuimica || ''}
+                onChange={(e) => handleUpdateTrazabilidadField('analisisSemiElaborado', 'areaQuimica', e.target.value)}
+              />
             </div>
-            <div className="record-row-display">
+            {/* ÁREA BIOLÓGICA */}
+            <div className="record-row-display editable-row">
               <span className="record-label-mini">ÁREA BIOLÓGICA</span>
-              <span className={`record-value-bold ${getStatusClass(trazabilidad.analisisSemiElaborado.areaBiologica)}`}>{trazabilidad.analisisSemiElaborado.areaBiologica}</span>
+              <input 
+                type="text" 
+                className={`record-value-input ${getStatusClass(trazabilidad.analisisSemiElaborado.areaBiologica)}`}
+                value={trazabilidad.analisisSemiElaborado.areaBiologica || ''}
+                onChange={(e) => handleUpdateTrazabilidadField('analisisSemiElaborado', 'areaBiologica', e.target.value)}
+              />
             </div>
           </div>
           
-          {/* 2. Análisis Empacado */}
+          {/* 2. Análisis Empacado (EDITABLE) */}
           <div className="trazability-card half-width">
             <p className="card-title">Análisis de Producto Empacado</p>
-            <div className="record-row-display">
+            {/* ÁREA QUÍMICA */}
+            <div className="record-row-display editable-row">
               <span className="record-label-mini">ÁREA QUÍMICA (R)</span>
-              <span className={`record-value-bold ${getStatusClass(trazabilidad.analisisEmpacado.areaQuimica)}`}>{trazabilidad.analisisEmpacado.areaQuimica}</span>
+              <input 
+                type="text" 
+                className={`record-value-input ${getStatusClass(trazabilidad.analisisEmpacado.areaQuimica)}`}
+                value={trazabilidad.analisisEmpacado.areaQuimica || ''}
+                onChange={(e) => handleUpdateTrazabilidadField('analisisEmpacado', 'areaQuimica', e.target.value)}
+              />
             </div>
-            <div className="record-row-display">
+            {/* ÁREA BIOLÓGICA */}
+            <div className="record-row-display editable-row">
               <span className="record-label-mini">ÁREA BIOLÓGICA (R)</span>
-              <span className={`record-value-bold ${getStatusClass(trazabilidad.analisisEmpacado.areaBiologica)}`}>{trazabilidad.analisisEmpacado.areaBiologica}</span>
+              <input 
+                type="text" 
+                className={`record-value-input ${getStatusClass(trazabilidad.analisisEmpacado.areaBiologica)}`}
+                value={trazabilidad.analisisEmpacado.areaBiologica || ''}
+                onChange={(e) => handleUpdateTrazabilidadField('analisisEmpacado', 'areaBiologica', e.target.value)}
+              />
             </div>
           </div>
 
-          {/* 3. Record de Producción */}
+          {/* 3. Record de Producción (EDITABLE Y CON BOTÓN AGREGAR) */}
           <div className="trazability-card full-width">
-            <p className="card-title">Record de Producción (Recepción: <span className="highlight-text">{trazabilidad.recordProduccion.fechaRecepcion}</span>)</p>
+            <p className="card-title">Record de Producción (Recepción: 
+              {/* CAMPO DE FECHA DE RECEPCIÓN: Ahora con type="date" */}
+              <input 
+                type="date" 
+                className="highlight-text-input date-input" 
+                value={trazabilidad.recordProduccion.fechaRecepcion || ''}
+                onChange={(e) => handleUpdateTrazabilidadField('recordProduccion', 'fechaRecepcion', e.target.value)}
+              />
+            )</p>
             <div className="production-block-grid production-grid">
               <span className="header-cell"># ORDEN</span>
               <span className="header-cell">UNID. STD.</span>
@@ -267,16 +474,43 @@ const ActualizacionDatosProducto = () => {
               <span className="header-cell">% REND.</span>
               {trazabilidad.recordProduccion.lotes.map((lote, index) => (
                 <React.Fragment key={index}>
-                  <span className="data-cell">{lote.orden}</span>
-                  <span className="data-cell">{lote.unidStd}</span>
-                  <span className="data-cell">{lote.unidReal}</span>
-                  <span className={`data-cell ${getStatusClass(lote.rendimiento)}`}>{lote.rendimiento}</span>
+                  {/* # ORDEN */}
+                  <input 
+                    type="text" 
+                    className="data-cell input-cell" 
+                    value={lote.orden || ''}
+                    onChange={(e) => handleUpdateRecordCell(index, 'orden', e.target.value)}
+                  />
+                  {/* UNID. STD. */}
+                  <input 
+                    type="text" 
+                    className="data-cell input-cell" 
+                    value={lote.unidStd || ''}
+                    onChange={(e) => handleUpdateRecordCell(index, 'unidStd', e.target.value)}
+                  />
+                  {/* UNID. REAL. */}
+                  <input 
+                    type="text" 
+                    className="data-cell input-cell" 
+                    value={lote.unidReal || ''}
+                    onChange={(e) => handleUpdateRecordCell(index, 'unidReal', e.target.value)}
+                  />
+                  {/* % REND. */}
+                  <input 
+                    type="text" 
+                    className={`data-cell input-cell ${getStatusClass(lote.rendimiento)}`}
+                    value={lote.rendimiento || ''}
+                    onChange={(e) => handleUpdateRecordCell(index, 'rendimiento', e.target.value)}
+                  />
                 </React.Fragment>
               ))}
             </div>
+            <button className="add-row-button" onClick={handleAddNewRecordRow}>
+              ➕ Agregar Fila (Record de Producción)
+            </button>
           </div>
 
-          {/* 4. Producto Empacado */}
+          {/* 4. Producto Empacado (EDITABLE Y CON BOTÓN AGREGAR) */}
           <div className="trazability-card full-width">
             <p className="card-title">Producto Empacado - Registros</p>
             <div className="production-block-grid packed-grid">
@@ -287,31 +521,82 @@ const ActualizacionDatosProducto = () => {
               <span className="header-cell">PRESENTACIÓN</span>
               {trazabilidad.productoEmpacado.registros.map((reg, index) => (
                 <React.Fragment key={index}>
-                  <span className="data-cell">{reg.recepcion}</span>
-                  <span className="data-cell">{reg.unidStd}</span>
-                  <span className="data-cell">{reg.unidReal}</span>
-                  <span className={`data-cell ${getStatusClass(reg.rendimiento)}`}>{reg.rendimiento}</span>
-                  <span className="data-cell">{reg.presentacion}</span>
+                  {/* RECEPCIÓN: Ahora con type="date" */}
+                  <input 
+                    type="date" 
+                    className="data-cell input-cell" 
+                    value={reg.recepcion || ''}
+                    onChange={(e) => handleUpdatePackedCell(index, 'recepcion', e.target.value)}
+                  />
+                  {/* UNID. STD. */}
+                  <input 
+                    type="text" 
+                    className="data-cell input-cell" 
+                    value={reg.unidStd || ''}
+                    onChange={(e) => handleUpdatePackedCell(index, 'unidStd', e.target.value)}
+                  />
+                  {/* UNID. REAL. */}
+                  <input 
+                    type="text" 
+                    className="data-cell input-cell" 
+                    value={reg.unidReal || ''}
+                    onChange={(e) => handleUpdatePackedCell(index, 'unidReal', e.target.value)}
+                  />
+                  {/* % REND. */}
+                  <input 
+                    type="text" 
+                    className={`data-cell input-cell ${getStatusClass(reg.rendimiento)}`}
+                    value={reg.rendimiento || ''}
+                    onChange={(e) => handleUpdatePackedCell(index, 'rendimiento', e.target.value)}
+                  />
+                  {/* PRESENTACIÓN */}
+                  <input 
+                    type="text" 
+                    className="data-cell input-cell" 
+                    value={reg.presentacion || ''}
+                    onChange={(e) => handleUpdatePackedCell(index, 'presentacion', e.target.value)}
+                  />
                 </React.Fragment>
               ))}
             </div>
+            <button className="add-row-button" onClick={handleAddNewPackedRow}>
+              ➕ Agregar Fila (Producto Empacado)
+            </button>
           </div>
 
-          {/* 5. Tiempos de Control */}
+          {/* 5. Tiempos de Control (EDITABLE) */}
           <div className="trazability-card full-width time-control-group">
             <p className="card-title">Tiempos de Control y Liberación</p>
             <div className="time-control-grid">
-              <div className="time-control-item">
+              {/* CONTROL EN PROCESO */}
+              <div className="time-control-item editable-item">
                 <span className="record-label-mini">CONTROL EN PROCESO (DÍAS)</span>
-                <span className="record-value-bold time-value">{trazabilidad.tiemposControl.controlProceso}</span>
+                <input 
+                  type="text" 
+                  className="record-value-input time-value" 
+                  value={trazabilidad.tiemposControl.controlProceso || ''}
+                  onChange={(e) => handleUpdateTrazabilidadField('tiemposControl', 'controlProceso', e.target.value)}
+                />
               </div>
-              <div className="time-control-item">
+              {/* REVISIÓN DEL RECORD */}
+              <div className="time-control-item editable-item">
                 <span className="record-label-mini">REVISIÓN DEL RECORD (DÍAS)</span>
-                <span className="record-value-bold time-value">{trazabilidad.tiemposControl.revisionRecord}</span>
+                <input 
+                  type="text" 
+                  className="record-value-input time-value" 
+                  value={trazabilidad.tiemposControl.revisionRecord || ''}
+                  onChange={(e) => handleUpdateTrazabilidadField('tiemposControl', 'revisionRecord', e.target.value)}
+                />
               </div>
-              <div className="time-control-item">
+              {/* FECHA DE LIBERACIÓN: Ahora con type="date" */}
+              <div className="time-control-item editable-item">
                 <span className="record-label-mini">FECHA DE LIBERACIÓN</span>
-                <span className="record-value-bold time-value release-date-value">{trazabilidad.tiemposControl.liberacionProducto}</span>
+                <input 
+                  type="date" 
+                  className="record-value-input time-value release-date-value date-input" 
+                  value={trazabilidad.tiemposControl.liberacionProducto || ''}
+                  onChange={(e) => handleUpdateTrazabilidadField('tiemposControl', 'liberacionProducto', e.target.value)}
+                />
               </div>
             </div>
           </div>
@@ -321,15 +606,18 @@ const ActualizacionDatosProducto = () => {
     );
   };
   
-  const availableAnalysisFields = ALL_ANALYSIS_FIELDS.filter(field => !analysisData.hasOwnProperty(field));
-
-  // ... código anterior (imports y lógica) ...
+  const availableAnalysisFields = useMemo(() => 
+    ALL_ANALYSIS_FIELDS.filter(field => !analysisData.hasOwnProperty(field)), 
+    [analysisData]
+  );
 
   const wrapperClassName = data.producto 
     ? "main-content-wrapper" 
     : "main-content-wrapper single-column-mode";
 
-  // 🎯 CAMBIO CLAVE: Cambiamos el div.product-search-container por main.app-main-container
+  // Verificamos si la búsqueda del lote fue exitosa
+  const isLoteFound = !!data.producto;
+
   return (
     <main className="app-main-container"> 
       <header>
@@ -343,7 +631,6 @@ const ActualizacionDatosProducto = () => {
 
             {/* --- COLUMNA IZQUIERDA: BÚSQUEDA Y CONTROL --- */}
             <div className="form-panel">
-              {/* ... (Contenido del form-panel) ... */}
               <h3>Datos de Búsqueda y Control</h3>
               <div className="search-group">
                 <div className="input-group">
@@ -370,14 +657,21 @@ const ActualizacionDatosProducto = () => {
               {error && <p className="error-message">{error}</p>}
               
               <div className="data-display-section">
+                {/* CAMPO NO EDITABLE (DISPLAY) */}
                 <DataRow label="PRODUCTO" value={data.producto} isLote={true} />
                 <DataRow label="LABORATORIO" value={data.laboratorio} />
                 <DataRow label="CONTROL" value={data.control} />
-                <DataRow label="FECHA DE INGRESO" value={data.fechaIngreso} />
+                {/* CAMPO DE FECHA DE INGRESO: Ahora con selector de fecha */}
+                <DataRow 
+                  label="FECHA DE INGRESO" 
+                  value={data.fechaIngreso} 
+                  dateType={true} 
+                  field="fechaIngreso"
+                />
               </div>
 
-              {/* Campo de Observaciones (Editable) y Botón de Guardar */}
-              {data.producto && (
+              {/* Campo de Observaciones (Editable) y Botón de Guardar Local */}
+              {isLoteFound && (
                 <>
                   <DataRow
                     label="OBSERVACIONES"
@@ -386,17 +680,20 @@ const ActualizacionDatosProducto = () => {
                     onChange={(e) => setObservaciones(e.target.value)}
                   />
                   
-                  <button className="save-button" onClick={() => showMessage('¡Guardado simulado!')} disabled={!data.producto}>
+                  <button 
+                    className="save-button" 
+                    onClick={() => showMessage('¡Guardado de Observaciones simulado!')} 
+                    disabled={!isLoteFound}
+                  >
                     Guardar Cambios y Observaciones
                   </button>
                 </>
               )}
             </div>
             
-            {/* --- COLUMNA DERECHA: DATOS DE ANÁLISIS --- */}
-            {data.producto && (
+            {/* --- COLUMNA DERECHA: DATOS DE ANÁLISIS (AHORA EDITABLE) --- */}
+            {isLoteFound && (
               <div className="analysis-panel">
-                {/* ... (Contenido del analysis-panel) ... */}
                 <h3>Resultados de Análisis</h3>
                 
                 <div className="analysis-results">
@@ -446,9 +743,18 @@ const ActualizacionDatosProducto = () => {
             )}
         </div>
         
-        {/* --- TERCER BLOQUE: TRAZABILIDAD (ANCHO COMPLETO - FILA 2) --- */}
-        {data.producto && <TrazabilidadSection trazabilidad={data.trazabilidad} />}
+        {/* --- TERCER BLOQUE: TRAZABILIDAD --- */}
+        {isLoteFound && <TrazabilidadSection trazabilidad={data.trazabilidad} />}
         
+        {/* BOTÓN REQUERIDO: Aparece solo después de una búsqueda exitosa */}
+        {isLoteFound && (
+          <button 
+            className="save-button full-width-save" 
+            onClick={() => showMessage('¡Guardado General Simulado!')} 
+          >
+            💾 Guardar **Todos** los Cambios de la Página
+          </button>
+        )}
       </div>
     </main>
   );

@@ -17,7 +17,8 @@
   /* 🎯 ARREGLO: Limita el ancho y centra el contenido de la navegación */
   
   margin: 0 auto;
-  padding: 0 2rem; /* Restauramos el padding horizontal aquí */
+  padding: 0 2rem;
+   /* Restauramos el padding horizontal aquí */
 }
 
 .logo {

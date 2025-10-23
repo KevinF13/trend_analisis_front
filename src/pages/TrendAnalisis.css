@@ -80,8 +80,10 @@ body.no-scroll {
         /* Estilos para la imagen de fondo con efecto parallax */
   background-image: url('/public/images/trendanalisi.jpg'); /* Ruta a la imagen en la carpeta public */
   background-position: center;
-  background-size: cover; /* Ajusta la imagen para cubrir todo el contenedor */
-  background-attachment: fixed; /* ¡Este es el secreto del efecto parallax! */
+  background-size: cover; 
+  /* Ajusta la imagen para cubrir todo el contenedor */
+  background-attachment: fixed; 
+  /* ¡Este es el secreto del efecto parallax! */
   
 }
 

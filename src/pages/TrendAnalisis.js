@@ -500,11 +500,11 @@ const TrendAnalisis = () => {
                 label: 'Resultado Prueba',
                 data: data.map(item => item['Resultado Prueba']),
                 borderColor: 'rgba(52, 152, 219, 1)',
-                backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                backgroundColor: 'rgba(80, 219, 52, 0.2)',
                 borderWidth: 2,
                 fill: true,
                 tension: 0.4,
-                pointRadius: 5,
+                pointRadius: 1,
                 pointHoverRadius: 7,
             },
             {
