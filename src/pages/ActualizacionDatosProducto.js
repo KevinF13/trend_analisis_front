@@ -163,6 +163,7 @@ const mapApiDataToState = (apiData) => {
     Object.keys(ANALYSIS_FIELD_MAP_REVERSE).forEach(reactKey => {
         const apiKey = ANALYSIS_FIELD_MAP_REVERSE[reactKey];
         const value = apiData[apiKey];
+        // IMPORTANTE: Solo se añaden al estado si TIENEN VALOR
         if (value !== null && value !== undefined && value !== '') {
             analysis[reactKey] = String(value);
         }
@@ -222,7 +223,7 @@ const mapApiDataToState = (apiData) => {
         laboratorio: apiData.LABORATORIO || '',
         control: apiData.CONTROL || '',
         fechaIngreso: formatDateForInput(apiData.FECHA_INGRESO),
-        observaciones: apiData.OBSERVACIONES_FINAL || '', // Usamos OBSERVACIONES_FINAL para el textarea principal
+        observaciones: apiData.OBSERVACIONES || '', // Usamos OBSERVACIONES para el textarea principal
         analysis,
         trazabilidad,
     };
@@ -232,19 +233,32 @@ const mapApiDataToState = (apiData) => {
 const mapStateToApiData = (data, analysisData, observaciones, lote) => {
     const apiBody = {};
 
-    // Mapeo de Análisis (solo si tienen valor)
-    Object.keys(analysisData).forEach(reactKey => {
+    // =======================================================================
+    // --- FIX APLICADO AQUÍ ---
+    // =======================================================================
+    // Mapeo de Análisis (Itera sobre la lista maestra, no sobre el estado)
+    // Esto asegura que si un campo se borra del estado (handleRemoveAnalysis),
+    // 'value' será 'undefined' y la lógica ternaria lo convertirá en 'null' para la API.
+    
+    Object.keys(ANALYSIS_FIELD_MAP_REVERSE).forEach(reactKey => {
         const apiKey = ANALYSIS_FIELD_MAP_REVERSE[reactKey];
-        const value = analysisData[reactKey];
+        
+        // Busca el valor en el estado actual. Si se borró, 'value' será 'undefined'.
+        const value = analysisData[reactKey]; 
+        
         if (apiKey) {
-            // **SE MANTIENE EL trim() SOLO AQUÍ PARA LIMPIAR ANTES DE ENVIAR A LA API**
+            // La lógica ternaria existente maneja 'undefined', 'null' y '' correctamente.
             apiBody[apiKey.toLowerCase()] = value && String(value).trim() !== '' ? String(value).trim() : null;
         }
     });
+    // =======================================================================
+    // --- FIN DEL FIX ---
+    // =======================================================================
+
 
     // Mapeo de datos principales y trazabilidad
     // **SE MANTIENE EL trim() SOLO AQUÍ PARA LIMPIAR ANTES DE ENVIAR A LA API**
-    apiBody.observaciones_final = observaciones ? String(observaciones).trim() : null;
+    apiBody.observaciones = observaciones ? String(observaciones).trim() : null;
     apiBody.fecha_ingreso = formatDateForAPI(data.fechaIngreso);
 
     if (data.trazabilidad) {
@@ -320,7 +334,7 @@ const DataRow = ({
                     placeholder="Escribe aquí las observaciones..."
                     rows="3"
                     id="observaciones-final"
-                    name="observaciones_final"
+                    name="observaciones"
                 />
             ) : dateType ? (
                 <input
@@ -751,6 +765,7 @@ const ActualizacionDatosProducto = () => {
         setError(null);
 
         try {
+            // mapStateToApiData (corregido arriba) AHORA MANEJA 'null' CORRECTAMENTE
             const apiBody = mapStateToApiData(data, analysisData, observaciones, lote);
 
             // **SE MANTIENE LA CONVERSIÓN A MAYÚSCULAS AQUÍ (LÓGICA DE UPDATE)**
@@ -787,6 +802,7 @@ const ActualizacionDatosProducto = () => {
     };
 
     // --- LÓGICA DE ELIMINACIÓN DEL CAMPO DE ANÁLISIS ---
+    // (Esta función ahora es correcta, porque mapStateToApiData fue corregida)
     const handleRemoveAnalysis = (field) => {
         if (window.confirm(`¿Estás seguro de que quieres eliminar el campo de análisis "${field}"? El valor se establecerá a NULL en la base de datos.`)) {
             // En el estado, se elimina para que no se muestre
@@ -795,7 +811,7 @@ const ActualizacionDatosProducto = () => {
                 delete newData[field];
                 return newData;
             });
-            // Al guardar (handleSaveData), los campos que faltan se consideran null en la API.
+            // Al guardar (handleSaveData), los campos que faltan se consideran null en la API (gracias al FIX).
             alert(`Análisis "${field}" marcado para ser borrado (NULL) al guardar.`);
         }
     };
@@ -1052,7 +1068,7 @@ const ActualizacionDatosProducto = () => {
                                 dateType={true}
                                 field="fechaIngreso"
                                 onDateChange={handleUpdateDataField} // PASAMOS LA PROP
-                                isProductLoaded={!!data.producto}    // PASAMOS LA PROP
+                                isProductLoaded={!!data.producto}      // PASAMOS LA PROP
                             />
                         </div>
 
