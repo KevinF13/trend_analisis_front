@@ -45,7 +45,6 @@ const TrendAnalisis = () => {
 
     const handleExpandChart = () => {
         setIsChartExpanded(prev => !prev);
-        // Nota: Eliminamos la manipulación directa de document.body de aquí
         document.body.classList.toggle('no-scroll');
     };
 
@@ -63,7 +62,6 @@ const TrendAnalisis = () => {
     }, [isChartExpanded]); // Se ejecuta cada vez que el estado cambia
 
 
-    // ... resto del código
     // Estados principales
     const [data, setData] = useState([]); // Datos que vienen del API
     const [loading, setLoading] = useState(false); // Estado de carga
@@ -317,13 +315,13 @@ const TrendAnalisis = () => {
             img.src = src;
         });
 
-    // --- Función para descargar PDF ---
+    // --- Función para descargar PDF (OPTIMIZADA) ---
     const handleDownloadPDF = async (realizadoPorNombre) => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const chartWidth = 190;
-        const chartHeight = 130;
+        const chartHeight = 110; // REDUCIDO: Ajuste de la altura del gráfico en el PDF
         const headerHeightFirstPage = 60;
         const headerHeightOtherPages = 25;
 
@@ -333,17 +331,6 @@ const TrendAnalisis = () => {
         const imgFormat = brand.logo.toLowerCase().endsWith('.jpg') || brand.logo.toLowerCase().endsWith('.jpeg')
             ? 'JPEG'
             : 'PNG';
-
-        // // Función para dibujar el header en cada página
-        // const drawHeader = (doc, isFirstPage = false) => {
-        //     const logoX = 14, logoY = 10, logoWidth = 30, logoHeight = 15;
-        //     doc.addImage('/images/LOGO GENA.png', 'PNG', logoX, logoY, logoWidth, logoHeight);
-        //     doc.setFontSize(18);
-        //     const title1 = 'GENA S.A.';
-        //     const title1Width = doc.getTextWidth(title1);
-        //     doc.text(title1, (pageWidth - title1Width) / 2, 15);
-
-        //     doc.setFontSize(14);
 
         // 3) Header con logo/título dinámicos
         const drawHeader = (doc, isFirstPage = false) => {
@@ -366,6 +353,9 @@ const TrendAnalisis = () => {
             const testDetails = data.length > 0 ? data[0] : {};
             const testDescription = testDetails.DESC_PRUEBA || 'N/A';
             const additionalField = testDetails.CAMPO_ADICIONAL || 'N/A';
+            
+            const fechaInicioFormato = formatDate(fechaPrueba) || 'N/A';
+            const fechaFinFormato = formatDate(fechaFinTest) || 'N/A';
 
             if (isFirstPage) {
                 doc.setFontSize(10);
@@ -373,11 +363,13 @@ const TrendAnalisis = () => {
                 doc.text(`PRODUCTO:`, 14, 40);
                 doc.text(`CÓDIGO PRODUCTO:`, 14, 45);
                 doc.text(`CÓDIGO:`, 14, 50);
+                doc.text(`RANGO DE FECHAS:`, 14, 55);
                 doc.text(`PROCESO:`, 110, 50);
                 doc.setFont("times", "normal");
                 doc.text(productDescription, 40, 40);
                 doc.text(selectedProduct, 55, 45);
                 doc.text(additionalField, 35, 50);
+                doc.text(`Desde:${fechaInicioFormato} hasta ${fechaFinFormato}`, 55, 55); 
                 doc.text('TERMINADO', 135, 50);
 
                 doc.setFont("times", "bold");
@@ -390,14 +382,14 @@ const TrendAnalisis = () => {
             }
         };
 
-        // Configuración de tabla
-        const headers = [['LOTE', 'RESULTADO PRUEBA', 'MÍNIMO', 'MÁXIMO', 'CANTIDAD REAL']];
+        // --- MODIFICADO: Orden de columnas y nombre de Cantidad Real ---
+        const headers = [['LOTE', 'MÍNIMO', 'MÁXIMO', 'RESULTADO DE LA PRUEBA', 'PORCENTAJE']];
         const tableData = data.map(item => [
             item['Número Lote/Serie'],
-            `${item['Resultado Prueba']} ${item['Unidad Medida']}`,
             item['Valor Mínimo Permitido'],
             item['Valor Máximo Permitido'],
-            `${item['Cantidad Real']} ${item['Unidad Cantidad Real']}`
+            `${item['Resultado Prueba']} ${item['Unidad Medida']}`,
+            `${item['Cantidad Real']} ${item['Unidad Cantidad Real']}` // Usamos Cantidad Real como el valor para la columna PORCENTAJE en la tabla
         ]);
 
         autoTable(doc, {
@@ -409,7 +401,8 @@ const TrendAnalisis = () => {
             bodyStyles: { fillColor: '#f5f5f5', textColor: '#333333', fontSize: 10, font: 'times' },
             alternateRowStyles: { fillColor: '#ffffff' },
             theme: 'striped',
-            styles: { cellPadding: 3, lineWidth: 0.1, lineColor: '#bdc3c7', font: 'times' },
+            // --- MODIFICADO: Reducción de cellPadding para disminuir la altura de la celda ---
+            styles: { cellPadding: 0.7, lineWidth: 0.1, lineColor: '#bdc3c7', font: 'times' },
             columnStyles: { 0: { halign: 'center' }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' } },
 
             didDrawPage: (data) => {
@@ -424,11 +417,22 @@ const TrendAnalisis = () => {
             }
         });
 
+        // Posición actual después de la tabla
         let currentY = doc.lastAutoTable.finalY + 20;
 
-        // --- Sección de análisis estadístico en PDF ---
-        if (average !== null && testUnit) {
-            if (currentY + 60 > pageHeight) {
+        // ----------------------------------------------------------------------------------
+        // FORZAR SALTO DE PÁGINA para el análisis estadístico y gráfico.
+        // ----------------------------------------------------------------------------------
+        doc.addPage();
+        drawHeader(doc, false); // Dibuja el encabezado de la nueva página
+        currentY = headerHeightOtherPages + 10;
+        // ----------------------------------------------------------------------------------
+
+
+        // --- Sección de análisis estadístico en PDF (Comienza en la nueva página) ---
+        if (average !== null && standardDeviation !== null && testUnit) {
+            
+            if (currentY + 60 > pageHeight) { 
                 doc.addPage();
                 drawHeader(doc, false);
                 currentY = headerHeightOtherPages + 10;
@@ -449,27 +453,32 @@ const TrendAnalisis = () => {
             currentY += 35;
         }
 
-        // --- Insertar gráficos ---
-        const charts = [{ canvas: lineChartRef.current.canvas, title: 'Gráfico' }];
+        // --- Insertar gráficos (continúa en la misma nueva página) ---
+        const charts = [{ canvas: lineChartRef.current.canvas, title: 'Gráfico de Análisis de Tendencia' }];
 
         charts.forEach(chart => {
             if (chart.canvas) {
                 const chartImage = chart.canvas.toDataURL('image/png', 1.0);
+                
                 if (currentY + chartHeight + 20 > pageHeight) {
                     doc.addPage();
                     drawHeader(doc, false);
                     currentY = headerHeightOtherPages + 10;
                 }
-                doc.setFontSize(10);
-                doc.setFont("times", "normal");
-                doc.text(chart.title, (pageWidth - chartWidth) / 2, currentY);
-                doc.addImage(chartImage, 'PNG', (pageWidth - chartWidth) / 2, currentY + 5, chartWidth, chartHeight);
+                
+                doc.setFontSize(10); // Título del gráfico más pequeño en el PDF
+                doc.setFont("times", "bold");
+                doc.text(chart.title, doc.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+                currentY += 5;
+                
+                doc.addImage(chartImage, 'PNG', (pageWidth - chartWidth) / 2, currentY, chartWidth, chartHeight);
                 currentY += chartHeight + 15;
             }
         });
 
-        // --- LÍNEAS MODIFICADAS: Usar el nombre recibido ---
-        if (currentY + 15 > pageHeight) {
+        // --- Sección de Firmas (al final) ---
+        
+        if (currentY + 30 > pageHeight) {
             doc.addPage();
             drawHeader(doc, false);
             currentY = headerHeightOtherPages + 10;
@@ -479,12 +488,12 @@ const TrendAnalisis = () => {
         doc.setFont("times", "bold");
         doc.text(`Realizado por: ${realizadoPorNombre}`, 14, currentY + 20);
         doc.text(`Fecha: ${formattedDate}`, 14, currentY + 25);
-        // ---------------------------------------------------
-        doc.text(`Revisado por: `, 120, currentY + 20);
-        doc.text(`Fecha: `, 120, currentY + 25);
+        doc.text(`Revisado por: _________________`, 120, currentY + 20);
+        doc.text(`Fecha: _________________`, 120, currentY + 25);
 
-        doc.save(`reporte_analisis_${formattedDate}.pdf`); // Descargar PDF
+        doc.save(`reporte_analisis_${formattedDate}.pdf`);
     };
+
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -561,18 +570,23 @@ const TrendAnalisis = () => {
         ]
     };
 
-    // --- Configuración de opciones del gráfico ---
+    // --- Configuración de opciones del gráfico (OPTIMIZADO para PDF) ---
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: { position: 'top' },
+            legend: { 
+                position: 'top',
+                labels: {
+                    font: { size: 10 } // REDUCIDO
+                }
+            },
             title: {
                 display: true,
                 color: '#000000ff',
                 text: 'Comparación de Resultados de Prueba vs. Límites',
-                font: { size: 20, weight: 'bold' },
-                padding: { top: 0, bottom: 15 }
+                font: { size: 12, weight: 'bold' }, // REDUCIDO
+                padding: { top: 0, bottom: 5 } // REDUCIDO
             },
             datalabels: {
                 display: context => context.datasetIndex === 0,
@@ -580,27 +594,38 @@ const TrendAnalisis = () => {
                 anchor: 'end',
                 align: 'top',
                 offset: 1,
-                font: { weight: 'normal', size: 11 },
+                font: { weight: 'normal', size: 6 }, // MUY REDUCIDO para lotes
                 formatter: value => value
             }
         },
         scales: {
             x: {
-                title: { display: true, text: 'Número Lote/Serie', font: { size: 14, weight: 'bold' } },
-                ticks: { maxRotation: 45, minRotation: 45, autoSkip: false, font: { size: 11 } }
+                title: { 
+                    display: true, 
+                    text: 'Número Lote/Serie', 
+                    font: { size: 8, weight: 'bold' } // REDUCIDO
+                },
+                ticks: { maxRotation: 45, minRotation: 90, autoSkip: false, font: { size: 7 } } // MUY REDUCIDO
             },
             y: {
-                title: { display: true, text: `Valor (${testUnit})`, font: { size: 14, weight: 'bold' } },
+                title: { 
+                    display: true, 
+                    text: `Valor (${testUnit})`, 
+                    font: { size: 8, weight: 'bold' } // REDUCIDO
+                },
+                ticks: { 
+                    font: { size: 8 } // REDUCIDO
+                },
                 beginAtZero: false,
                 min: ctx => {
                     let allValues = ctx.chart.data.datasets.flatMap(ds => ds.data);
                     const filteredValues = allValues.filter(v => v !== null);
-                    return filteredValues.length === 0 ? 0 : Math.min(...filteredValues) - 5;
+                    return filteredValues.length === 0 ? 0 : Math.min(...filteredValues) - 2; 
                 },
                 max: ctx => {
                     let allValues = ctx.chart.data.datasets.flatMap(ds => ds.data);
                     const filteredValues = allValues.filter(v => v !== null);
-                    return filteredValues.length === 0 ? 10 : Math.max(...filteredValues) + 5;
+                    return filteredValues.length === 0 ? 10 : Math.max(...filteredValues) + 2; 
                 }
             }
         }
@@ -666,21 +691,6 @@ const TrendAnalisis = () => {
         matchesTerm(searchCantRealTerm, t.test, t.desc)
     );
 
-
-
-    // // --- Filtrado de pruebas asociadas al producto seleccionado ---
-    // const associatedTests = productOptions
-    //     .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct)
-    //     .map(p => p.TRQTST);
-
-    // const filteredTests = associatedTests.filter(test => test.toLowerCase().includes(searchTestTerm.toLowerCase()));
-
-    // // --- Filtrado de Cantidad Real opcional ---
-    // const cantRealTestOptions = productOptions
-    //     .filter(p => p && p.IMLITM && p.TRQTST && p.IMLITM === selectedProduct && p.TRQTST !== selectedTest)
-    //     .map(p => p.TRQTST);
-
-    // const filteredCantRealTests = cantRealTestOptions.filter(test => test.toLowerCase().includes(searchCantRealTerm.toLowerCase()));
 
     // --- Reset de filtros de prueba y Cantidad Real cuando cambia el producto ---
     useEffect(() => {
@@ -923,20 +933,22 @@ const TrendAnalisis = () => {
                             <thead>
                                 <tr>
                                     <th>Número Lote/Serie</th>
-                                    <th>Resultado Prueba</th>
                                     <th>Valor Mínimo Permitido</th>
                                     <th>Valor Máximo Permitido</th>
-                                    <th>Cantidad Real</th>
+                                    <th>Resultado Prueba</th>
+                                    {/* MODIFICADO: Nombre de columna */}
+                                    <th>Porcentaje</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {currentData.map((item, index) => (
                                     <tr key={index}>
                                         <td>{item['Número Lote/Serie']}</td>
-                                        <td>{item['Resultado Prueba']} {item['Unidad Medida']}</td>
                                         <td>{item['Valor Mínimo Permitido']}</td>
                                         <td>{item['Valor Máximo Permitido']}</td>
-                                        <td>{item['Cantidad Real']} {item['Unidad Cantidad Real']}</td>
+                                        <td>{item['Resultado Prueba']} {item['Unidad Medida']}</td>
+                                        {/* Usamos Cantidad Real como el valor para la columna PORCENTAJE en la tabla */}
+                                        <td>{item['Cantidad Real']} {item['Unidad Cantidad Real']}</td> 
                                     </tr>
                                 ))}
                             </tbody>

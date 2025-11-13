@@ -34,7 +34,7 @@ body {
 .app-main-container {
     padding: 0;
     width: 100%;
-    /* background-image: url('/public/images/actdatos.jpg'); */
+    background-image: url('/public/images/actdatos.jpg');
     background-color: var(--background-color);
     background-position: center;
     background-size: cover;
@@ -62,6 +62,7 @@ header {
     padding: var(--spacing-10);
     width: 100%;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 30px;
 }
 
 .error-message {
@@ -479,10 +480,10 @@ header {
 .highlight-text-input {
     width: auto;
     display: inline-block;
-    color: var(--danger-color);
+    color: 2b6cc0;
     font-style: italic;
-    border-color: var(--danger-color);
-    background-color: #ffebeb;
+    border-color: 2b49c0;
+    background-color: #eeebff;
 }
 
 .record-value-input.status-approved {
