@@ -338,11 +338,11 @@ const TrendAnalisis = () => {
 
             doc.addImage(logoImg, imgFormat, logoX, logoY, logoWidth, logoHeight);
 
-            doc.setFontSize(18);
+            doc.setFontSize(12);
             const title1Width = doc.getTextWidth(brand.title);
             doc.text(brand.title, ((pageWidth - title1Width) / 2) + 15, 15);
 
-            doc.setFontSize(14)
+            doc.setFontSize(11)
 
             const title2 = 'TREND DE ANALISIS DE PRODUCTO TERMINADO';
             const title2Width = doc.getTextWidth(title2);
@@ -510,7 +510,7 @@ const TrendAnalisis = () => {
                 data: data.map(item => item['Resultado Prueba']),
                 borderColor: 'rgba(52, 152, 219, 1)',
                 backgroundColor: 'rgba(80, 219, 52, 0.2)',
-                borderWidth: 2,
+                borderWidth: 1,
                 fill: true,
                 tension: 0.4,
                 pointRadius: 1,

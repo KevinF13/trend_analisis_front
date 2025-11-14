@@ -169,13 +169,14 @@ const mapApiDataToState = (apiData) => {
         }
     });
 
-    // --- Mapeo de Trazabilidad ---
+    // --- Mapeo de Trazabilidad (ESTRUCTURA AJUSTADA) ---
     const trazabilidad = {
         analisisSemiElaborado: {
-            noImpresos: apiData.NUM_ORDEN !== null ? String(apiData.NUM_ORDEN) : '',
-            impresos: apiData.PRESENTACION_PROD !== null ? String(apiData.PRESENTACION_PROD) : '',
-            areaQuimica: apiData.AREA_QUIMICA_SEMI_P || '',
-            areaBiologica: apiData.AREA_BIOLOGICA_SEMI_P || '',
+            // Solo se mapean los 4 campos de AREA
+            noImpresos_areaQuimica: apiData.AREA_QUIMICA_SEMI_P || '',
+            noImpresos_areaBiologica: apiData.AREA_BIOLOGICA_SEMI_P || '',
+            impresos_areaQuimica: apiData.AREA_QUIMICA_SEMI_Q || '',
+            impresos_areaBiologica: apiData.AREA_BIOLOGICA_SEMI_Q || '',
         },
         analisisEmpacado: {
             areaQuimica: apiData.AREA_QUIMICA_EMP || '',
@@ -184,10 +185,10 @@ const mapApiDataToState = (apiData) => {
         // Inicialización básica para evitar errores
         recordProduccion: {
             fechaRecepcion: formatDateForInput(apiData.RECEPCION),
-            lotes: [], 
+            lotes: [],
         },
         productoEmpacado: {
-            registros: [], 
+            registros: [],
         },
         tiemposControl: {
             controlProceso: apiData.TIM_CONT_PROCESO !== null ? String(apiData.TIM_CONT_PROCESO) : '',
@@ -233,58 +234,52 @@ const mapApiDataToState = (apiData) => {
 const mapStateToApiData = (data, analysisData, observaciones, lote) => {
     const apiBody = {};
 
-    // =======================================================================
-    // --- FIX APLICADO AQUÍ ---
-    // =======================================================================
     // Mapeo de Análisis (Itera sobre la lista maestra, no sobre el estado)
-    // Esto asegura que si un campo se borra del estado (handleRemoveAnalysis),
-    // 'value' será 'undefined' y la lógica ternaria lo convertirá en 'null' para la API.
-    
     Object.keys(ANALYSIS_FIELD_MAP_REVERSE).forEach(reactKey => {
         const apiKey = ANALYSIS_FIELD_MAP_REVERSE[reactKey];
-        
-        // Busca el valor en el estado actual. Si se borró, 'value' será 'undefined'.
-        const value = analysisData[reactKey]; 
-        
+        const value = analysisData[reactKey];
+
         if (apiKey) {
             // La lógica ternaria existente maneja 'undefined', 'null' y '' correctamente.
             apiBody[apiKey.toLowerCase()] = value && String(value).trim() !== '' ? String(value).trim() : null;
         }
     });
-    // =======================================================================
-    // --- FIN DEL FIX ---
-    // =======================================================================
-
 
     // Mapeo de datos principales y trazabilidad
-    // **SE MANTIENE EL trim() SOLO AQUÍ PARA LIMPIAR ANTES DE ENVIAR A LA API**
     apiBody.observaciones = observaciones ? String(observaciones).trim() : null;
     apiBody.fecha_ingreso = formatDateForAPI(data.fechaIngreso);
 
     if (data.trazabilidad) {
         const t = data.trazabilidad;
-        // Análisis Semi-Elaborado
-        apiBody.num_orden = t.analisisSemiElaborado.noImpresos || null;
-        // **ATENCIÓN: PRESENTACION_PROD en la API se usa para Semi-Elaborado (impresos) Y Producto Empacado (presentacion). Esto es un problema de diseño de API, pero mantenemos el mapeo como está en tu código para 'impresos'.**
-        // apiBody.presentacion_prod = t.analisisSemiElaborado.impresos || null; // <--- Comentado para evitar colisión, lo manejaremos en la sección de empaque si es necesario.
-        apiBody.area_quimica_semi_p = t.analisisSemiElaborado.areaQuimica || null;
-        apiBody.area_biologica_semi_p = t.analisisSemiElaborado.areaBiologica || null;
+        
+        // Análisis Semi-Elaborado (SOLO LOS 4 CAMPOS DE ÁREA)
+        apiBody.area_quimica_semi_p = t.analisisSemiElaborado.noImpresos_areaQuimica || null;
+        apiBody.area_biologica_semi_p = t.analisisSemiElaborado.noImpresos_areaBiologica || null;
+        apiBody.area_quimica_semi_q = t.analisisSemiElaborado.impresos_areaQuimica || null;
+        apiBody.area_biologica_semi_q = t.analisisSemiElaborado.impresos_areaBiologica || null;
+
+        // **NOTA:** Los campos NUM_ORDEN y PRESENTACION_PROD_SEMI ya NO se envían.
 
         // Análisis Empacado
         apiBody.area_quimica_emp = t.analisisEmpacado.areaQuimica || null;
         apiBody.area_biologica_emp = t.analisisEmpacado.areaBiologica || null;
 
-        // Record de Producción (Asumiendo que solo se actualiza la primera fila por la limitación de la tabla de la API)
+        // Record de Producción (Asumiendo que solo se actualiza la primera fila)
         const rec = t.recordProduccion;
         apiBody.recepcion = formatDateForAPI(rec.fechaRecepcion);
         if (rec.lotes.length > 0) {
             const firstLote = rec.lotes[0];
+            // NUM_ORDEN (noImp_num) se sigue mapeando aquí, ya que es parte del Record de Producción
+            apiBody.num_orden = firstLote.orden || null; 
             apiBody.unidad_std_record = firstLote.unidStd || null;
             apiBody.unidad_real_record = firstLote.unidReal || null;
             apiBody.rend_record = firstLote.rendimiento || null;
+        } else {
+            // Si no hay filas, se debe resetear NUM_ORDEN también.
+            apiBody.num_orden = null;
         }
 
-        // Producto Empacado (Asumiendo que solo se actualiza la primera fila por la limitación de la tabla de la API)
+        // Producto Empacado (Asumiendo que solo se actualiza la primera fila)
         const pack = t.productoEmpacado;
         if (pack.registros.length > 0) {
             const firstReg = pack.registros[0];
@@ -292,8 +287,7 @@ const mapStateToApiData = (data, analysisData, observaciones, lote) => {
             apiBody.unidad_std_prod = firstReg.unidStd || null;
             apiBody.unidad_real_prod = firstReg.unidReal || null;
             apiBody.rend_prod = firstReg.rendimiento || null;
-            // ATENCIÓN: Esta clave sobrescribe la de Semi-Elaborado. Mantenemos el mapeo para empaquetado ya que es más explícito en el nombre de la columna.
-            apiBody.presentacion_prod = firstReg.presentacion || null; 
+            apiBody.presentacion_prod = firstReg.presentacion || null;
         }
 
         // Tiempos de Control
@@ -306,22 +300,19 @@ const mapStateToApiData = (data, analysisData, observaciones, lote) => {
     return apiBody;
 };
 
-
 // =============================================================================
 // 1. COMPONENTE DataRow (MOVIDO AFUERA)
 // =============================================================================
-// Necesitamos pasarle 'onDateChange' y 'isProductLoaded' como props extras
-const DataRow = ({ 
-    label, 
-    value, 
-    isEditable = false, 
-    onChange = () => { }, 
-    isLote = false, 
-    dateType = false, 
+const DataRow = ({
+    label,
+    value,
+    isEditable = false,
+    onChange = () => { },
+    isLote = false,
+    dateType = false,
     field = null,
-    // Nuevas props recibidas desde el padre
-    onDateChange, 
-    isProductLoaded 
+    onDateChange,
+    isProductLoaded
 }) => (
     <div className={`data-row ${isEditable ? 'editable' : ''}`}>
         <div className={`data-label ${isEditable ? 'label-accent' : ''}`}>{label}</div>
@@ -359,14 +350,13 @@ const DataRow = ({
 // =============================================================================
 // 2. COMPONENTE TrazabilidadSection (MOVIDO AFUERA)
 // =============================================================================
-// Recibimos todas las funciones handle como props
-const TrazabilidadSection = ({ 
-    trazabilidad, 
-    onUpdateField,      // handleUpdateTrazabilidadField
-    onUpdateRecord,     // handleUpdateRecordCell
-    onUpdatePacked,     // handleUpdatePackedCell
-    onAddRecord,        // handleAddNewRecordRow
-    onAddPacked         // handleAddNewPackedRow
+const TrazabilidadSection = ({
+    trazabilidad,
+    onUpdateField,
+    onUpdateRecord,
+    onUpdatePacked,
+    onAddRecord,
+    onAddPacked
 }) => {
     if (!trazabilidad) return null;
 
@@ -376,61 +366,70 @@ const TrazabilidadSection = ({
     const firstRecordLote = recordLotes.length > 0 ? recordLotes[0] : {};
     const firstPackedRegistro = packedRegistros.length > 0 ? packedRegistros[0] : {};
 
+    const semiElab = trazabilidad.analisisSemiElaborado;
+
     return (
         <div className="trazability-panel">
             <h3 className="trazability-title">📜 Registro Histórico y Trazabilidad</h3>
 
             <div className="trazability-content-grid">
-                {/* 1. Análisis Semi-Elaborado */}
-                <div className="trazability-card half-width">
-                    <p className="card-title">Análisis de Producto Semi-Elaborado</p>
-                    {/* NO IMPRESOS */}
-                    <div className="record-row-display editable-row">
-                        <span className="record-label-mini">NO IMPRESOS (P)</span>
-                        <input
-                            type="text"
-                            className="record-value-input"
-                            value={trazabilidad.analisisSemiElaborado.noImpresos || ''}
-                            onChange={(e) => onUpdateField('analisisSemiElaborado', 'noImpresos', e.target.value)}
-                            id="semi-elaborado-noImpresos"
-                            name="semi_elaborado_noImpresos"
-                        />
-                    </div>
-                    {/* IMPRESOS */}
-                    <div className="record-row-display editable-row">
-                        <span className="record-label-mini">IMPRESOS (Q)</span>
-                        <input
-                            type="text"
-                            className="record-value-input"
-                            value={trazabilidad.analisisSemiElaborado.impresos || ''}
-                            onChange={(e) => onUpdateField('analisisSemiElaborado', 'impresos', e.target.value)}
-                            id="semi-elaborado-impresos"
-                            name="semi_elaborado_impresos"
-                        />
-                    </div>
-                    {/* ÁREA QUÍMICA */}
-                    <div className="record-row-display editable-row">
-                        <span className="record-label-mini">ÁREA QUÍMICA</span>
-                        <input
-                            type="text"
-                            className={`record-value-input ${getStatusClass(trazabilidad.analisisSemiElaborado.areaQuimica || '')}`}
-                            value={trazabilidad.analisisSemiElaborado.areaQuimica || ''}
-                            onChange={(e) => onUpdateField('analisisSemiElaborado', 'areaQuimica', e.target.value)}
-                            id="semi-elaborado-areaQuimica"
-                            name="area_quimica_semi_p"
-                        />
-                    </div>
-                    {/* ÁREA BIOLÓGICA */}
-                    <div className="record-row-display editable-row">
-                        <span className="record-label-mini">ÁREA BIOLÓGICA</span>
-                        <input
-                            type="text"
-                            className={`record-value-input ${getStatusClass(trazabilidad.analisisSemiElaborado.areaBiologica || '')}`}
-                            value={trazabilidad.analisisSemiElaborado.areaBiologica || ''}
-                            onChange={(e) => onUpdateField('analisisSemiElaborado', 'areaBiologica', e.target.value)}
-                            id="semi-elaborado-areaBiologica"
-                            name="area_biologica_semi_p"
-                        />
+                {/* 1. Análisis Semi-Elaborado (ESTRUCTURA AJUSTADA A SOLO LAS 4 ÁREAS) */}
+                <div className="trazability-card full-width">
+                    <p className="card-title">Análisis de Producto Semi-Elaborado (Áreas)</p>
+                    <div className="semi-elaborado-grid">
+                        <div className="grid-header-row">
+                            <span className="header-cell">Tipo</span>
+                            <span className="header-cell">Área Química (P)</span>
+                            <span className="header-cell">Área Biológica (P)</span>
+                        </div>
+                        {/* Fila: NO IMPRESOS */}
+                        <div className="grid-data-row-short">
+                            <span className="data-cell label-cell">NO IMPRESOS</span>
+                            <div className="input-cell">
+                                <input
+                                    type="text"
+                                    className={`input-inside-cell ${getStatusClass(semiElab.noImpresos_areaQuimica || '')}`}
+                                    value={semiElab.noImpresos_areaQuimica || ''}
+                                    onChange={(e) => onUpdateField('analisisSemiElaborado', 'noImpresos_areaQuimica', e.target.value)}
+                                    id="semi-elaborado-noImpresos_areaQuimica"
+                                    name="area_quimica_semi_p"
+                                />
+                            </div>
+                            <div className="input-cell">
+                                <input
+                                    type="text"
+                                    className={`input-inside-cell ${getStatusClass(semiElab.noImpresos_areaBiologica || '')}`}
+                                    value={semiElab.noImpresos_areaBiologica || ''}
+                                    onChange={(e) => onUpdateField('analisisSemiElaborado', 'noImpresos_areaBiologica', e.target.value)}
+                                    id="semi-elaborado-noImpresos_areaBiologica"
+                                    name="area_biologica_semi_p"
+                                />
+                            </div>
+                        </div>
+                        {/* Fila: IMPRESOS */}
+                        <div className="grid-data-row-short">
+                            <span className="data-cell label-cell">IMPRESOS</span>
+                            <div className="input-cell">
+                                <input
+                                    type="text"
+                                    className={`input-inside-cell ${getStatusClass(semiElab.impresos_areaQuimica || '')}`}
+                                    value={semiElab.impresos_areaQuimica || ''}
+                                    onChange={(e) => onUpdateField('analisisSemiElaborado', 'impresos_areaQuimica', e.target.value)}
+                                    id="semi-elaborado-impresos_areaQuimica"
+                                    name="area_quimica_semi_q"
+                                />
+                            </div>
+                            <div className="input-cell">
+                                <input
+                                    type="text"
+                                    className={`input-inside-cell ${getStatusClass(semiElab.impresos_areaBiologica || '')}`}
+                                    value={semiElab.impresos_areaBiologica || ''}
+                                    onChange={(e) => onUpdateField('analisisSemiElaborado', 'impresos_areaBiologica', e.target.value)}
+                                    id="semi-elaborado-impresos_areaBiologica"
+                                    name="area_biologica_semi_q"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -463,124 +462,8 @@ const TrazabilidadSection = ({
                     </div>
                 </div>
 
-                {/* 3. Record de Producción */}
-                <div className="trazability-card full-width">
-                    <p className="card-title">Record de Producción (Recepción:
-                        <input
-                            type="date"
-                            className="highlight-text-input date-input"
-                            value={trazabilidad.recordProduccion.fechaRecepcion || ''}
-                            onChange={(e) => onUpdateField('recordProduccion', 'fechaRecepcion', e.target.value)}
-                            id="record-fechaRecepcion"
-                            name="recepcion"
-                        />
-                        )</p>
-                    <div className="production-block-grid production-grid">
-                        <span className="header-cell"># ORDEN</span>
-                        <span className="header-cell">UNID. STD.</span>
-                        <span className="header-cell">UNID. REAL.</span>
-                        <span className="header-cell">% REND.</span>
-                        
-                        <div key="first-row-record" style={{ display: 'contents' }}>
-                            <input
-                                type="text"
-                                className="data-cell input-cell"
-                                value={firstRecordLote.orden || ''}
-                                onChange={(e) => onUpdateRecord(0, 'orden', e.target.value)}
-                                id={`record-orden-0`}
-                                name={`record_orden_0`}
-                            />
-                            <input
-                                type="text"
-                                className="data-cell input-cell"
-                                value={firstRecordLote.unidStd || ''}
-                                onChange={(e) => onUpdateRecord(0, 'unidStd', e.target.value)}
-                                id={`record-unidStd-0`}
-                                name={`record_unid_std_0`}
-                            />
-                            <input
-                                type="text"
-                                className="data-cell input-cell"
-                                value={firstRecordLote.unidReal || ''}
-                                onChange={(e) => onUpdateRecord(0, 'unidReal', e.target.value)}
-                                id={`record-unidReal-0`}
-                                name={`record_unid_real_0`}
-                            />
-                            <input
-                                type="text"
-                                className={`data-cell input-cell ${getStatusClass(firstRecordLote.rendimiento)}`}
-                                value={firstRecordLote.rendimiento || ''}
-                                onChange={(e) => onUpdateRecord(0, 'rendimiento', e.target.value)}
-                                id={`record-rendimiento-0`}
-                                name={`record_rendimiento_0`}
-                            />
-                        </div>
-                    </div>
-                    <button className="add-row-button" onClick={onAddRecord}>
-                        ➕ Agregar/Editar Fila (Record de Producción - 1er Registro)
-                    </button>
-                </div>
-
-                {/* 4. Producto Empacado */}
-                <div className="trazability-card full-width">
-                    <p className="card-title">Producto Empacado - Registros</p>
-                    <div className="production-block-grid packed-grid">
-                        <span className="header-cell">RECEPCIÓN</span>
-                        <span className="header-cell">UNID. STD.</span>
-                        <span className="header-cell">UNID. REAL.</span>
-                        <span className="header-cell">% REND.</span>
-                        <span className="header-cell">PRESENTACIÓN</span>
-                        
-                        <div key="first-row-packed" style={{ display: 'contents' }}>
-                            <input
-                                type="date"
-                                className="data-cell input-cell"
-                                value={firstPackedRegistro.recepcion || ''}
-                                onChange={(e) => onUpdatePacked(0, 'recepcion', e.target.value)}
-                                id={`packed-recepcion-0`}
-                                name={`packed_recepcion_0`}
-                            />
-                            <input
-                                type="text"
-                                className="data-cell input-cell"
-                                value={firstPackedRegistro.unidStd || ''}
-                                onChange={(e) => onUpdatePacked(0, 'unidStd', e.target.value)}
-                                id={`packed-unidStd-0`}
-                                name={`packed_unid_std_0`}
-                            />
-                            <input
-                                type="text"
-                                className="data-cell input-cell"
-                                value={firstPackedRegistro.unidReal || ''}
-                                onChange={(e) => onUpdatePacked(0, 'unidReal', e.target.value)}
-                                id={`packed-unidReal-0`}
-                                name={`packed_unid_real_0`}
-                            />
-                            <input
-                                type="text"
-                                className={`data-cell input-cell ${getStatusClass(firstPackedRegistro.rendimiento)}`}
-                                value={firstPackedRegistro.rendimiento || ''}
-                                onChange={(e) => onUpdatePacked(0, 'rendimiento', e.target.value)}
-                                id={`packed-rendimiento-0`}
-                                name={`packed_rendimiento_0`}
-                            />
-                            <input
-                                type="text"
-                                className="data-cell input-cell"
-                                value={firstPackedRegistro.presentacion || ''}
-                                onChange={(e) => onUpdatePacked(0, 'presentacion', e.target.value)}
-                                id={`packed-presentacion-0`}
-                                name={`packed_presentacion_0`}
-                            />
-                        </div>
-                    </div>
-                    <button className="add-row-button" onClick={onAddPacked}>
-                        ➕ Agregar/Editar Fila (Producto Empacado - 1er Registro)
-                    </button>
-                </div>
-
                 {/* 5. Tiempos de Control */}
-                <div className="trazability-card full-width time-control-group">
+                <div className="trazability-card half-width time-control-group">
                     <p className="card-title">Tiempos de Control y Liberación</p>
                     <div className="time-control-grid">
                         <div className="time-control-item editable-item">
@@ -618,6 +501,127 @@ const TrazabilidadSection = ({
                         </div>
                     </div>
                 </div>
+
+                {/* 3. Record de Producción */}
+                <div className="trazability-card full-width">
+                    <p className="card-title">Record de Producción (Recepción:
+                        <input
+                            type="date"
+                            className="highlight-text-input date-input"
+                            value={trazabilidad.recordProduccion.fechaRecepcion || ''}
+                            onChange={(e) => onUpdateField('recordProduccion', 'fechaRecepcion', e.target.value)}
+                            id="record-fechaRecepcion"
+                            name="recepcion"
+                        />
+                        )</p>
+                    <div className="production-block-grid production-grid">
+                        <span className="header-cell"># ORDEN</span>
+                        <span className="header-cell">UNID. STD.</span>
+                        <span className="header-cell">UNID. REAL.</span>
+                        <span className="header-cell">% REND.</span>
+
+                        <div key="first-row-record" style={{ display: 'contents' }}>
+                            <input
+                                type="text"
+                                className="data-cell input-cell"
+                                value={firstRecordLote.orden || ''}
+                                onChange={(e) => onUpdateRecord(0, 'orden', e.target.value)}
+                                id={`record-orden-0`}
+                                name={`record_orden_0`}
+                            />
+                            <input
+                                type="text"
+                                className="data-cell input-cell"
+                                value={firstRecordLote.unidStd || ''}
+                                onChange={(e) => onUpdateRecord(0, 'unidStd', e.target.value)}
+                                id={`record-unidStd-0`}
+                                name={`record_unid_std_0`}
+                            />
+                            <input
+                                type="text"
+                                className="data-cell input-cell"
+                                value={firstRecordLote.unidReal || ''}
+                                onChange={(e) => onUpdateRecord(0, 'unidReal', e.target.value)}
+                                id={`record-unidReal-0`}
+                                name={`record_unid_real_0`}
+                            />
+                            {/* CAMPO DE RENDIMIENTO CALCULADO */}
+                            <input
+                                type="text"
+                                className={`data-cell input-cell ${getStatusClass(firstRecordLote.rendimiento)}`}
+                                value={firstRecordLote.rendimiento || ''}
+                                onChange={(e) => onUpdateRecord(0, 'rendimiento', e.target.value)} // Mantener la edición manual si es necesario
+                                readOnly // Se hace de solo lectura para el cálculo
+                                id={`record-rendimiento-0`}
+                                name={`record_rendimiento_0`}
+                            />
+                        </div>
+                    </div>
+                    <button className="add-row-button" onClick={onAddRecord}>
+                        ➕ Agregar/Editar Fila (Record de Producción - 1er Registro)
+                    </button>
+                </div>
+
+                {/* 4. Producto Empacado */}
+                <div className="trazability-card full-width">
+                    <p className="card-title">Producto Empacado - Registros</p>
+                    <div className="production-block-grid packed-grid">
+                        <span className="header-cell">RECEPCIÓN</span>
+                        <span className="header-cell">UNID. STD.</span>
+                        <span className="header-cell">UNID. REAL.</span>
+                        <span className="header-cell">% REND.</span>
+                        <span className="header-cell">PRESENTACIÓN</span>
+
+                        <div key="first-row-packed" style={{ display: 'contents' }}>
+                            <input
+                                type="date"
+                                className="data-cell input-cell"
+                                value={firstPackedRegistro.recepcion || ''}
+                                onChange={(e) => onUpdatePacked(0, 'recepcion', e.target.value)}
+                                id={`packed-recepcion-0`}
+                                name={`packed_recepcion_0`}
+                            />
+                            <input
+                                type="text"
+                                className="data-cell input-cell"
+                                value={firstPackedRegistro.unidStd || ''}
+                                onChange={(e) => onUpdatePacked(0, 'unidStd', e.target.value)}
+                                id={`packed-unidStd-0`}
+                                name={`packed_unid_std_0`}
+                            />
+                            <input
+                                type="text"
+                                className="data-cell input-cell"
+                                value={firstPackedRegistro.unidReal || ''}
+                                onChange={(e) => onUpdatePacked(0, 'unidReal', e.target.value)}
+                                id={`packed-unidReal-0`}
+                                name={`packed_unid_real_0`}
+                            />
+                            {/* CAMPO DE RENDIMIENTO CALCULADO */}
+                            <input
+                                type="text"
+                                className={`data-cell input-cell ${getStatusClass(firstPackedRegistro.rendimiento)}`}
+                                value={firstPackedRegistro.rendimiento || ''}
+                                onChange={(e) => onUpdatePacked(0, 'rendimiento', e.target.value)} // Mantener la edición manual si es necesario
+                                readOnly // Se hace de solo lectura para el cálculo
+                                id={`packed-rendimiento-0`}
+                                name={`packed_rendimiento_0`}
+                            />
+                            <input
+                                type="text"
+                                className="data-cell input-cell"
+                                value={firstPackedRegistro.presentacion || ''}
+                                onChange={(e) => onUpdatePacked(0, 'presentacion', e.target.value)}
+                                id={`packed-presentacion-0`}
+                                name={`packed_presentacion_0`}
+                            />
+                        </div>
+                    </div>
+                    <button className="add-row-button" onClick={onAddPacked}>
+                        ➕ Agregar/Editar Fila (Producto Empacado - 1er Registro)
+                    </button>
+                </div>
+
             </div>
         </div>
     );
@@ -634,9 +638,12 @@ const ActualizacionDatosProducto = () => {
         laboratorio: '',
         control: '',
         fechaIngreso: '',
-        // FIX: Inicializar trazabilidad con la estructura necesaria, no con null
+        // FIX: Inicializar trazabilidad con la estructura necesaria
         trazabilidad: {
-            analisisSemiElaborado: {},
+            analisisSemiElaborado: {
+                noImpresos_areaQuimica: '', noImpresos_areaBiologica: '',
+                impresos_areaQuimica: '', impresos_areaBiologica: '',
+            },
             analisisEmpacado: {},
             recordProduccion: {
                 fechaRecepcion: '',
@@ -669,7 +676,10 @@ const ActualizacionDatosProducto = () => {
                 control: '',
                 fechaIngreso: '',
                 trazabilidad: {
-                    analisisSemiElaborado: {},
+                    analisisSemiElaborado: {
+                        noImpresos_areaQuimica: '', noImpresos_areaBiologica: '',
+                        impresos_areaQuimica: '', impresos_areaBiologica: '',
+                    },
                     analisisEmpacado: {},
                     recordProduccion: { fechaRecepcion: '', lotes: [] },
                     productoEmpacado: { registros: [] },
@@ -698,7 +708,10 @@ const ActualizacionDatosProducto = () => {
                     ...productData,
                     // Asegurarse de que trazabilidad siempre tenga un valor para evitar null/undefined
                     trazabilidad: trazabilidad || {
-                        analisisSemiElaborado: {},
+                        analisisSemiElaborado: {
+                            noImpresos_areaQuimica: '', noImpresos_areaBiologica: '',
+                            impresos_areaQuimica: '', impresos_areaBiologica: '',
+                        },
                         analisisEmpacado: {},
                         recordProduccion: { fechaRecepcion: '', lotes: [] },
                         productoEmpacado: { registros: [] },
@@ -716,7 +729,10 @@ const ActualizacionDatosProducto = () => {
                     control: '',
                     fechaIngreso: '',
                     trazabilidad: {
-                        analisisSemiElaborado: {},
+                        analisisSemiElaborado: {
+                            noImpresos_areaQuimica: '', noImpresos_areaBiologica: '',
+                            impresos_areaQuimica: '', impresos_areaBiologica: '',
+                        },
                         analisisEmpacado: {},
                         recordProduccion: { fechaRecepcion: '', lotes: [] },
                         productoEmpacado: { registros: [] },
@@ -735,7 +751,10 @@ const ActualizacionDatosProducto = () => {
                 control: '',
                 fechaIngreso: '',
                 trazabilidad: {
-                    analisisSemiElaborado: {},
+                    analisisSemiElaborado: {
+                        noImpresos_areaQuimica: '', noImpresos_areaBiologica: '',
+                        impresos_areaQuimica: '', impresos_areaBiologica: '',
+                    },
                     analisisEmpacado: {},
                     recordProduccion: { fechaRecepcion: '', lotes: [] },
                     productoEmpacado: { registros: [] },
@@ -765,7 +784,6 @@ const ActualizacionDatosProducto = () => {
         setError(null);
 
         try {
-            // mapStateToApiData (corregido arriba) AHORA MANEJA 'null' CORRECTAMENTE
             const apiBody = mapStateToApiData(data, analysisData, observaciones, lote);
 
             // **SE MANTIENE LA CONVERSIÓN A MAYÚSCULAS AQUÍ (LÓGICA DE UPDATE)**
@@ -793,8 +811,6 @@ const ActualizacionDatosProducto = () => {
 
     // --- LÓGICA DE ACTUALIZACIÓN DEL CAMPO DE ANÁLISIS ---
     const handleUpdateAnalysis = (field, value) => {
-        // **CORRECCIÓN 1: Asegurar que el input de análisis se mantenga controlado sin pérdida de foco.**
-        // Se mantiene el valor exacto para permitir la edición.
         setAnalysisData(prevData => ({
             ...prevData,
             [field]: value
@@ -802,7 +818,6 @@ const ActualizacionDatosProducto = () => {
     };
 
     // --- LÓGICA DE ELIMINACIÓN DEL CAMPO DE ANÁLISIS ---
-    // (Esta función ahora es correcta, porque mapStateToApiData fue corregida)
     const handleRemoveAnalysis = (field) => {
         if (window.confirm(`¿Estás seguro de que quieres eliminar el campo de análisis "${field}"? El valor se establecerá a NULL en la base de datos.`)) {
             // En el estado, se elimina para que no se muestre
@@ -817,7 +832,6 @@ const ActualizacionDatosProducto = () => {
     };
 
     const handleAddAnalysisData = () => {
-        // **SIMPLIFICADO: SE QUITA .trim() del valor en newAnalysisValue**
         if (newAnalysisField && newAnalysisValue) {
             setAnalysisData(prevData => ({
                 ...prevData,
@@ -833,7 +847,6 @@ const ActualizacionDatosProducto = () => {
 
     // ** Manejador de actualización para campos simples del panel principal (como fechaIngreso) **
     const handleUpdateDataField = (field, value) => {
-        // **SIMPLIFICADO: NO HAY MANIPULACIÓN DE TEXTO**
         setData(prevData => ({
             ...prevData,
             [field]: value,
@@ -842,7 +855,6 @@ const ActualizacionDatosProducto = () => {
 
     // --- LÓGICA DE EDICIÓN DE TRAZABILIDAD (CAMPOS SIMPLES) ---
     const handleUpdateTrazabilidadField = (section, field, value) => {
-        // **SIMPLIFICADO: NO HAY MANIPULACIÓN DE TEXTO**
         setData(prevData => ({
             ...prevData,
             trazabilidad: {
@@ -855,23 +867,36 @@ const ActualizacionDatosProducto = () => {
         }));
     };
 
-    // --- LÓGICA DE EDICIÓN DE TABLA DE RECORD DE PRODUCCIÓN (Simplificada a la primera fila) ---
+    // --- LÓGICA DE CÁLCULO DE RENDIMIENTO Y EDICIÓN DE RECORD DE PRODUCCIÓN ---
+    const calculateRendimiento = (unidStd, unidReal) => {
+        const std = parseFloat(unidStd) || 0;
+        const real = parseFloat(unidReal) || 0;
+        if (std > 0) {
+            // El cálculo es (real / std) * 100
+            return ((real / std) * 100).toFixed(2);
+        }
+        return '';
+    };
+
     const handleUpdateRecordCell = useCallback((rowIndex, key, value) => {
-        // **CORRECCIÓN 2: Uso de useCallback y estructura inmutable más robusta.**
         if (rowIndex !== 0) return;
 
         setData(prevData => {
-            // Aseguramos que siempre haya una fila para evitar un estado indefinido.
             const currentLotes = prevData.trazabilidad.recordProduccion.lotes.length === 0
                 ? [{ ...INITIAL_RECORD_ROW }]
                 : prevData.trazabilidad.recordProduccion.lotes;
 
-            // Creamos una copia inmutable del array y del objeto en la posición 0
             const newLotes = [...currentLotes];
-            newLotes[0] = {
-                ...newLotes[0],
-                [key]: value,
-            };
+            let rowToUpdate = { ...newLotes[0], [key]: value };
+
+            // Ejecutar el cálculo de rendimiento
+            if (key === 'unidStd' || key === 'unidReal') {
+                const newUnidStd = key === 'unidStd' ? value : rowToUpdate.unidStd;
+                const newUnidReal = key === 'unidReal' ? value : rowToUpdate.unidReal;
+                rowToUpdate.rendimiento = calculateRendimiento(newUnidStd, newUnidReal);
+            }
+
+            newLotes[0] = rowToUpdate;
 
             return {
                 ...prevData,
@@ -884,11 +909,10 @@ const ActualizacionDatosProducto = () => {
                 }
             };
         });
-    }, []); // Dependencias vacías, solo usa `setData`
+    }, [calculateRendimiento]);
 
     // --- LÓGICA PARA AGREGAR FILA EN RECORD DE PRODUCCIÓN (Solo agrega/edita la primera fila) ---
     const handleAddNewRecordRow = () => {
-        // Solo creamos/editamos la primera fila para alinearnos a la API plana
         if (data.trazabilidad.recordProduccion.lotes.length === 0) {
             setData(prevData => ({
                 ...prevData,
@@ -905,23 +929,26 @@ const ActualizacionDatosProducto = () => {
         }
     };
 
-    // --- LÓGICA DE EDICIÓN DE TABLA DE PRODUCTO EMPACADO (Simplificada a la primera fila) ---
+    // --- LÓGICA DE CÁLCULO DE RENDIMIENTO Y EDICIÓN DE PRODUCTO EMPACADO ---
     const handleUpdatePackedCell = useCallback((rowIndex, key, value) => {
-        // **CORRECCIÓN 3: Uso de useCallback y estructura inmutable más robusta.**
         if (rowIndex !== 0) return;
 
         setData(prevData => {
-            // Aseguramos que siempre haya una fila para evitar un estado indefinido.
             const currentRegistros = prevData.trazabilidad.productoEmpacado.registros.length === 0
                 ? [{ ...INITIAL_PACKED_ROW }]
                 : prevData.trazabilidad.productoEmpacado.registros;
 
-            // Creamos una copia inmutable del array y del objeto en la posición 0
             const newRegistros = [...currentRegistros];
-            newRegistros[0] = {
-                ...newRegistros[0],
-                [key]: value,
-            };
+            let rowToUpdate = { ...newRegistros[0], [key]: value };
+
+            // Ejecutar el cálculo de rendimiento
+            if (key === 'unidStd' || key === 'unidReal') {
+                const newUnidStd = key === 'unidStd' ? value : rowToUpdate.unidStd;
+                const newUnidReal = key === 'unidReal' ? value : rowToUpdate.unidReal;
+                rowToUpdate.rendimiento = calculateRendimiento(newUnidStd, newUnidReal);
+            }
+
+            newRegistros[0] = rowToUpdate;
 
             return {
                 ...prevData,
@@ -934,11 +961,10 @@ const ActualizacionDatosProducto = () => {
                 }
             };
         });
-    }, []); // Dependencias vacías, solo usa `setData`
+    }, [calculateRendimiento]);
 
     // --- LÓGICA PARA AGREGAR FILA EN PRODUCTO EMPACADO (Solo agrega/edita la primera fila) ---
     const handleAddNewPackedRow = () => {
-        // Solo creamos/editamos la primera fila para alinearnos a la API plana
         if (data.trazabilidad.productoEmpacado.registros.length === 0) {
             setData(prevData => ({
                 ...prevData,
@@ -956,8 +982,6 @@ const ActualizacionDatosProducto = () => {
     };
 
     // --- RENDERIZADO DE ANÁLISIS ---
-    // Esta función puede quedarse dentro ya que no es un <Componente/>, 
-    // sino una función que retorna JSX. No causa el mismo problema de foco.
     const renderAnalysisGroup = (groupTitle, fields) => {
         // Filtramos solo los campos que están en analysisData para que solo se muestren los "registrados"
         const currentFields = fields.filter(field => analysisData.hasOwnProperty(field));
@@ -1068,7 +1092,7 @@ const ActualizacionDatosProducto = () => {
                                 dateType={true}
                                 field="fechaIngreso"
                                 onDateChange={handleUpdateDataField} // PASAMOS LA PROP
-                                isProductLoaded={!!data.producto}      // PASAMOS LA PROP
+                                isProductLoaded={!!data.producto} // PASAMOS LA PROP
                             />
                         </div>
 
@@ -1153,8 +1177,8 @@ const ActualizacionDatosProducto = () => {
                 {/* --- TERCER BLOQUE: TRAZABILIDAD --- */}
                 {/* PASAMOS TODAS LAS FUNCIONES HANDLE COMO PROPS */}
                 {isLoteFound && data.trazabilidad && (
-                    <TrazabilidadSection 
-                        trazabilidad={data.trazabilidad} 
+                    <TrazabilidadSection
+                        trazabilidad={data.trazabilidad}
                         onUpdateField={handleUpdateTrazabilidadField}
                         onUpdateRecord={handleUpdateRecordCell}
                         onUpdatePacked={handleUpdatePackedCell}
