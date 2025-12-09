@@ -1,20 +1,21 @@
 /* ======================================= */
-/* 1. Variables y Estilos Generales        */
+/* 1. Variables y Estilos Generales        */
 /* ======================================= */
 :root {
-    --primary-color: #2c3e50; /* Azul oscuro - Base */
-    --secondary-color: #3498db; /* Azul brillante - Acento 1 */
-    --accent-color: #e74c3c; /* Rojo/Naranja - Peligro */
-    --warning-color: #f1c40f; /* Amarillo - Observaciones */
-    --success-color: #2ecc71; /* Verde - Aprobado */
-    --danger-color: #c0392b; /* Rojo oscuro - Rechazado */
-    --background-color: #ecf0f1; /* Gris claro */
-    --card-background: #fff; /* Fondo de las tarjetas */
-    --border-color: #dcdde1; /* Borde suave */
+    --primary-color: #2c3e50;       /* Azul oscuro - Base */
+    --secondary-color: #3498db;     /* Azul brillante - Acento 1 */
+    --accent-color: #e74c3c;        /* Rojo/Naranja - Peligro */
+    --warning-color: #f1c40f;       /* Amarillo - Observaciones/Alerta */
+    --success-color: #2ecc71;       /* Verde - Aprobado */
+    --danger-color: #c0392b;        /* Rojo oscuro - Rechazado */
+    --background-color: #ecf0f1;    /* Gris claro de fondo app */
+    --card-background: #fff;        /* Fondo de las tarjetas */
+    --border-color: #dcdde1;        /* Borde suave */
     --text-muted: #7f8c8d;
     --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
+    --shadow-focus: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Nuevo glow */
     --font-family: 'Segoe UI', 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
-    --border-radius: 8px; /* Reducido ligeramente */
+    --border-radius: 8px;
     --spacing-05: 0.5rem;
     --spacing-10: 1rem;
     --spacing-15: 1.5rem;
@@ -34,7 +35,8 @@ body {
 .app-main-container {
     padding: 0;
     width: 100%;
-    background-image: url('/public/images/actdatos.jpg');
+    /* Asegúrate de que la ruta de la imagen sea correcta en tu proyecto */
+    background-image: url('/public/images/actdatos.jpg'); 
     background-color: var(--background-color);
     background-position: center;
     background-size: cover;
@@ -49,7 +51,6 @@ body {
 header {
     padding-top: var(--spacing-20);
     width: auto;
- 
 }
 
 .header-title {
@@ -112,7 +113,6 @@ header {
     display: none;
 }
 
-/* ✅ NUEVO: Clase para mostrar el botón de Guardar */
 .full-width-save {
     width: 100%;
     margin-top: var(--spacing-10);
@@ -122,7 +122,7 @@ header {
 
 
 /* ======================================= */
-/* 3. Estructura del Panel y Títulos      */
+/* 3. Estructura del Panel y Títulos      */
 /* ======================================= */
 
 .form-panel,
@@ -164,6 +164,7 @@ header {
     display: flex;
     align-items: stretch;
     width: 100%;
+    margin-bottom: 2px; /* Pequeña separación */
 }
 
 .data-display-section {
@@ -192,28 +193,37 @@ header {
     min-height: 45px;
     text-transform: uppercase;
     font-size: 0.85rem;
+    transition: background-color 0.3s ease;
 }
 
-.data-row:first-child .data-label {
+/* Bordes redondeados para grupos */
+.data-display-section .data-row:first-child .data-label {
     border-top-left-radius: var(--border-radius);
 }
-
-.data-row:last-child .data-label {
+.data-display-section .data-row:last-child .data-label {
     border-bottom-left-radius: var(--border-radius);
 }
 
 .data-value-wrapper {
     flex-grow: 1;
+    display: flex;
 }
 
+/* Estilo específico para filas editables (Observaciones) */
 .data-row.editable .data-label {
-    background-color: var(--warning-color);
+    background-color: var(--warning-color); /* Color por defecto editable */
     color: var(--primary-color);
     font-weight: 700;
 }
 
+/* ⭐ MEJORA: Cuando se hace foco en el textarea, el label cambia de color */
+.data-row.editable:focus-within .data-label {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
 /* ======================================= */
-/* 5. Campos de Entrada y Display         */
+/* 5. Campos de Entrada, Display y Textarea*/
 /* ======================================= */
 
 .input-field,
@@ -227,12 +237,11 @@ header {
     transition: var(--transition);
     width: 100%;
     font-family: inherit;
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+    /* Redondeo solo a la derecha */
+    border-radius: 0 var(--border-radius) var(--border-radius) 0; 
 }
 
+/* Solo lectura */
 .display-value {
     background-color: #f7f9fb;
     color: var(--primary-color);
@@ -243,13 +252,39 @@ header {
     padding: var(--spacing-10);
     border: 1px solid var(--border-color);
     border-left: none;
+    width: 100%;
 }
 
+/* ⭐ MEJORA VISUAL DE OBSERVACIONES (TEXTAREA) */
 .editable-textarea {
+    width: 100%;
+    min-height: 120px; /* Más alto por defecto */
+    padding: 12px 15px; /* Más espacio interno */
     resize: vertical;
-    min-height: 80px;
-    font-family: inherit;
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #2c3e50;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-left: none;
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    transition: all 0.25s ease-in-out;
+}
+
+/* Estado Focus del Textarea */
+.editable-textarea:focus {
+    background-color: #fcfcfc;
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); /* Sombra interna sutil */
+}
+
+/* Placeholder del Textarea */
+.editable-textarea::placeholder {
+    color: #bdc3c7;
+    font-style: italic;
+    font-weight: 400;
 }
 
 .lote-value {
@@ -257,23 +292,25 @@ header {
     color: var(--danger-color);
 }
 
-/* ✅ NUEVO: Estilos para el campo de FECHA */
+/* Inputs de Fecha */
 .input-field[type="date"] {
     padding: 8px 10px;
     min-height: 45px;
     font-size: 1rem;
 }
 
-/* ✅ MEJORA VISUAL PARA ENFOQUE */
-.input-field:focus, .analysis-value-input:focus, .record-value-input:focus {
+/* Focus general para inputs normales */
+.input-field:focus, 
+.analysis-value-input:focus, 
+.record-value-input:focus {
     border-color: var(--secondary-color);
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    box-shadow: var(--shadow-focus);
     outline: none;
 }
 
 
 /* ======================================= */
-/* 6. Sección de Búsqueda y Botones       */
+/* 6. Sección de Búsqueda y Botones       */
 /* ======================================= */
 
 .search-group {
@@ -303,20 +340,32 @@ header {
     flex-shrink: 0;
     height: 45px;
     text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-button {
     background-color: var(--secondary-color);
 }
+.search-button:hover {
+    background-color: #2980b9;
+}
 
 .save-button {
     background-color: var(--success-color);
     height: auto;
+    width: 100%; /* Botón guardar local ocupa ancho del panel */
+    margin-top: 10px;
+}
+.save-button:hover {
+    background-color: #27ae60;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
 }
 
 
 /* ======================================= */
-/* 7. ESTILOS DE ANÁLISIS (EDITABLE) */
+/* 7. ESTILOS DE ANÁLISIS (EDITABLE)       */
 /* ======================================= */
 
 .analysis-group {
@@ -353,6 +402,7 @@ header {
     border-radius: var(--border-radius);
     border-left: 5px solid var(--secondary-color);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-top: 5px;
 }
 
 .analysis-label {
@@ -369,6 +419,7 @@ header {
     color: var(--primary-color);
     font-weight: 600;
     transition: var(--transition);
+    width: 100%;
 }
 
 .analysis-value-input.status-approved {
@@ -415,7 +466,7 @@ header {
 }
 
 /* ======================================= */
-/* 8. ESTILOS DE TRAZABILIDAD (EDITABLE) */
+/* 8. ESTILOS DE TRAZABILIDAD (EDITABLE)   */
 /* ======================================= */
 
 .trazability-content-grid {
@@ -447,7 +498,7 @@ header {
     padding-bottom: var(--spacing-05);
 }
 
-/* ✅ AJUSTE: Estructura de Análisis Semi-Elaborado (3 columnas) */
+/* Análisis Semi-Elaborado (3 columnas) */
 .semi-elaborado-grid {
     display: flex;
     flex-direction: column;
@@ -459,20 +510,18 @@ header {
 
 .semi-elaborado-grid .grid-header-row {
     display: grid;
-    /* Ajustado a 3 columnas */
     grid-template-columns: 120px 1fr 1fr;
 }
 
 .semi-elaborado-grid .grid-header-row .header-cell {
-    background-color: var(--secondary-color);
-    color: white;
+    background-color: transparent;
+    color: rgb(0, 0, 0);
     font-size: 0.8rem;
     padding: var(--spacing-05);
 }
 
 .semi-elaborado-grid .grid-data-row-short {
     display: grid;
-    /* Ajustado a 3 columnas */
     grid-template-columns: 120px 1fr 1fr;
     align-items: center;
     background-color: var(--card-background);
@@ -494,7 +543,6 @@ header {
 .semi-elaborado-grid .input-cell {
     padding: 0;
     border-left: 1px solid var(--border-color);
-    /* Aseguramos que el div contenedor tenga altura */
     height: 100%; 
     min-height: 40px;
 }
@@ -511,14 +559,13 @@ header {
     font-weight: 600;
     height: 100%;
 }
-
-.semi-elaborado-grid .input-inside-cell.status-approved {
-    color: var(--success-color);
+.semi-elaborado-grid .input-inside-cell:focus {
+    background-color: #fff;
+    outline: none;
 }
 
-.semi-elaborado-grid .input-inside-cell.status-rejected {
-    color: var(--danger-color);
-}
+.semi-elaborado-grid .input-inside-cell.status-approved { color: var(--success-color); }
+.semi-elaborado-grid .input-inside-cell.status-rejected { color: var(--danger-color); }
 
 
 /* Campos de entrada dentro de trazabilidad */
@@ -567,7 +614,7 @@ header {
     background-color: #fcebeb;
 }
 
-/* --- Estilos de Grids para Lotes/Registros (Tablas Editables) --- */
+/* Grids para Tablas Editables */
 .production-block-grid {
     display: grid;
     text-align: center;
@@ -578,13 +625,8 @@ header {
     margin-bottom: var(--spacing-05);
 }
 
-.production-grid {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-}
-
-.packed-grid {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1.2fr;
-}
+.production-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.packed-grid { grid-template-columns: 1fr 1fr 1fr 1fr 1.2fr; }
 
 .header-cell {
     padding: var(--spacing-05);
@@ -627,22 +669,18 @@ header {
     color: var(--primary-color);
     background: transparent;
 }
+.data-cell.input-cell input:focus {
+    background-color: #fff;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
+}
 
-/* ✅ Ajuste para Rendimiento (%): El color se aplica directamente al input */
 .data-cell.input-cell input[readonly] {
     cursor: default;
-    background-color: #f0f0f0; /* Fondo ligeramente gris para indicar solo lectura */
+    background-color: #f0f0f0; 
 }
 
-.data-cell.input-cell input.status-approved {
-    color: var(--success-color);
-    font-weight: 700;
-}
-
-.data-cell.input-cell input.status-rejected {
-    color: var(--danger-color);
-    font-weight: 700;
-}
+.data-cell.input-cell input.status-approved { color: var(--success-color); font-weight: 700; }
+.data-cell.input-cell input.status-rejected { color: var(--danger-color); font-weight: 700; }
 
 .add-row-button {
     background-color: var(--secondary-color);
@@ -657,7 +695,6 @@ header {
     width: 100%;
     margin-top: var(--spacing-10);
 }
-
 .add-row-button:hover {
     background-color: #2980b9;
 }
@@ -689,7 +726,6 @@ header {
     border-right: none;
 }
 
-/* ✅ NUEVO: Estilos para el input de fecha en el control de tiempos */
 .time-control-item.editable-item input {
     margin-top: 5px;
     font-size: 1.2rem;
@@ -711,81 +747,44 @@ header {
 
 
 /* ======================================= */
-/* 9. Media Queries (Responsividad)        */
+/* 9. Media Queries (Responsividad)        */
 /* ======================================= */
 
 @media (max-width: 1050px) {
-
-    .main-content-wrapper,
-    header {
-        max-width: 900px;
-    }
-
-    .top-sections-grid {
-        grid-template-columns: 1fr;
-        max-width: 100%;
-    }
-
-    .data-label {
-        width: 150px;
-    }
-
-    .analysis-row.editable-row {
-        grid-template-columns: 150px 1fr 40px; 
-    }
+    .main-content-wrapper, header { max-width: 900px; }
+    .top-sections-grid { grid-template-columns: 1fr; max-width: 100%; }
+    .data-label { width: 150px; }
+    .analysis-row.editable-row { grid-template-columns: 150px 1fr 40px; }
     
-    /* Adaptación Semi-Elaborado en tablet */
     .semi-elaborado-grid .grid-header-row,
-    .semi-elaborado-grid .grid-data-row-short {
-        grid-template-columns: 120px 1fr 1fr;
-    }
+    .semi-elaborado-grid .grid-data-row-short { grid-template-columns: 120px 1fr 1fr; }
 }
 
 
 @media (max-width: 768px) {
-
-    .main-content-wrapper,
-    header {
+    .main-content-wrapper, header {
         max-width: 100%;
         padding-left: var(--spacing-15);
         padding-right: var(--spacing-15);
     }
 
-    .trazability-content-grid {
-        grid-template-columns: 1fr;
-    }
+    .trazability-content-grid { grid-template-columns: 1fr; }
+    .data-label { width: 120px; font-size: 0.75rem; }
 
-    .data-label {
-        width: 120px;
-        font-size: 0.75rem;
-    }
-
-    .production-grid,
-    .packed-grid {
+    .production-grid, .packed-grid {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         overflow-x: auto;
     }
 
-    .analysis-row.editable-row {
-        grid-template-columns: 120px 1fr 40px; 
-    }
+    .analysis-row.editable-row { grid-template-columns: 120px 1fr 40px; }
+    .analysis-label { font-size: 0.8rem; }
     
-    .analysis-label {
-        font-size: 0.8rem;
-    }
-    
-    /* Adaptación Semi-Elaborado en móvil/tablet pequeña */
     .semi-elaborado-grid .grid-header-row,
-    .semi-elaborado-grid .grid-data-row-short {
-        grid-template-columns: 100px 1fr 1fr;
-    }
+    .semi-elaborado-grid .grid-data-row-short { grid-template-columns: 100px 1fr 1fr; }
 }
 
 @media (max-width: 480px) {
-
-    .data-row {
-        flex-direction: column;
-    }
+    .data-row { flex-direction: column; }
 
     .data-label {
         width: 100%;
@@ -799,11 +798,17 @@ header {
 
     .display-value,
     .input-field,
-    .select-field,
-    .editable-textarea {
+    .select-field {
         border-radius: 0 0 var(--border-radius) var(--border-radius) !important;
         border-left: 1px solid var(--border-color) !important;
         border-top: none !important;
+    }
+
+    /* ⭐ MEJORA: Ajuste del Textarea en móvil */
+    .editable-textarea {
+        border-radius: 0 0 var(--border-radius) var(--border-radius) !important;
+        border-left: 1px solid var(--border-color) !important;
+        border-top: none;
     }
 
     .search-group,
@@ -812,41 +817,19 @@ header {
         align-items: stretch;
     }
 
-    .search-button,
-    .save-button,
-    .add-button {
+    .search-button, .save-button, .add-button {
         width: 100%;
         height: 40px;
     }
 
-    .full-width-save {
-        padding: var(--spacing-10);
-        font-size: 1rem;
-    }
+    .full-width-save { padding: var(--spacing-10); font-size: 1rem; }
 
-    .analysis-row.editable-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .analysis-label {
-        text-align: left;
-        justify-self: start;
-    }
-    
-    .analysis-value-input {
-        order: 1;
-    }
-    
-    .remove-button {
-        order: 2;
-        justify-self: end;
-        width: auto;
-    }
+    .analysis-row.editable-row { grid-template-columns: 1fr; }
+    .analysis-label { text-align: left; justify-self: start; }
+    .analysis-value-input { order: 1; }
+    .remove-button { order: 2; justify-self: end; width: auto; }
 
-    .production-grid,
-    .packed-grid {
-        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    }
+    .production-grid, .packed-grid { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
 
     .time-control-item {
         min-width: 100%;
@@ -855,28 +838,142 @@ header {
         padding-bottom: var(--spacing-10);
     }
     
-    /* Adaptación Semi-Elaborado en móvil (2 columnas) */
-    .semi-elaborado-grid .grid-header-row {
-        grid-template-columns: 1fr 1fr;
-    }
-    .semi-elaborado-grid .grid-data-row-short {
-        grid-template-columns: 1fr 1fr;
+    .semi-elaborado-grid .grid-header-row { grid-template-columns: 1fr 1fr; }
+    .semi-elaborado-grid .grid-data-row-short { grid-template-columns: 1fr 1fr; }
+    .semi-elaborado-grid .label-cell { grid-column: 1 / 3; font-size: 0.9rem; }
+    .semi-elaborado-grid .grid-header-row .header-cell:first-child { display: none; }
+    .semi-elaborado-grid .grid-data-row-short .input-cell:nth-child(2) { grid-column: 1 / 2; }
+    .semi-elaborado-grid .grid-data-row-short .input-cell:nth-child(3) { grid-column: 2 / 3; border-left: none; }
+}
+
+/* ======================================= */
+/* 10. ESTILOS ESPECÍFICOS: OBSERVACIONES FINALES */
+/* ======================================= */
+
+.final-observations-section {
+    width: 100%;
+    flex-basis: 100%; /* Fuerza a que ocupe toda la fila si está dentro de un flex container */
+    margin-top: var(--spacing-15);
+    padding-top: var(--spacing-10);
+    border-top: 1px dashed var(--border-color);
+}
+
+.final-observations-label {
+    display: block;
+    margin-bottom: var(--spacing-05);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--secondary-color); /* Usamos el color de acento para destacar */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.final-observations-textarea {
+    width: 100% !important; /* Forza el ancho completo */
+    min-height: 80px;
+    max-width: 100%; /* Evita que se desborde */
+    resize: vertical;
+    border-radius: var(--border-radius) !important; /* Redondea las 4 esquinas */
+    border-left: 1px solid var(--border-color) !important; /* Restaura el borde izquierdo */
+    background-color: #fff;
+    padding: 10px;
+}
+
+.final-observations-textarea:focus {
+    border-color: var(--secondary-color) !important;
+    box-shadow: var(--shadow-focus);
+    background-color: #fcfcfc;
+}
+/* ======================================= */
+/* 11. MEJORA: ANÁLISIS PRODUCTO EMPACADO */
+/* ======================================= */
+
+/* Contenedor de la fila (Label + Input) */
+.record-row-display.editable-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Separa Label a la izq, Input a la der */
+    background-color: #ffffff;
+    padding:inherit; /* Espaciado interno cómodo */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-10); /* Separación entre filas */
+    transition: all 0.2s ease-in-out;
+    border-left: 4px solid transparent; /* Preparado para hover */
+}
+
+/* Efecto Hover: Resalta la fila completa */
+.record-row-display.editable-row:hover {
+    border-color: var(--secondary-color);
+    border-left-color: var(--secondary-color); /* Indicador visual a la izquierda */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    transform: translateX(2px); /* Pequeño movimiento */
+}
+
+/* La Etiqueta (ÁREA QUÍMICA / BIOLÓGICA) */
+.record-label-mini {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: var(--spacing-10);
+    flex-shrink: 0; /* Evita que el texto se aplaste */
+    opacity: 0.8;
+}
+
+/* El Input dentro de esta fila */
+.record-value-input {
+    width: 100%;
+    max-width: 180px; /* Limita el ancho para que se vea elegante */
+    padding: 6px 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center; /* Dato centrado */
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    transition: all 0.2s;
+}
+
+/* Estado Focus del Input */
+.record-value-input:focus {
+    background-color: #fff;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+    outline: none;
+    width: 100%; /* Expande un poco la percepción visual */
+}
+
+/* MANTENER COLORES DE ESTADO (Importante para tu lógica de colores) */
+.record-value-input.status-approved {
+    background-color: #eafaf1;
+    color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.record-value-input.status-rejected {
+    background-color: #fdedec;
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* --- Ajuste Responsivo para móviles --- */
+@media (max-width: 480px) {
+    .record-row-display.editable-row {
+        flex-direction: column; /* En móvil, uno debajo del otro */
+        align-items: flex-start;
+        padding: 10px;
     }
 
-    .semi-elaborado-grid .label-cell {
-        grid-column: 1 / 3; /* Ocupa todo el ancho */
-        font-size: 0.9rem;
-    }
-    .semi-elaborado-grid .grid-header-row .header-cell:first-child {
-        display: none; /* Ocultar columna 'Tipo' en la cabecera */
+    .record-label-mini {
+        margin-bottom: 5px;
+        font-size: 0.75rem;
     }
 
-    /* Redistribuir Química y Biológica */
-    .semi-elaborado-grid .grid-data-row-short .input-cell:nth-child(2) {
-        grid-column: 1 / 2;
-    }
-    .semi-elaborado-grid .grid-data-row-short .input-cell:nth-child(3) {
-        grid-column: 2 / 3;
-        border-left: none; /* Eliminar el doble borde */
+    .record-value-input {
+        max-width: 100%; /* Ocupa todo el ancho en móvil */
+        text-align: left;
+        padding-left: 10px;
     }
 }
