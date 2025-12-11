@@ -373,7 +373,7 @@ const TrazabilidadSection = ({ trazabilidad, onUpdateField, onUpdateRecord, onUp
                         )
                     </p>
                     <div className="production-block-grid production-grid">
-                        <span className="header-cell"># ORDEN (WADOCO)</span>
+                        <span className="header-cell"># ORDEN</span>
                         <span className="header-cell">UNID. STD.</span>
                         <span className="header-cell">UNID. REAL.</span>
                         <span className="header-cell">% REND.</span>
@@ -398,7 +398,7 @@ const TrazabilidadSection = ({ trazabilidad, onUpdateField, onUpdateRecord, onUp
                     <p className="card-title">Producto Empacado - Registros</p>
                     <div className="production-block-grid packed-grid">
                         <span className="header-cell">FECHA INGRESO</span>
-                        <span className="header-cell"># ORDEN (WADOCO)</span>
+                        <span className="header-cell"># ORDEN</span>
                         <span className="header-cell">UNID. STD.</span>
                         <span className="header-cell">UNID. REAL.</span>
                         <span className="header-cell">% REND.</span>
@@ -520,7 +520,8 @@ const ActualizacionDatosProducto = () => {
                         LABORATORIO: data.laboratorio || null,
                         FECHA_INGRESO: fechaFormatted, // MM/DD/YYYY
                         WALOTN: data.defaultWalotn || lote.toUpperCase(),
-                        WAWR02: sectionType === 'EMP' ? 'EMP' : ' ', 
+                        // AQUI SE APLICA TU CAMBIO DE LÓGICA (EMP o NES)
+                        WAWR02: sectionType === 'EMP' ? 'EMP' : 'NES', 
                         WADOCO: parseInt(wadocoToUse),
                         WALITM: data.defaultWalitm
                     };
