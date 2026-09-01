@@ -1,16 +1,17 @@
 // src/App.js
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer'; // Asumo que tienes esto
 import Home from './pages/Home';
-import TrendAnalisis from './pages/TrendAnalisis';
-import ActualizacionDatosProducto from './pages/ActualizacionDatosProducto';
 import './App.css'; 
 
 // IMPORTAMOS LO NUEVO
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+
+const TrendAnalisis = lazy(() => import('./pages/TrendAnalisis'));
+const ActualizacionDatosProducto = lazy(() => import('./pages/ActualizacionDatosProducto'));
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <div className="App">
           <Header />
           <main className="main-content">
+            <Suspense fallback={<div className="route-loading" role="status">Cargando módulo...</div>}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/trend_analisis" element={<TrendAnalisis />} />
@@ -35,6 +37,7 @@ function App() {
               />
               
             </Routes>
+            </Suspense>
           </main>
           <Footer />
         </div>

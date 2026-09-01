@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ReactPaginate from 'react-paginate';
 import {
     Chart as ChartJS,
@@ -11,11 +11,8 @@ import {
     Legend
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import './TrendAnalisis.css';
-import Swal from 'sweetalert2';
 
 ChartJS.register(
     CategoryScale,
@@ -27,6 +24,16 @@ ChartJS.register(
     Legend,
     ChartDataLabels
 );
+
+const SPANISH_COLLATOR = new Intl.Collator('es', { sensitivity: 'base', numeric: true });
+
+const normalizeText = (value = '') =>
+    value.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+const matchesTerm = (term, ...fields) => {
+    const normalizedTerm = normalizeText(term);
+    return fields.some(field => normalizeText(field).includes(normalizedTerm));
+};
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -243,6 +250,7 @@ const TrendAnalisis = () => {
     }, [data]);
 
     const handleDownloadWithPrompt = async () => {
+        const { default: Swal } = await import('sweetalert2');
         const { value: nombre } = await Swal.fire({
             title: 'Ingresa tu Nombre',
             input: 'text',
@@ -259,7 +267,7 @@ const TrendAnalisis = () => {
         });
 
         if (nombre) {
-            handleDownloadPDF(nombre.trim());
+            await handleDownloadPDF(nombre.trim());
         }
     };
 
@@ -280,6 +288,10 @@ const TrendAnalisis = () => {
         });
 
     const handleDownloadPDF = async (realizadoPorNombre) => {
+        const [{ jsPDF }, { default: autoTable }] = await Promise.all([
+            import('jspdf'),
+            import('jspdf-autotable')
+        ]);
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
@@ -457,10 +469,7 @@ const TrendAnalisis = () => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
-    const fechaInicioFormato = `${year}-${month}-${day}`;
-
-
-    const chartData = {
+    const chartData = useMemo(() => ({
         labels: data.map(item => item['Número Lote/Serie']),
         datasets: [
             {
@@ -525,11 +534,13 @@ const TrendAnalisis = () => {
                 type: 'line',
             }
         ]
-    };
+    }), [data, average, oneStdDev]);
 
-    const chartOptions = {
+    const chartOptions = useMemo(() => ({
         responsive: true,
         maintainAspectRatio: false,
+        resizeDelay: 100,
+        animation: { duration: 300 },
         plugins: {
             legend: {
                 position: 'top',
@@ -585,61 +596,63 @@ const TrendAnalisis = () => {
                 }
             }
         }
-    };
+    }), [testUnit]);
 
-    const uniqueProducts = Array.from(new Set(productOptions
-        .filter(p => p && p.IMLITM)
-        .map(p => p.IMLITM)))
-        .map(litm => {
-            const firstItem = productOptions.find(p => p && p.IMLITM === litm);
-            return { IMLITM: firstItem.IMLITM, IMDSC1: firstItem.IMDSC1 };
+    const filteredProductOptions = useMemo(() => {
+        const productsById = new Map();
+        productOptions.forEach(product => {
+            if (product?.IMLITM && !productsById.has(product.IMLITM)) {
+                productsById.set(product.IMLITM, {
+                    IMLITM: product.IMLITM,
+                    IMDSC1: product.IMDSC1
+                });
+            }
         });
 
-    const filteredProductOptions = uniqueProducts.filter(product => {
-        const lowerCaseSearchTerm = searchTerm.toLowerCase();
-        return (
-            (product.IMLITM && product.IMLITM.toLowerCase().includes(lowerCaseSearchTerm)) ||
-            (product.IMDSC1 && product.IMDSC1.toLowerCase().includes(lowerCaseSearchTerm))
-        );
-    });
+        return Array.from(productsById.values())
+            .filter(product => matchesTerm(searchTerm, product.IMLITM, product.IMDSC1))
+            .sort((a, b) => SPANISH_COLLATOR.compare(a.IMDSC1 ?? '', b.IMDSC1 ?? ''));
+    }, [productOptions, searchTerm]);
 
-    const normalize = (s = '') =>
-        s.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const filteredTests = useMemo(() => {
+        const testsById = new Map();
+        productOptions.forEach(product => {
+            if (product?.IMLITM === selectedProduct && product.TRQTST) {
+                testsById.set(product.TRQTST, { test: product.TRQTST, desc: product.QADSC1 ?? '' });
+            }
+        });
 
-    const matchesTerm = (term, ...fields) => {
-        const nt = normalize(term);
-        return fields.some(f => normalize(f).includes(nt));
-    };
+        return Array.from(testsById.values())
+            .filter(test => matchesTerm(searchTestTerm, test.test, test.desc))
+            .sort((a, b) => {
+                const byDescription = SPANISH_COLLATOR.compare(a.desc ?? '', b.desc ?? '');
+                return byDescription !== 0
+                    ? byDescription
+                    : SPANISH_COLLATOR.compare(a.test ?? '', b.test ?? '');
+            });
+    }, [productOptions, searchTestTerm, selectedProduct]);
 
-    const associatedTestObjs = Array.from(
-        new Map(
-            productOptions
-                .filter(p => p && p.IMLITM === selectedProduct && p.TRQTST)
-                .map(p => [p.TRQTST, { test: p.TRQTST, desc: p.QADSC1 ?? '' }])
-        ).values()
-    );
+    const filteredCantRealTests = useMemo(() => {
+        const testsById = new Map();
+        productOptions.forEach(product => {
+            if (
+                product?.IMLITM === selectedProduct &&
+                product.TRQTST &&
+                product.TRQTST !== selectedTest
+            ) {
+                testsById.set(product.TRQTST, { test: product.TRQTST, desc: product.QADSC1 ?? '' });
+            }
+        });
 
-    const filteredTests = associatedTestObjs.filter(t =>
-        matchesTerm(searchTestTerm, t.test, t.desc)
-    );
-
-    const cantRealTestObjs = Array.from(
-        new Map(
-            productOptions
-                .filter(
-                    p =>
-                        p &&
-                        p.IMLITM === selectedProduct &&
-                        p.TRQTST &&
-                        p.TRQTST !== selectedTest
-                )
-                .map(p => [p.TRQTST, { test: p.TRQTST, desc: p.QADSC1 ?? '' }])
-        ).values()
-    );
-
-    const filteredCantRealTests = cantRealTestObjs.filter(t =>
-        matchesTerm(searchCantRealTerm, t.test, t.desc)
-    );
+        return Array.from(testsById.values())
+            .filter(test => matchesTerm(searchCantRealTerm, test.test, test.desc))
+            .sort((a, b) => {
+                const byDescription = SPANISH_COLLATOR.compare(a.desc ?? '', b.desc ?? '');
+                return byDescription !== 0
+                    ? byDescription
+                    : SPANISH_COLLATOR.compare(a.test ?? '', b.test ?? '');
+            });
+    }, [productOptions, searchCantRealTerm, selectedProduct, selectedTest]);
 
     useEffect(() => {
         setSearchTestTerm('');
@@ -708,11 +721,13 @@ const TrendAnalisis = () => {
     const getTestDesc = (product, test) =>
         productOptions.find(p => p.IMLITM === product && p.TRQTST === test)?.QADSC1 ?? '';
 
-    const collator = new Intl.Collator('es', { sensitivity: 'base', numeric: true });
-
     return (
         <div className="trend-analisis-container">
-            <h1>Análisis de Tendencias</h1>
+            <header className="trend-page-header">
+                <p className="page-eyebrow">Control estadístico</p>
+                <h1>Análisis de Tendencias</h1>
+                <p>Selecciona el período, producto y prueba para visualizar su comportamiento y generar el reporte.</p>
+            </header>
 
             <div className="form-wrapper">
 
@@ -756,9 +771,7 @@ const TrendAnalisis = () => {
                             />
 
                             <ul ref={productListRef} className="custom-dropdown">
-                                {[...filteredProductOptions]
-                                    .sort((a, b) => collator.compare(a.IMDSC1 ?? '', b.IMDSC1 ?? ''))
-                                    .map((item, index) => (
+                                {filteredProductOptions.map((item, index) => (
                                         <li key={index} onClick={() => handleProductSelect(item)}>
                                             {`${item.IMLITM} - ${item.IMDSC1}`}
                                         </li>
@@ -780,12 +793,7 @@ const TrendAnalisis = () => {
                                 />
 
                                 <ul ref={testListRef} className="custom-dropdown">
-                                    {[...filteredTests]
-                                        .sort((a, b) => {
-                                            const byDesc = collator.compare(a.desc ?? '', b.desc ?? '');
-                                            return byDesc !== 0 ? byDesc : collator.compare(a.test ?? '', b.test ?? '');
-                                        })
-                                        .map((item, index) => (
+                                    {filteredTests.map((item, index) => (
                                             <li key={index} onClick={() => handleTestSelect(item.test)}>
                                                 {item.test} - {item.desc}
                                             </li>
@@ -802,7 +810,7 @@ const TrendAnalisis = () => {
                                     onClick={handleCantRealBtnClick}
                                     aria-label={isCantRealActive ? 'Quitar filtro de Cantidad Real' : 'Agregar filtro de Cantidad Real'}
                                 >
-                                    {isCantRealActive ? '❌' : '➕'}
+                                    {isCantRealActive ? '×' : '+'}
                                 </button>
 
                                 {isCantRealActive && (
@@ -820,12 +828,7 @@ const TrendAnalisis = () => {
                                         />
 
                                         <ul ref={cantRealListRef} className="custom-dropdown">
-                                            {[...filteredCantRealTests]
-                                                .sort((a, b) => {
-                                                    const byDesc = collator.compare(a.desc ?? '', b.desc ?? '');
-                                                    return byDesc !== 0 ? byDesc : collator.compare(a.test ?? '', b.test ?? '');
-                                                })
-                                                .map((item, index) => (
+                                        {filteredCantRealTests.map((item, index) => (
                                                     <li key={index} onClick={() => handleCantRealSelect(item.test)}>
                                                         {item.test} - {item.desc}
                                                     </li>
@@ -844,8 +847,8 @@ const TrendAnalisis = () => {
                 )}
             </div>
 
-            {loading && <div className="loading-state">Cargando datos...</div>}
-            {error && <div className="error-state">Error: {error}</div>}
+            {loading && <div className="loading-state" role="status" aria-live="polite">Cargando datos...</div>}
+            {error && <div className="error-state" role="alert">Error: {error}</div>}
 
             {data.length > 0 && (
                 <div className="results-container">
@@ -914,7 +917,7 @@ const TrendAnalisis = () => {
                                     onClick={handleExpandChart}
                                     aria-label={isChartExpanded ? 'Minimizar gráfico' : 'Expandir gráfico en pantalla completa'}
                                 >
-                                    {isChartExpanded ? 'X' : '⤡'}
+                                    {isChartExpanded ? '×' : '↗'}
                                 </button>
                                 <Line ref={lineChartRef} data={chartData} options={chartOptions} />
                             </div>

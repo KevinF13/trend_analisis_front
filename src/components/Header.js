@@ -1,34 +1,32 @@
-// src/components/Header.js
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // <--- IMPORTAR ESTO
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 const Header = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // <--- OBTENER LA FUNCIÓN LOGIN
-  
+  const location = useLocation();
+  const { isAuthenticated, login } = useAuth();
+
   const [showModal, setShowModal] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const PASSWORD_CORRECTA = "AFISICA"; 
+  const PASSWORD_CORRECTA = 'AFISICA';
 
-  const handleValidation = (e) => {
-    e.preventDefault();
+  const handleValidation = (event) => {
+    event.preventDefault();
+
     if (password === PASSWORD_CORRECTA) {
-      // 1. Autorizamos al usuario globalmente
-      login(); 
-      
+      login();
       setShowModal(false);
       setPassword('');
       setError('');
-      
-      // 2. Ahora sí navegamos (el ProtectedRoute nos dejará pasar)
       navigate('/actualizacion_datos');
-    } else {
-      setError('Contraseña incorrecta');
+      return;
     }
+
+    setError('Contraseña incorrecta');
   };
 
   const closeModal = () => {
@@ -37,25 +35,35 @@ const Header = () => {
     setError('');
   };
 
+  const handleDataAccess = () => {
+    if (isAuthenticated) {
+      navigate('/actualizacion_datos');
+      return;
+    }
+
+    setShowModal(true);
+  };
+
   return (
     <>
       <header className="main-header">
-        <nav className="header-nav">
-          <Link to="/" className="logo">
-            {/* <span className="sr-only">Trend de Análisis</span> */}
-          </Link>
+        <nav className="header-nav" aria-label="Navegación principal">
+          <NavLink to="/" end className="logo" aria-label="Grupo CID — Inicio">
+            <span className="sr-only">Grupo CID</span>
+          </NavLink>
 
           <ul className="nav-links">
             <li>
-              <Link to="/">Inicio</Link>
+              <NavLink to="/" end>Inicio</NavLink>
             </li>
             <li>
-              <Link to="/trend_analisis">Análisis de Tendencias</Link>
+              <NavLink to="/trend_analisis">Análisis de Tendencias</NavLink>
             </li>
             <li>
-              <button 
-                className="nav-btn-link" 
-                onClick={() => setShowModal(true)}
+              <button
+                type="button"
+                className={`nav-btn-link ${location.pathname === '/actualizacion_datos' ? 'active' : ''}`}
+                onClick={handleDataAccess}
               >
                 Actualización Datos
               </button>
@@ -65,22 +73,34 @@ const Header = () => {
       </header>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Acceso Restringido</h3>
-            <p>Por favor ingrese la contraseña de administrador.</p>
-            
+        <div
+          className="modal-overlay header-access-modal"
+          onMouseDown={(event) => event.target === event.currentTarget && closeModal()}
+        >
+          <div
+            className="modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="access-modal-title"
+          >
+            <p className="modal-eyebrow">Área administrativa</p>
+            <h3 id="access-modal-title">Acceso restringido</h3>
+            <p>Ingresa la contraseña de administrador para continuar.</p>
+
             <form onSubmit={handleValidation}>
+              <label className="password-label" htmlFor="admin-password">Contraseña</label>
               <input
+                id="admin-password"
                 type="password"
-                placeholder="Contraseña"
+                placeholder="Ingresa tu contraseña"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
                 autoFocus
                 className="password-input"
               />
-              {error && <p className="error-msg">{error}</p>}
-              
+              {error && <p className="error-msg" role="alert">{error}</p>}
+
               <div className="modal-actions">
                 <button type="button" onClick={closeModal} className="btn-cancel">
                   Cancelar

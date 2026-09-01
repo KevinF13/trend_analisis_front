@@ -225,9 +225,9 @@ const DataRow = ({ label, value, isEditable = false, onChange = () => { }, isLot
         <div className={`data-label ${isEditable ? 'label-accent' : ''}`}>{label}</div>
         <div className="data-value-wrapper">
             {isEditable ? (
-                <textarea className="input-field editable-textarea" value={value} onChange={onChange} placeholder="Observaciones..." rows="3" />
+                <textarea aria-label={label} className="input-field editable-textarea" value={value} onChange={onChange} placeholder="Observaciones..." rows="3" />
             ) : dateType ? (
-                <input type="date" className="input-field editable-date-input" value={value || ''} onChange={(e) => field && onDateChange && onDateChange(field, e.target.value)} disabled={!field || !isProductLoaded} />
+                <input aria-label={label} type="date" className="input-field editable-date-input" value={value || ''} onChange={(e) => field && onDateChange && onDateChange(field, e.target.value)} disabled={!field || !isProductLoaded} />
             ) : (
                 <div className={`input-field display-value ${isLote ? 'lote-value' : ''}`}>{value || 'N/A'}</div>
             )}
@@ -241,16 +241,16 @@ const DataRow = ({ label, value, isEditable = false, onChange = () => { }, isLot
 const ProductSelectorModal = ({ products, onSelect, onCancel }) => {
     return (
         <div className="modal-overlay">
-            <div className="modal-content">
-                <h3>⚠️ Múltiples productos encontrados</h3>
+            <div className="modal-content" role="dialog" aria-modal="true" aria-labelledby="product-selector-title">
+                <h3 id="product-selector-title">Múltiples productos encontrados</h3>
                 <p>El lote ingresado contiene más de un producto. Seleccione:</p>
                 <div className="product-list">
                     {products.map((p, idx) => (
-                        <div key={idx} className="product-option-card" onClick={() => onSelect(p)}>
+                        <button type="button" key={idx} className="product-option-card" onClick={() => onSelect(p)}>
                             <strong>{p.PRODUCTO}</strong>
                             <br />
                             <small>Lab: {p.LABORATORIO} | Control: {p.CONTROL}</small>
-                        </div>
+                        </button>
                     ))}
                 </div>
                 <button className="cancel-button" onClick={onCancel}>Cancelar</button>
@@ -314,28 +314,28 @@ const AddLoteModal = ({ isOpen, onClose, onSave }) => {
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content modal-form">
-                <h3>➕ Agregar Lote Manual</h3>
+            <div className="modal-content modal-form" role="dialog" aria-modal="true" aria-labelledby="add-lote-title">
+                <h3 id="add-lote-title">Agregar lote manual</h3>
                 <div className="form-grid">
                     <div className="form-group">
-                        <label>Lote *</label>
-                        <input name="lote" value={formData.lote} onChange={handleChange} placeholder="Ej: 25X..." />
+                        <label htmlFor="manual-lote">Lote *</label>
+                        <input id="manual-lote" name="lote" value={formData.lote} onChange={handleChange} placeholder="Ej: 25X..." />
                     </div>
                     <div className="form-group">
-                        <label>Producto *</label>
-                        <input name="producto" value={formData.producto} onChange={handleChange} placeholder="Nombre del producto" />
+                        <label htmlFor="manual-producto">Producto *</label>
+                        <input id="manual-producto" name="producto" value={formData.producto} onChange={handleChange} placeholder="Nombre del producto" />
                     </div>
                     <div className="form-group">
-                        <label>Laboratorio</label>
-                        <input name="laboratorio" value={formData.laboratorio} onChange={handleChange} />
+                        <label htmlFor="manual-laboratorio">Laboratorio</label>
+                        <input id="manual-laboratorio" name="laboratorio" value={formData.laboratorio} onChange={handleChange} />
                     </div>
                     <div className="form-group">
-                        <label>Control</label>
-                        <input name="control" value={formData.control} onChange={handleChange} />
+                        <label htmlFor="manual-control">Control</label>
+                        <input id="manual-control" name="control" value={formData.control} onChange={handleChange} />
                     </div>
                     <div className="form-group">
-                        <label>Fecha Ingreso *</label>
-                        <input type="date" name="fecha_ingreso" value={formData.fecha_ingreso} onChange={handleChange} />
+                        <label htmlFor="manual-fecha">Fecha ingreso *</label>
+                        <input id="manual-fecha" type="date" name="fecha_ingreso" value={formData.fecha_ingreso} onChange={handleChange} />
                     </div>
                 </div>
                 
@@ -360,7 +360,7 @@ const TrazabilidadSection = ({ trazabilidad, onUpdateField, onUpdateRecord, onUp
 
     return (
         <div className="trazability-panel">
-            <h3 className="trazability-title">📜 Registro Histórico y Trazabilidad</h3>
+            <h3 className="trazability-title">Registro histórico y trazabilidad</h3>
             <div className="trazability-content-grid">
                 {/* SEMI ELABORADO */}
                 <div className="trazability-card full-width">
@@ -434,7 +434,7 @@ const TrazabilidadSection = ({ trazabilidad, onUpdateField, onUpdateRecord, onUp
                             </div>
                         ))}
                     </div>
-                    <button className="add-row-button" onClick={onAddRecord}>➕ Agregar Fila Record</button>
+                    <button className="add-row-button" onClick={onAddRecord}>+ Agregar fila de producción</button>
                 </div>
 
                 {/* PRODUCTO EMPACADO (DETALLE) */}
@@ -459,7 +459,7 @@ const TrazabilidadSection = ({ trazabilidad, onUpdateField, onUpdateRecord, onUp
                             </div>
                         ))}
                     </div>
-                    <button className="add-row-button" onClick={onAddPacked}>➕ Agregar Fila Empacado</button>
+                    <button className="add-row-button" onClick={onAddPacked}>+ Agregar fila de empacado</button>
                 </div>
             </div>
         </div>
@@ -531,7 +531,7 @@ const ActualizacionDatosProducto = () => {
         try {
             // 1. Insertar Cabecera (validando en backend)
             const insertarUrl = `${API_BASE_URL}/insertar`;
-            const resp = await fetch(insertarUrl, {
+            await fetch(insertarUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -772,8 +772,12 @@ const ActualizacionDatosProducto = () => {
     // --------------------------------------------------------------------------
 
     return (
-        <main className="app-main-container">
-            <header><h1 className="header-title">Consulta y Actualización de Datos de Lote</h1></header>
+        <div className="app-main-container">
+            <header className="update-page-header">
+                <p className="page-eyebrow">Gestión de producto</p>
+                <h1 className="header-title">Consulta y actualización de datos de lote</h1>
+                <p>Busca un lote para revisar su información, resultados y trazabilidad en un solo flujo.</p>
+            </header>
             
             {showProductSelector && (
                 <ProductSelectorModal 
@@ -799,7 +803,7 @@ const ActualizacionDatosProducto = () => {
                                 <input type="text" value={lote} onChange={e => setLote(e.target.value)} onKeyDown={handleKeyDown} placeholder="Ej: 25WB0603" />
                             </div>
                             <button className="search-button" onClick={() => handleSearch()} disabled={isLoading}>{isLoading ? '...' : 'Buscar'}</button>
-                            <button className="add-manual-button" onClick={() => setShowAddModal(true)} title="Agregar lote manualmente">➕ Nuevo</button>
+                            <button className="add-manual-button" onClick={() => setShowAddModal(true)} title="Agregar lote manualmente">+ Nuevo</button>
                         </div>
                         {error && <p className="error-message">{error}</p>}
                         <div className="data-display-section">
@@ -811,7 +815,7 @@ const ActualizacionDatosProducto = () => {
                         {data.producto && (
                             <>
                                 <DataRow label="OBSERVACIONES" value={observaciones} isEditable={true} onChange={e => setObservaciones(e.target.value)} />
-                                <button className="save-button" onClick={handleSaveData} disabled={isSaving}>{isSaving ? '💾 Guardando...' : '💾 Guardar Todo'}</button>
+                                <button className="save-button" onClick={handleSaveData} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar cambios'}</button>
                             </>
                         )}
                     </div>
@@ -823,7 +827,7 @@ const ActualizacionDatosProducto = () => {
                                 {['ANALISIS DE MATERIA PRIMA', 'ANALISIS DE PRODUCTO EN PROCESO'].map(grp => {
                                     const fields = [...new Set([...ANALYSIS_FIELDS_MAP[grp].filter(f => analysisData.hasOwnProperty(f)), ...Object.keys(analysisData).filter(f => !ALL_ANALYSIS_FIELDS.includes(f) && (grp === 'ANALISIS DE MATERIA PRIMA' ? f.includes('MATERIA') : true))])];
                                     if (fields.length === 0) return null;
-                                    return <div key={grp} className="analysis-group"><h4 className="analysis-group-title">{grp}</h4><div className="analysis-results-grid editable-grid">{fields.map(f => <div key={f} className="analysis-row editable-row"><span className="analysis-label">{f}:</span><input className={`analysis-value-input ${getStatusClass(analysisData[f])}`} value={analysisData[f] || ''} onChange={e => handleUpdateAnalysis(f, e.target.value)} /><button className="remove-button" onClick={() => handleRemoveAnalysis(f)}>🗑️</button></div>)}</div></div>
+                                    return <div key={grp} className="analysis-group"><h4 className="analysis-group-title">{grp}</h4><div className="analysis-results-grid editable-grid">{fields.map(f => <div key={f} className="analysis-row editable-row"><span className="analysis-label">{f}:</span><input aria-label={f} className={`analysis-value-input ${getStatusClass(analysisData[f])}`} value={analysisData[f] || ''} onChange={e => handleUpdateAnalysis(f, e.target.value)} /><button type="button" aria-label={`Eliminar ${f}`} className="remove-button" onClick={() => handleRemoveAnalysis(f)}>×</button></div>)}</div></div>
                                 })}
                             </div>
                             <hr className="divider" />
@@ -849,7 +853,7 @@ const ActualizacionDatosProducto = () => {
                     />
                 )}
             </div>
-        </main>
+        </div>
     );
 };
 

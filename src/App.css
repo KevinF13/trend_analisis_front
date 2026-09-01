@@ -1,38 +1,20 @@
 .App {
-  text-align: center;
-  width: auto;
-}
-
-.menu-grid {
+  min-height: 100dvh;
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-top: 30px;
+  flex-direction: column;
+  background: var(--app-canvas);
 }
 
-.menu-card {
-  width: 200px;
-  text-decoration: none;
-  color: black;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: transform 0.2s ease;
-  background-color: white;
+.main-content {
+  min-width: 0;
+  flex: 1 0 auto;
 }
 
-.menu-card:hover {
-  transform: scale(1.05);
-}
-
-.menu-card img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-}
-
-.menu-card p {
-  margin: 10px 0;
-  font-size: 18px;
+.route-loading {
+  min-height: min(420px, calc(100dvh - 76px));
+  display: grid;
+  place-items: center;
+  color: var(--app-brand-dark);
+  font-size: 0.9rem;
+  font-weight: 750;
 }

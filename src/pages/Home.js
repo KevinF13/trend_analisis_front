@@ -50,7 +50,13 @@ const Home = () => {
         <section className="home-intro">
           <img
             className="home-intro__image"
-            src="/images/laboratorio.jpg"
+            src="/images/laboratorio-1600.jpg"
+            srcSet="/images/laboratorio-800.jpg 800w, /images/laboratorio-1600.jpg 1600w"
+            sizes="(max-width: 900px) calc(100vw - 32px), 1500px"
+            width="1600"
+            height="1068"
+            loading="eager"
+            fetchPriority="high"
             alt=""
             aria-hidden="true"
           />
@@ -62,7 +68,7 @@ const Home = () => {
                 <span aria-hidden="true" />
                 Portal interno de calidad
               </p>
-              <h1 id="home-title">Control de calidad, todo en un mismo lugar.</h1>
+              <h1 id="home-title">Control de calidad en un solo lugar.</h1>
               <p className="home-subtitle">
                 Consulta tendencias y mantén actualizada la información de cada lote
                 con un flujo claro, rápido y confiable.
@@ -99,7 +105,13 @@ const Home = () => {
           <article className="tool-card">
             <div className="tool-card__visual">
               <img
-                src="/images/trendanalisi.jpg"
+                src="/images/trendanalisi-800.jpg"
+                srcSet="/images/trendanalisi-800.jpg 800w, /images/trendanalisi-1600.jpg 1600w"
+                sizes="(max-width: 680px) calc(100vw - 24px), 280px"
+                width="800"
+                height="450"
+                loading="lazy"
+                decoding="async"
                 alt="Muestras utilizadas en control de calidad"
               />
               <span>Consulta</span>
@@ -124,7 +136,13 @@ const Home = () => {
           <article className="tool-card">
             <div className="tool-card__visual">
               <img
-                src="/images/act_datos.jpg"
+                src="/images/act_datos-800.jpg"
+                srcSet="/images/act_datos-800.jpg 800w, /images/act_datos-1600.jpg 1600w"
+                sizes="(max-width: 680px) calc(100vw - 24px), 280px"
+                width="800"
+                height="533"
+                loading="lazy"
+                decoding="async"
                 alt="Profesionales revisando información de productos"
               />
               <span className="tool-card__restricted"><ShieldIcon /> Acceso restringido</span>
